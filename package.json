@@ -18,5 +18,9 @@
                 "path": "./themes/hack-the-box-theme.json"
             }
         ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/silofy/hackthebox"
     }
 }
