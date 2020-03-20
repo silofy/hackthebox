@@ -10,17 +10,18 @@
     "categories": [
         "Themes"
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/silofy/hackthebox"
+    },
     "contributes": {
         "themes": [
             {
                 "label": "Hack The Box",
                 "uiTheme": "vs-dark",
-                "path": "./themes/hack-the-box-theme.json"
+                "path": "./themes/HackTheBox.json"
             }
         ]
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/silofy/hackthebox"
     }
+
 }
