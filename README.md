@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/Asset%206@1x.png?token=AO4LMAHAHGCBAT6XAOXBJGS6OT22W">
+  <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/hero.png">
 </p>
 
 # Hack The Box Theme
