@@ -3,7 +3,7 @@
     "publisher": "silofy",
     "displayName": "HackTheBox",
     "description": "A VS Code theme inspired by Hack The Box's color palette.",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "engines": {
         "vscode": "^1.43.0"
     },
