@@ -1,0 +1,22 @@
+{
+    "name": "hackthebox",
+    "publisher": "silofy",
+    "displayName": "hackthebox",
+    "description": "A VS Code theme inspired by Hack The Box's color palette.",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.43.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Hack The Box",
+                "uiTheme": "vs-dark",
+                "path": "./themes/hack-the-box-theme.json"
+            }
+        ]
+    }
+}
