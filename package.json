@@ -7,7 +7,7 @@
         "build": "node ./scripts/build.js"
     },
     "displayName": "HackTheBox",
-    "description": "A VS Code theme inspired by Hack The Box's color palette.",
+    "description": "A Visual Studio Code theme built for hackers BY hackers",
     "engines": {
         "vscode": "^1.43.0"
     },
