@@ -6,6 +6,10 @@
 
 A Visual Studio Code theme built for hackers [BY HACKERS](https://www.hackthebox.eu) developed with ❤️ by Silo
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/cards.png">
+</p>
+
 # Beastly Color Contrast
 
 <p align="center">
