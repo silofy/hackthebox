@@ -1,18 +1,47 @@
 {
     "name": "hackthebox",
+    "version": "0.0.9",
     "publisher": "silofy",
+    "license": "MIT",
+    "scripts": {
+        "build": "node ./scripts/build.js"
+    },
     "displayName": "HackTheBox",
     "description": "A VS Code theme inspired by Hack The Box's color palette.",
-    "version": "0.0.8",
     "engines": {
         "vscode": "^1.43.0"
     },
     "categories": [
         "Themes"
     ],
+    "keywords": [
+        "hackthebox",
+        "hack",
+        "hacking",
+        "dark",
+        "theme",
+        "color-theme"
+    ],
+    "icon": "icon.png",
+    "galleryBanner": {
+        "color": "#111927",
+        "theme": "dark"
+    },
+    "maintainers": [
+        "Tiago Peter <silo@hackthebox.eu>"
+    ],
+    "contributors": [
+        "Filipe Barros",
+        "Juan Jimenez",
+        "MinatoTW",
+        "Stefanos Apkarian"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/silofy/hackthebox"
+    },
+    "bugs": {
+        "url": "https://github.com/silofy/hackthebox/issues"
     },
     "contributes": {
         "themes": [
@@ -22,6 +51,9 @@
                 "path": "./themes/HackTheBox.json"
             }
         ]
+    },
+    "dependencies": {
+        "js-yaml": "^3.13.1",
+        "tinycolor2": "^1.4.1"
     }
-
 }
