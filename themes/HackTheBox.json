@@ -454,8 +454,24 @@
 		},
 		{
 			"scope": [
+				"markup.deleted.git_gutter"
+			],
+			"settings": {
+				"foreground": "#C5D1EB"
+			}
+		},
+		{
+			"scope": [
 				"entity.name.tag",
-				"meta.tag.sgml",
+				"meta.tag.sgml"				
+			],
+			"settings": {
+				"foreground": "#FF8484"
+			}
+		},				
+		{
+			"scope": [
+
 				"markup.deleted.git_gutter"
 			],
 			"settings": {
@@ -495,7 +511,7 @@
 				"string.other.link"
 			],
 			"settings": {
-				"foreground": "#FF9A9A"
+				"foreground": "#FF8484"
 			}
 		},
 		{
