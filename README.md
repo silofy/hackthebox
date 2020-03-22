@@ -28,7 +28,7 @@ Web Content Acessebility Guidelines (WCAG 2.0) [Success Criterion](https://contr
 
 # Getting started
 
-You can install this awesome theme through the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=silofy.hackthebox)
+You can install this  theme through the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=silofy.hackthebox)
 
 1.  Open **Extensions** sidebar panel in VS Code. `View → Extensions`
 2.  Search for `HackTheBox`
@@ -58,5 +58,5 @@ These are my preferred settings when working in VS Code with the Hack The Box th
     "editor.formatOnPaste":  true,
     "editor.cursorBlinking":  "smooth",
 
-You can download JetBrains Mono [here](https://github.com/JetBrains/JetBrainsMono).
+You can download the font JetBrains Mono [here](https://github.com/JetBrains/JetBrainsMono).
 You can download the material theme icon pack [here](https://marketplace.visualstudio.com/items?itemName=PKief.material-icon-theme)
