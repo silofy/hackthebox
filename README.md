@@ -26,15 +26,15 @@ Web Content Acessebility Guidelines (WCAG 2.0) [Success Criterion](https://contr
 # Theme Preview
 
 <p align="center">
-  <img src="https://github.com/silofy/hackthebox/blob/master/static/htb-theme1.png">
+  <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/htb-theme1.png">
 </p>
 
 <p align="center">
-  <img src="https://github.com/silofy/hackthebox/blob/master/static/htb-theme2.png">
+  <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/htb-theme2.png">
 </p>
 
 <p align="center">
-  <img src="https://github.com/silofy/hackthebox/blob/master/static/htb-theme3.png">
+  <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/htb-theme3.png">
 </p>
 
 # Getting started
