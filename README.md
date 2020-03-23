@@ -4,7 +4,7 @@
 
 # Hack The Box Theme
 
-A Visual Studio Code theme built for hackers [BY HACKERS](https://www.hackthebox.eu) developed with ❤️ by Silo
+A Visual Studio Code theme built for hackers **[BY HACKERS]**(https://www.hackthebox.eu) developed with ❤️ by Silo & friends.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/cards.png">
@@ -24,6 +24,8 @@ Web Content Acessebility Guidelines (WCAG 2.0) [Success Criterion](https://contr
 
 
 # Theme Preview
+
+This theme puts the focus on your code, no distractions or overly saturated colors that might look good in a preview, but in reality, burns your eyes after a day of coding. We put extra effort in making sure your syntax and semantic highlighting are on par with your favorite coding languages. The Hack The Box theme is a constant work in progress, always looking to improve were we can. Share your thoughts over on [github](https://github.com/silofy/hackthebox/issues).
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/htb-theme1.png">
