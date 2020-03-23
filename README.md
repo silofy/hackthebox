@@ -22,13 +22,24 @@ Web Content Acessebility Guidelines (WCAG 2.0) [Success Criterion](https://contr
   <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/wcag.png">
 </p>
 
-*Colorblind theme is WIP*
 
 # Theme Preview
 
+<p align="center">
+  <img src="https://github.com/silofy/hackthebox/blob/master/static/htb-theme1.png">
+</p>
+
+<p align="center">
+  <img src="https://github.com/silofy/hackthebox/blob/master/static/htb-theme2.png">
+</p>
+
+<p align="center">
+  <img src="https://github.com/silofy/hackthebox/blob/master/static/htb-theme3.png">
+</p>
+
 # Getting started
 
-You can install this  theme through the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=silofy.hackthebox)
+You can install this theme through the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=silofy.hackthebox)
 
 1.  Open **Extensions** sidebar panel in VS Code. `View → Extensions`
 2.  Search for `HackTheBox`
@@ -45,13 +56,12 @@ You can install this  theme through the [Visual Studio Marketplace](https://mark
 
 ## Recommended Visual Studio Code Settings
 
-These are my preferred settings when working in VS Code with the Hack The Box theme. Open your settings.json by clicking ctrl+shift+p. Or, File > Preferences > Settings > Workbench > settings.json
-
-I have set my Material theme icons to #6e7b96 by clicking ctrl+shift+p and typing in Material Icons: Change Folder Color, and selecting the custom option.
+These are my preferred settings when working in VS Code with the Hack The Box theme. Open your *settings.json* by clicking **ctrl+shift+p** Or, *File > Preferences > Settings > Workbench > settings.json*
+I have set my Material theme icons to *#6e7b96* by clicking **ctrl+shift+p** and typing in *Material Icons: Change Folder Color*, and selecting the custom option.
 
     "workbench.iconTheme":  "eq-material-theme-icons",
     "editor.fontFamily":  "JetBrains Mono, Consolas, 'Courier New', monospace",
-    "editor.fontSize":  13,
+    "editor.fontSize":  12,
     "editor.fontWeight":  "300",
     "editor.lineHeight":  20,
     "editor.letterSpacing":  0.5,
@@ -62,3 +72,15 @@ I have set my Material theme icons to #6e7b96 by clicking ctrl+shift+p and typin
 
 You can download the font JetBrains Mono [here](https://github.com/JetBrains/JetBrainsMono).
 You can download the material theme icon pack [here](https://marketplace.visualstudio.com/items?itemName=PKief.material-icon-theme)
+
+# License
+
+The MIT License (MIT)
+
+Copyright (c) 2020 HackTheBox Theme
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
