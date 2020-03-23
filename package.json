@@ -1,6 +1,6 @@
 {
     "name": "hackthebox",
-    "version": "0.1.4",
+    "version": "0.1.6",
     "publisher": "silofy",
     "license": "MIT",
     "scripts": {
@@ -16,6 +16,7 @@
     ],
     "keywords": [
         "hackthebox",
+        "hack the box",
         "hack",
         "hacking",
         "dark",
@@ -49,6 +50,11 @@
                 "label": "Hack The Box",
                 "uiTheme": "vs-dark",
                 "path": "./themes/HackTheBox.json"
+            },
+            {
+                "label": "Hack The Box-Lite",
+                "uiTheme": "vs-dark",
+                "path": "./themes/HackTheBox-Lite.json"
             }
         ]
     },
