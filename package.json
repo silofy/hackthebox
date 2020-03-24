@@ -1,6 +1,6 @@
 {
     "name": "hackthebox",
-    "version": "0.2.3",
+    "version": "0.2.5",
     "publisher": "silofy",
     "license": "MIT",
     "scripts": {
