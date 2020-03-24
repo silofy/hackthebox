@@ -56,7 +56,7 @@ You can install this theme through the [Visual Studio Marketplace](https://marke
 
 ## Installation via command line
 
-    $ git clone [https://github.com/silofy/hackthebox.git](https://github.com/silofy/hackthebox.git) ~/.vscode/extensions/HackTheBox  
+    $ git clone https://github.com/silofy/hackthebox.git ~/.vscode/extensions/HackTheBox  
     $ cd ~/.vscode/extensions/HackTheBox  
     $ npm install && npm run build
 
