@@ -32,11 +32,6 @@ This theme puts the focus on your code, no distractions or overly saturated colo
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/theme-perspective-2.png">
-</p>
-
-
-<p align="center">
   <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/htb-theme1.png">
 </p>
 
