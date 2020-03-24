@@ -4,7 +4,7 @@
 
 # Hack The Box Theme
 
-A Visual Studio Code theme built for hackers **[BY HACKERS]**(https://www.hackthebox.eu) developed with ❤️ by Silo & friends.
+A Visual Studio Code theme built for hackers **[BY HACKERS](https://www.hackthebox.eu)** developed with ❤️ by Silo & friends.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/silofy/hackthebox/master/static/cards.png">
