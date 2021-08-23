@@ -63,7 +63,7 @@ You can install this theme through the [Visual Studio Marketplace](https://marke
 ## Recommended Visual Studio Code Settings
 
 These are my preferred settings when working in VS Code with the Hack The Box theme. Open your *settings.json* by clicking **ctrl+shift+p** Or, *File > Preferences > Settings > Workbench > settings.json*
-I have set my Material theme icons to *#6e7b96* by clicking **ctrl+shift+p** and typing in *Material Icons: Change Folder Color*, and selecting the custom option.
+I have set my Material theme icons to *#6e7b968C* by clicking **ctrl+shift+p** and typing in *Material Icons: Change Folder Color*, and selecting the custom option.
 
     "editor.fontFamily":  "JetBrains Mono, Consolas, 'Courier New', monospace",
     "editor.fontSize":  12,
