@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content section — variations</title>
+<link rel="stylesheet" href="https://use.typekit.net/jxn7iyx.css">
+<style>
+  :root{
+    --brand-primary:#C5F566; --brand-primary-dim:#C5F56620; --brand-primary-muted:#C5F56610;
+    --surface-base:#0A0E17; --surface-panel:#141D2B; --surface-card:#1A2332; --surface-input:#111927; --surface-hover:#1E2A3A; --surface-active:#243044;
+    --border-default:#1E2D40; --border-subtle:#162030;
+    --text-primary:#F4F4F4; --text-secondary:#8799B5; --text-muted:#6B7A94; --text-dim:#4A5568;
+    --warning:#F3CB5E;
+    --radius-md:8px; --radius-lg:10px; --radius-full:100px;
+    --font-sans:'neue-haas-unica',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);font-weight:500;-webkit-font-smoothing:antialiased;}
+  body{background:var(--surface-base);display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:28px;padding:48px 20px;}
+  .vlabel{color:var(--text-muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;text-align:center;margin-bottom:12px;}
+
+  /* panel mimics the modal body */
+  .panel{width:380px;max-width:100%;background:var(--surface-panel);border:1px solid var(--border-default);border-radius:14px;padding:26px 28px;text-align:center;}
+
+  /* shared bits */
+  .cong{color:var(--text-secondary);font-size:16px;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
+  .cong.sm{font-size:14px;}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 11px 3px 4px;font-size:16px;background:var(--surface-hover);color:var(--text-secondary);border:1px solid var(--border-default);}
+  .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
+  .xpicon{width:46px;height:46px;display:block;flex:0 0 auto;}
+  .xpicon.sm{width:30px;height:30px;}
+  .num{font-size:56px;line-height:1;color:var(--brand-primary);font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 0 24px rgba(197,245,102,.3);}
+  .rlbl{color:var(--text-muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 10px;font-size:13px;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+
+  /* V1 stacked */
+  .v1 .reward{margin-top:18px;display:flex;flex-direction:column;align-items:center;}
+  .v1 .xprow{display:inline-flex;align-items:center;gap:8px;}
+  .v1 .rlbl{margin-top:6px;}
+  .v1 .meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--border-subtle);font-size:16px;color:var(--text-muted);display:flex;justify-content:center;align-items:center;gap:10px;}
+  .meta .v{color:var(--text-primary);} .meta .k{margin-left:5px;font-size:14px;} .meta .sep{color:var(--text-dim);}
+
+  /* V2 reward-first */
+  .v2 .reward{display:flex;flex-direction:column;align-items:center;margin-bottom:14px;}
+  .v2 .xprow{display:inline-flex;align-items:center;gap:8px;}
+  .v2 .num{font-size:64px;}
+  .v2 .rlbl{margin-top:6px;}
+  .v2 .meta{margin-top:14px;padding-top:14px;border-top:1px solid var(--border-subtle);font-size:15px;color:var(--text-muted);display:flex;justify-content:center;align-items:center;gap:10px;}
+
+  /* V3 summary card */
+  .v3 .card{margin-top:16px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:16px 18px;}
+  .v3 .cxp{display:flex;align-items:center;justify-content:center;gap:8px;}
+  .v3 .cxp .num{font-size:44px;}
+  .v3 .cxp .rlbl{align-self:center;text-align:left;}
+  .v3 .hr{height:1px;background:var(--border-subtle);margin:14px -18px;}
+  .v3 .g3{display:flex;}
+  .v3 .g3 .c{flex:1;} .v3 .g3 .c + .c{border-left:1px solid var(--border-subtle);}
+  .v3 .g3 .v{font-size:15px;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+  .v3 .g3 .k{font-size:11px;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase;margin-top:4px;}
+
+  /* V4 two-column */
+  .v4 .two{margin-top:16px;display:flex;align-items:center;gap:18px;text-align:left;}
+  .v4 .left{display:flex;align-items:center;gap:8px;}
+  .v4 .left .num{font-size:46px;}
+  .v4 .left .rlbl{margin-top:4px;}
+  .v4 .vline{width:1px;align-self:stretch;background:var(--border-subtle);}
+  .v4 .right{flex:1;display:flex;flex-direction:column;gap:8px;}
+  .v4 .r{display:flex;justify-content:space-between;font-size:14px;}
+  .v4 .r .k{color:var(--text-muted);} .v4 .r .v{color:var(--text-primary);font-variant-numeric:tabular-nums;}
+
+  /* V5 compact */
+  .v5 .xpline{margin-top:16px;display:inline-flex;align-items:center;gap:8px;font-size:24px;color:var(--text-primary);}
+  .v5 .xpline .num{font-size:30px;}
+  .v5 .xpline .lbl{color:var(--text-muted);font-size:15px;}
+  .v5 .chips{margin-top:16px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;}
+  .v5 .mchip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-full);padding:5px 12px;font-size:13px;color:var(--text-secondary);}
+  .v5 .mchip .v{color:var(--text-primary);}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><symbol id="xp" viewBox="0 0 80 80">
+  <path d="M68.623 51.082C69.5391 51.082 70.3316 51.4162 70.998 52.082C71.6644 52.7484 71.9977 53.5409 71.998 54.457C71.998 55.3737 71.6647 56.1654 70.998 56.832L56.834 71C56.1676 71.6663 55.3751 71.9997 54.459 72C53.5426 72 52.7505 71.6662 52.084 71L44.998 63.918C44.3872 63.2516 44.0843 62.4591 44.084 61.543C44.084 60.6263 44.4173 59.8346 45.084 59.168C45.7506 58.5013 46.5271 58.168 47.416 58.168C48.3049 58.168 49.0814 58.5013 49.748 59.168L54.498 63.918L66.248 52.082C66.9144 51.4157 67.7069 51.0823 68.623 51.082Z" fill="#C5F566"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M59.998 10C61.8314 10 63.4034 10.6515 64.709 11.957C66.0145 13.2626 66.666 14.8346 66.666 16.668V39.582C66.666 40.4709 66.4841 41.3194 66.123 42.125C65.762 42.9304 65.277 43.639 64.666 44.25L54.498 54.5L52.084 52.082C50.8062 50.8042 49.2342 50.168 47.373 50.168C47.1284 50.168 46.8888 50.1771 46.6543 50.1992V46.4531H59.998V29.1523H39.0957V55.7148L37.998 56.832C37.3314 57.4987 36.8314 58.2374 36.498 59.043C36.1651 59.848 35.998 60.6672 35.998 61.5C35.998 62.2778 36.1118 62.9861 36.334 63.625C36.5562 64.2637 36.8896 64.889 37.334 65.5C37.9999 66.4438 38.1248 67.43 37.709 68.457C37.2923 69.4848 36.5536 70 35.498 70H13.334C11.5007 70 9.9286 69.3485 8.62305 68.043C7.31749 66.7374 6.66602 65.1654 6.66602 63.332V16.668C6.66602 14.8346 7.31749 13.2626 8.62305 11.957C9.9286 10.6515 11.5007 10 13.334 10H59.998ZM27.4902 26.668V35.1914L24.1895 37.6758L20.8926 35.1914V29.2031H13.334V36.3555L18.2051 39.9609L13.334 43.5117V53.25H20.8926V44.6758L24.1895 42.1914L27.4902 44.6758V50.6641H35.0488V43.5117L30.1777 39.9609L35.0488 36.3555V26.668H27.4902Z" fill="#C06FF6"/>
+  <path d="M52.4394 41.8359H46.6543V33.7695H52.4394V41.8359Z" fill="#C06FF6"/>
+</symbol></svg>
+
+<!-- V1 -->
+<div>
+  <div class="vlabel">V1 · Stacked (current, refined)</div>
+  <div class="panel v1">
+    <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+    <div class="reward">
+      <span class="xprow"><svg class="xpicon"><use href="#xp"/></svg><span class="num">585</span></span>
+      <span class="rlbl">XP Earned</span>
+    </div>
+    <div class="meta"><span><span class="v">#5941</span><span class="k">Rank</span></span><span class="sep">·</span><span class="tag-state">Retired</span><span class="sep">·</span><span class="v">22 Jan 2021</span></div>
+  </div>
+</div>
+
+<!-- V2 -->
+<div>
+  <div class="vlabel">V2 · Reward-first</div>
+  <div class="panel v2">
+    <div class="reward">
+      <span class="xprow"><svg class="xpicon"><use href="#xp"/></svg><span class="num">585</span></span>
+      <span class="rlbl">XP Earned</span>
+    </div>
+    <div class="cong sm">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+    <div class="meta"><span><span class="v">#5941</span><span class="k">Rank</span></span><span class="sep">·</span><span class="tag-state">Retired</span><span class="sep">·</span><span class="v">22 Jan 2021</span></div>
+  </div>
+</div>
+
+<!-- V3 -->
+<div>
+  <div class="vlabel">V3 · Summary card</div>
+  <div class="panel v3">
+    <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+    <div class="card">
+      <div class="cxp"><svg class="xpicon"><use href="#xp"/></svg><span class="num">585</span><span class="rlbl">XP<br>Earned</span></div>
+      <div class="hr"></div>
+      <div class="g3">
+        <div class="c"><div class="v">#5941</div><div class="k">Rank</div></div>
+        <div class="c"><div class="v">Retired</div><div class="k">State</div></div>
+        <div class="c"><div class="v">22 Jan ’21</div><div class="k">Pwned</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- V4 -->
+<div>
+  <div class="vlabel">V4 · Two-column</div>
+  <div class="panel v4">
+    <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+    <div class="two">
+      <div class="left"><svg class="xpicon"><use href="#xp"/></svg><div><div class="num">585</div><div class="rlbl">XP Earned</div></div></div>
+      <div class="vline"></div>
+      <div class="right">
+        <div class="r"><span class="k">Rank</span><span class="v">#5941</span></div>
+        <div class="r"><span class="k">State</span><span class="v">Retired</span></div>
+        <div class="r"><span class="k">Pwned</span><span class="v">22 Jan 2021</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- V5 -->
+<div>
+  <div class="vlabel">V5 · Compact chips</div>
+  <div class="panel v5">
+    <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+    <div class="xpline"><svg class="xpicon sm"><use href="#xp"/></svg><span class="num">585</span><span class="lbl">XP Earned</span></div>
+    <div class="chips">
+      <span class="mchip">Rank <span class="v">#5941</span></span>
+      <span class="mchip tag-state" style="border-radius:100px">Retired</span>
+      <span class="mchip"><span class="v">22 Jan 2021</span></span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
