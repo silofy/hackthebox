@@ -7,243 +7,212 @@
 <link rel="stylesheet" href="https://use.typekit.net/jxn7iyx.css">
 <style>
   :root{
-    /* ── Brand ── */
-    --brand-primary:#C5F566;
-    --brand-primary-hover:#D4F98A;
-    --brand-primary-dim:#C5F56620;
-    --brand-primary-muted:#C5F56610;
-    /* ── Surface ── */
-    --surface-base:#0A0E17;
-    --surface-panel:#141D2B;
-    --surface-card:#1A2332;
-    --surface-input:#111927;
-    --surface-hover:#1E2A3A;
-    --surface-active:#243044;
-    /* ── Border ── */
-    --border-default:#1E2D40;
-    --border-subtle:#162030;
-    --border-hover:#2A3E58;
-    --border-focus:#9FEF00;
-    /* ── Text ── */
-    --text-primary:#F4F4F4;
-    --text-secondary:#8799B5;
-    --text-muted:#6B7A94;
-    --text-dim:#4A5568;
-    /* ── Semantic ── */
-    --success:#C5F566;
-    --error:#F35E5E;
-    --warning:#F3CB5E;
-    --info:#5E94F3;
-    --vip:#B75EF3;
-    /* ── Shape ── */
+    --brand-primary:#C5F566; --brand-primary-hover:#D4F98A; --brand-primary-dim:#C5F56620; --brand-primary-muted:#C5F56610;
+    --surface-base:#0A0E17; --surface-panel:#141D2B; --surface-card:#1A2332; --surface-input:#111927; --surface-hover:#1E2A3A; --surface-active:#243044;
+    --border-default:#1E2D40; --border-subtle:#162030; --border-hover:#2A3E58; --border-focus:#9FEF00;
+    --text-primary:#F4F4F4; --text-secondary:#8799B5; --text-muted:#6B7A94; --text-dim:#4A5568;
+    --success:#C5F566; --error:#F35E5E; --warning:#F3CB5E; --info:#5E94F3; --vip:#B75EF3;
     --radius-xs:4px; --radius-sm:6px; --radius-md:8px; --radius-lg:10px; --radius-xl:14px; --radius-full:100px;
-    /* ── Elevation ── */
-    --elevation-3:0 4px 16px rgba(0,0,0,0.4);
-    --glow-green:0 0 8px rgba(159,239,0,0.25);
-    /* ── Motion ── */
+    --elevation-3:0 4px 16px rgba(0,0,0,0.4); --glow-green:0 0 8px rgba(159,239,0,0.25);
     --ease-enter:cubic-bezier(0,0,0.2,1);
     --font-sans:'neue-haas-unica',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
     --font-mono:'roboto-mono','SF Mono',Consolas,monospace;
+    /* Modal Expressive responsive sizing (CONFIRM exact %) */
+    --modal-max-w:440px; --modal-vw:50vw; --modal-max-h:90vh;
   }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
-  body{
-    background:var(--surface-base);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;
-    padding:48px 16px;min-height:100vh;overflow:auto;
-  }
-  .label{color:var(--text-muted);font-size:12px;font-weight:700;line-height:1.2;letter-spacing:.08em;text-transform:uppercase;}
-
-  /* ════════════════════════════════════════════════════════════════
-     Modal Expressive — responsive sizing (values read from spec; CONFIRM)
-       Max-width : Small tier — min(50vw, 440px), widens on smaller bp's
-       Max-height: 90% tier   — body scrolls internally past the cap
-     ════════════════════════════════════════════════════════════════ */
-  :root{ --modal-max-w:440px; --modal-vw:50vw; --modal-max-h:90vh; }
   @media (max-width:1024px){ :root{ --modal-vw:62vw; } }
   @media (max-width:768px){  :root{ --modal-vw:80vw; } }
   @media (max-width:600px){  :root{ --modal-vw:92vw; --modal-max-h:94vh; } }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
+  body{background:var(--surface-base);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:48px 16px;min-height:100vh;overflow:auto;}
+  .label{color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
 
   /* ── Modal frame ── */
   .modal{
-    position:relative;
-    width:min(var(--modal-vw),var(--modal-max-w));
-    max-height:var(--modal-max-h);
+    position:relative;width:min(var(--modal-vw),var(--modal-max-w));max-height:var(--modal-max-h);
     display:flex;flex-direction:column;overflow:hidden;
-    background:var(--surface-panel);
-    border:1px solid var(--border-default);
-    border-radius:var(--radius-xl);
-    box-shadow:var(--elevation-3);
-    animation:rise .3s var(--ease-enter) both;
+    background:var(--surface-panel);border:1px solid var(--border-default);border-radius:var(--radius-xl);
+    box-shadow:var(--elevation-3);animation:rise .3s var(--ease-enter) both;
   }
   @keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
-  .close{position:absolute;top:14px;right:16px;z-index:3;color:var(--text-dim);font-size:16px;line-height:1;cursor:pointer;}
+  .close{position:absolute;top:14px;right:16px;z-index:3;color:var(--text-dim);font-size:16px;line-height:1;cursor:pointer;background:none;border:none;}
   .close:hover{color:var(--text-secondary);}
 
-  /* ════ ZONE 1 · HERO — image + animated background ONLY (no text) ════ */
-  .m-hero{
-    position:relative;flex:0 0 auto;
-    height:clamp(200px,36vh,260px);
-    background:var(--surface-hover);
-    display:flex;align-items:center;justify-content:center;overflow:hidden;
-  }
+  /* ── Screen switching (result ⇄ share) ── */
+  .screen{display:flex;flex-direction:column;min-height:0;animation:fade .25s var(--ease-enter) both;}
+  .modal:not(.sharing) .screen.share{display:none;}
+  .modal.sharing .screen.result{display:none;}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  /* ════ RESULT · ZONE 1 hero (image + animated bg only) ════ */
+  .m-hero{position:relative;flex:0 0 auto;height:clamp(200px,36vh,260px);background:var(--surface-hover);display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .m-hero .bg{position:absolute;inset:0;width:100%;height:100%;}
-  .avatar{
-    position:relative;z-index:1;
-    width:104px;height:104px;border-radius:var(--radius-full);
-    overflow:hidden;
-    background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));
-    box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);
-    animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;
-  }
+  .avatar{position:relative;z-index:1;width:104px;height:104px;border-radius:var(--radius-full);overflow:hidden;
+          background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));
+          box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;}
   .avatar img{width:100%;height:100%;object-fit:cover;}
   @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 
-  /* ════ ZONE 2 · BODY — all text + actions live here ════ */
-  .m-body{
-    flex:1 1 auto;min-height:0;overflow-y:auto;
-    padding:26px 28px 24px;text-align:center;
-    scrollbar-width:thin;scrollbar-color:var(--border-default) transparent;
-  }
-  .m-body::-webkit-scrollbar{width:3px;}
-  .m-body::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:var(--radius-full);}
-
+  /* ════ RESULT · ZONE 2 body ════ */
+  .m-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:26px 28px 24px;text-align:center;scrollbar-width:thin;scrollbar-color:var(--border-default) transparent;}
+  .m-body::-webkit-scrollbar,.s-body::-webkit-scrollbar{width:3px;}
+  .m-body::-webkit-scrollbar-thumb,.s-body::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:var(--radius-full);}
   .title{font-size:22px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.2;}
-  .subtitle{margin-top:8px;color:var(--text-secondary);font-size:14px;font-weight:500;line-height:1.5;
-            display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
-  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 10px 3px 4px;
-        font-size:13px;font-weight:500;
-        background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+  .subtitle{margin-top:8px;color:var(--text-secondary);font-size:14px;font-weight:500;line-height:1.5;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 10px 3px 4px;font-size:13px;font-weight:500;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
   .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
-
   .hero{margin:20px 0 4px;}
-  .hero .xp{font-size:56px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);
-            font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
+  .hero .xp{font-size:56px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
   .hero .xp small{font-size:22px;vertical-align:super;opacity:.7;margin-right:2px;}
   .hero .lbl{margin-top:2px;color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-
-  .metaline{margin-top:14px;color:var(--text-muted);font-size:14px;font-weight:500;
-            display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
+  .metaline{margin-top:14px;color:var(--text-muted);font-size:14px;font-weight:500;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
   .metaline .rank{color:var(--text-primary);font-variant-numeric:tabular-nums;font-weight:700;}
   .metaline .sep{color:var(--text-dim);}
-  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 8px;
-             font-size:11px;font-weight:700;letter-spacing:.04em;
-             background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 8px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
 
-  /* actions — two side-by-side, per base anatomy */
-  .actions{margin-top:24px;display:flex;gap:10px;}
-  .btn{flex:1;padding:12px;border:none;border-radius:var(--radius-md);
-       font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:pointer;transition:background .1s ease,border-color .1s ease,color .1s ease;}
-  .btn.secondary{background:var(--surface-active);color:var(--text-primary);border:1px solid var(--border-default);}
-  .btn.secondary:hover{background:var(--surface-hover);border-color:var(--border-hover);}
+  /* buttons */
+  .actions{margin-top:24px;}
+  .btn{width:100%;padding:13px;border:none;border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:pointer;transition:background .1s ease;display:flex;align-items:center;justify-content:center;gap:8px;}
   .btn.primary{background:var(--brand-primary);color:#111111;}
   .btn.primary:hover{background:var(--brand-primary-hover);}
   .btn:active{transform:scale(.98);}
   .btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--surface-panel),0 0 0 4px var(--brand-primary);}
 
-  @media (prefers-reduced-motion:reduce){ .modal,.avatar,.bg *{animation:none!important;} }
+  /* ════ SHARE composer ════ */
+  .s-head{display:flex;align-items:center;gap:10px;padding:16px 18px 14px;border-bottom:1px solid var(--border-subtle);flex:0 0 auto;}
+  .back{background:none;border:none;color:var(--text-muted);font-size:18px;line-height:1;cursor:pointer;padding:2px 4px;border-radius:var(--radius-sm);}
+  .back:hover{color:var(--text-primary);background:var(--surface-hover);}
+  .s-title{font-size:15px;font-weight:700;color:var(--text-primary);}
+  .s-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:18px;scrollbar-width:thin;scrollbar-color:var(--border-default) transparent;}
+  .s-label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin:0 0 8px;}
+
+  /* OG image preview (1200×630) */
+  .og{position:relative;aspect-ratio:1200/630;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-default);
+      background:radial-gradient(80% 120% at 100% 0%,rgba(94,148,243,.18),transparent 55%),radial-gradient(70% 120% at 0% 100%,rgba(197,245,102,.16),transparent 55%),var(--surface-base);
+      display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:14px 16px;}
+  .og .brand{display:flex;align-items:center;gap:7px;color:var(--text-secondary);font-weight:700;font-size:11px;letter-spacing:.04em;}
+  .og .brand .mark{width:16px;height:16px;border-radius:4px;background:var(--brand-primary);color:#111;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;}
+  .og .headline{margin-top:8px;font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.15;}
+  .og .headline b{color:var(--brand-primary);}
+  .og .stats{margin-top:10px;display:flex;gap:16px;}
+  .og .stats .n{font-size:15px;font-weight:800;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+  .og .stats .n.xp{color:var(--brand-primary);}
+  .og .stats .t{font-size:9px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-top:1px;}
+  .og .av{width:62px;height:62px;border-radius:var(--radius-full);overflow:hidden;box-shadow:var(--glow-green);}
+  .og .av img{width:100%;height:100%;object-fit:cover;}
+
+  /* caption + hashtags */
+  .caption{margin-top:14px;background:var(--surface-input);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:12px;font-size:13px;color:var(--text-secondary);line-height:1.55;text-align:left;}
+  .tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;}
+  .tag{font-size:12px;color:var(--brand-primary);background:var(--brand-primary-muted);border:1px solid var(--brand-primary-dim);border-radius:var(--radius-full);padding:3px 9px;font-weight:500;}
+
+  /* platform picker */
+  .platforms{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .pbtn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:var(--radius-md);border:1px solid var(--border-default);background:var(--surface-card);color:var(--text-primary);font-weight:600;font-size:13px;cursor:pointer;transition:background .1s ease,border-color .1s ease;}
+  .pbtn:hover{background:var(--surface-hover);border-color:var(--border-hover);}
+  .pbtn:active{transform:scale(.98);}
+  .pbtn .ic{font-weight:900;font-size:14px;}
+  .pbtn.x .ic{color:#fff;} .pbtn.li .ic{color:#5E94F3;} .pbtn.fb .ic{color:#5E94F3;} .pbtn.rd .ic{color:#F3CB5E;}
+  .pbtn.copy,.pbtn.save{grid-column:span 1;color:var(--text-secondary);}
+
+  @media (prefers-reduced-motion:reduce){ .modal,.avatar,.screen,.bg *{animation:none!important;} }
 </style>
 </head>
 <body>
-  <div class="label">Solve modal · two-zone base · HTB design system</div>
+  <div class="label">Solve modal · result → share composer</div>
 
-  <div class="modal">
-    <span class="close">✕</span>
+  <div class="modal" id="modal">
+    <button class="close" aria-label="Close">✕</button>
 
-    <!-- ZONE 1 · HERO : image + animated background only -->
-    <div class="m-hero">
-      <svg class="bg" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="vig" cx="50%" cy="48%" r="60%">
-            <stop offset="20%" stop-color="#151F2E" stop-opacity="0"/>
-            <stop offset="100%" stop-color="#151F2E" stop-opacity="0.6"/>
-          </radialGradient>
-          <radialGradient id="b1" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#9FEF00" stop-opacity="0.28"/>
-            <stop offset="45%" stop-color="#9FEF00" stop-opacity="0.154"/>
-            <stop offset="75%" stop-color="#9FEF00" stop-opacity="0.042"/>
-            <stop offset="100%" stop-color="#9FEF00" stop-opacity="0"/>
-          </radialGradient>
-          <radialGradient id="b2" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#79B500" stop-opacity="0.18"/>
-            <stop offset="45%" stop-color="#79B500" stop-opacity="0.099"/>
-            <stop offset="100%" stop-color="#79B500" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-        <rect width="300" height="260" fill="#1E2A3A"/>
-        <ellipse cx="150" cy="130" rx="200" ry="170" fill="url(#b1)">
-          <animate attributeName="cx" values="150;200;150;100;150" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-          <animate attributeName="cy" values="130;90;170;90;130" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-          <animate attributeName="rx" values="200;150;230;130;200" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-          <animate attributeName="ry" values="170;130;190;110;170" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-        </ellipse>
-        <ellipse cx="150" cy="130" rx="130" ry="110" fill="url(#b2)">
-          <animate attributeName="cx" values="150;90;210;90;150" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-          <animate attributeName="cy" values="130;170;90;170;130" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-        </ellipse>
-        <rect width="300" height="260" fill="url(#vig)"/>
+    <!-- ══════════ SCREEN 1 · RESULT ══════════ -->
+    <div class="screen result">
+      <div class="m-hero">
+        <svg class="bg" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="vig" cx="50%" cy="48%" r="60%"><stop offset="20%" stop-color="#151F2E" stop-opacity="0"/><stop offset="100%" stop-color="#151F2E" stop-opacity="0.6"/></radialGradient>
+            <radialGradient id="b1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#9FEF00" stop-opacity="0.28"/><stop offset="45%" stop-color="#9FEF00" stop-opacity="0.154"/><stop offset="75%" stop-color="#9FEF00" stop-opacity="0.042"/><stop offset="100%" stop-color="#9FEF00" stop-opacity="0"/></radialGradient>
+            <radialGradient id="b2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#79B500" stop-opacity="0.18"/><stop offset="45%" stop-color="#79B500" stop-opacity="0.099"/><stop offset="100%" stop-color="#79B500" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="300" height="260" fill="#1E2A3A"/>
+          <ellipse cx="150" cy="130" rx="200" ry="170" fill="url(#b1)">
+            <animate attributeName="cx" values="150;200;150;100;150" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+            <animate attributeName="cy" values="130;90;170;90;130" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+            <animate attributeName="rx" values="200;150;230;130;200" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+            <animate attributeName="ry" values="170;130;190;110;170" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          </ellipse>
+          <ellipse cx="150" cy="130" rx="130" ry="110" fill="url(#b2)">
+            <animate attributeName="cx" values="150;90;210;90;150" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+            <animate attributeName="cy" values="130;170;90;170;130" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          </ellipse>
+          <rect width="300" height="260" fill="url(#vig)"/>
+          <g transform="translate(46,200)"><text font-family="'roboto-mono',monospace" font-size="12" font-weight="700" fill="rgba(159,239,0,.5)" opacity="0">10<animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;6,-150" dur="7s" begin="-1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/></text></g>
+          <g transform="translate(238,220)"><text font-family="'roboto-mono',monospace" font-size="11" font-weight="700" fill="rgba(159,239,0,.42)" opacity="0">01<animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-8,-180" dur="8.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.42;.42;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/></text></g>
+          <g transform="translate(60,70)"><polygon points="7,0 3.5,6.06 -3.5,6.06 -7,0 -3.5,-6.06 3.5,-6.06" fill="none" stroke="rgba(159,239,0,.35)" stroke-width="0.75" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-26,-18" dur="5s" begin="-7s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" additive="sum" values="0;360" dur="31.5s" begin="-7s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;.7;0" keyTimes="0;.3;.7;1" dur="5s" begin="-7s" repeatCount="indefinite"/></polygon></g>
+          <g transform="translate(244,76)"><polygon points="6,0 3,5.196 -3,5.196 -6,0 -3,-5.196 3,-5.196" fill="none" stroke="rgba(159,239,0,.3)" stroke-width="0.75" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-30,16" dur="6s" begin="-4s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="25.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-4s" repeatCount="indefinite"/></polygon></g>
+          <circle cx="84" cy="120" r="2" fill="rgba(159,239,0,.45)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-22,-38" dur="5s" begin="-3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.3;.7;1" dur="5s" begin="-3s" repeatCount="indefinite"/></circle>
+          <circle cx="225" cy="120" r="2" fill="rgba(159,239,0,.4)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;30,-26" dur="6s" begin="-5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.3;.7;1" dur="6s" begin="-5s" repeatCount="indefinite"/></circle>
+        </svg>
+        <div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint machine avatar"></div>
+      </div>
 
-        <!-- rising binary glyphs -->
-        <g transform="translate(46,200)"><text font-family="'roboto-mono',monospace" font-size="12" font-weight="700" fill="rgba(159,239,0,.5)" opacity="0">10
-          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;6,-150" dur="7s" begin="-1s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/></text></g>
-        <g transform="translate(238,220)"><text font-family="'roboto-mono',monospace" font-size="11" font-weight="700" fill="rgba(159,239,0,.42)" opacity="0">01
-          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-8,-180" dur="8.5s" begin="-4s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;.42;.42;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/></text></g>
-        <g transform="translate(150,240)"><text font-family="'roboto-mono',monospace" font-size="13" font-weight="700" fill="rgba(159,239,0,.5)" opacity="0">1
-          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;4,-200" dur="9s" begin="-6s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="9s" begin="-6s" repeatCount="indefinite"/></text></g>
-
-        <!-- rotating hexagons (node motif) -->
-        <g transform="translate(60,70)"><polygon points="7,0 3.5,6.06 -3.5,6.06 -7,0 -3.5,-6.06 3.5,-6.06" fill="none" stroke="rgba(159,239,0,.35)" stroke-width="0.75" opacity="0">
-          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-26,-18" dur="5s" begin="-7s" repeatCount="indefinite"/>
-          <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;360" dur="31.5s" begin="-7s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;.7;.7;0" keyTimes="0;.3;.7;1" dur="5s" begin="-7s" repeatCount="indefinite"/></polygon></g>
-        <g transform="translate(244,76)"><polygon points="6,0 3,5.196 -3,5.196 -6,0 -3,-5.196 3,-5.196" fill="none" stroke="rgba(159,239,0,.3)" stroke-width="0.75" opacity="0">
-          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-30,16" dur="6s" begin="-4s" repeatCount="indefinite"/>
-          <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="25.5s" begin="-4s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-4s" repeatCount="indefinite"/></polygon></g>
-        <g transform="translate(210,150)"><polygon points="5,0 2.5,4.33 -2.5,4.33 -5,0 -2.5,-4.33 2.5,-4.33" fill="none" stroke="rgba(159,239,0,.28)" stroke-width="0.75" opacity="0">
-          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-16,34" dur="6s" begin="-1s" repeatCount="indefinite"/>
-          <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="41.25s" begin="-1s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-1s" repeatCount="indefinite"/></polygon></g>
-        <circle cx="84" cy="120" r="2" fill="rgba(159,239,0,.45)" opacity="0">
-          <animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-22,-38" dur="5s" begin="-3s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.3;.7;1" dur="5s" begin="-3s" repeatCount="indefinite"/></circle>
-        <circle cx="225" cy="120" r="2" fill="rgba(159,239,0,.4)" opacity="0">
-          <animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;30,-26" dur="6s" begin="-5s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.3;.7;1" dur="6s" begin="-5s" repeatCount="indefinite"/></circle>
-      </svg>
-
-      <div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint machine avatar"></div>
+      <div class="m-body">
+        <div class="title">You have solved Checkpoint!</div>
+        <div class="subtitle">
+          Congratulations
+          <span class="chip"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">silo</span>
+          — good luck capturing flags ahead!
+        </div>
+        <div class="hero"><div class="xp"><small>+</small>585</div><div class="lbl">XP Earned</div></div>
+        <div class="metaline">
+          Rank <span class="rank">#5941</span><span class="sep">·</span><span class="tag-state">Retired</span><span class="sep">·</span>Jan 22, 2021
+        </div>
+        <div class="actions"><button class="btn primary" id="toShare">Share your win</button></div>
+      </div>
     </div>
 
-    <!-- ZONE 2 · BODY : all text + actions -->
-    <div class="m-body">
-      <div class="title">You have solved Checkpoint!</div>
-      <div class="subtitle">
-        Congratulations
-        <span class="chip"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">silo</span>
-        — good luck capturing flags ahead!
+    <!-- ══════════ SCREEN 2 · SHARE COMPOSER ══════════ -->
+    <div class="screen share">
+      <div class="s-head">
+        <button class="back" id="backBtn" aria-label="Back">←</button>
+        <span class="s-title">Share your win</span>
       </div>
+      <div class="s-body">
+        <p class="s-label">Preview</p>
+        <div class="og">
+          <div>
+            <div class="brand"><span class="mark">▣</span> HACK THE BOX</div>
+            <div class="headline"><b>silo</b> just pwned Checkpoint!</div>
+            <div class="stats">
+              <div><div class="n xp">+585</div><div class="t">XP</div></div>
+              <div><div class="n">#5941</div><div class="t">Rank</div></div>
+              <div><div class="n">Retired</div><div class="t">State</div></div>
+            </div>
+          </div>
+          <div class="av"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint"></div>
+        </div>
 
-      <div class="hero">
-        <div class="xp"><small>+</small>585</div>
-        <div class="lbl">XP Earned</div>
-      </div>
+        <div class="caption">Just pwned <b>Checkpoint</b> on Hack The Box! 🚩 Earned +585 XP and I'm now ranked #5941. On to the next flag.</div>
+        <div class="tags">
+          <span class="tag">#HackTheBox</span><span class="tag">#CTF</span><span class="tag">#PenTesting</span><span class="tag">#InfoSec</span><span class="tag">#CyberSecurity</span>
+        </div>
 
-      <div class="metaline">
-        Rank <span class="rank">#5941</span>
-        <span class="sep">·</span>
-        <span class="tag-state">Retired</span>
-        <span class="sep">·</span>
-        Jan 22, 2021
-      </div>
-
-      <div class="actions">
-        <button class="btn secondary">Continue</button>
-        <button class="btn primary">Share your win</button>
+        <p class="s-label" style="margin-top:20px">Share to</p>
+        <div class="platforms">
+          <button class="pbtn x"><span class="ic">𝕏</span> X</button>
+          <button class="pbtn li"><span class="ic">in</span> LinkedIn</button>
+          <button class="pbtn fb"><span class="ic">f</span> Facebook</button>
+          <button class="pbtn rd"><span class="ic">⦿</span> Reddit</button>
+          <button class="pbtn copy"><span class="ic">🔗</span> Copy link</button>
+          <button class="pbtn save"><span class="ic">⬇</span> Save image</button>
+        </div>
       </div>
     </div>
   </div>
+
+  <script>
+    const modal = document.getElementById('modal');
+    document.getElementById('toShare').addEventListener('click', () => modal.classList.add('sharing'));
+    document.getElementById('backBtn').addEventListener('click', () => modal.classList.remove('sharing'));
+  </script>
 </body>
 </html>
