@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solve Modal — First Blood variant</title>
+<link rel="stylesheet" href="https://use.typekit.net/jxn7iyx.css">
+<style>
+  :root{
+    --brand-primary:#C5F566; --brand-primary-hover:#D4F98A; --brand-primary-dim:#C5F56620; --brand-primary-muted:#C5F56610;
+    --surface-base:#0A0E17; --surface-panel:#141D2B; --surface-card:#1A2332; --surface-input:#111927; --surface-hover:#1E2A3A; --surface-active:#243044;
+    --border-default:#1E2D40; --border-hover:#2A3E58;
+    --text-primary:#F4F4F4; --text-secondary:#8799B5; --text-muted:#6B7A94; --text-dim:#4A5568;
+    --success:#C5F566; --error:#F35E5E; --warning:#F3CB5E; --info:#5E94F3; --vip:#B75EF3;
+    /* blood */
+    --blood:#F35E5E; --blood-deep:#C0392B; --blood-dim:#F35E5E26; --blood-muted:#F35E5E14;
+    --radius-sm:6px; --radius-md:8px; --radius-xl:14px; --radius-full:100px;
+    --elevation-3:0 4px 16px rgba(0,0,0,0.4);
+    --glow-green:0 0 8px rgba(159,239,0,0.25); --glow-blood:0 0 12px rgba(243,94,94,0.4);
+    --ease-enter:cubic-bezier(0,0,0.2,1);
+    --font-sans:'neue-haas-unica',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    --font-mono:'roboto-mono','SF Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
+  body{background:var(--surface-base);display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:32px;padding:48px 16px;min-height:100vh;}
+  .label{color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:center;margin-bottom:14px;}
+
+  .modal{position:relative;width:400px;max-width:100%;display:flex;flex-direction:column;overflow:hidden;
+         background:var(--surface-panel);border:1px solid var(--border-default);border-radius:var(--radius-xl);box-shadow:var(--elevation-3);}
+  .close{position:absolute;top:14px;right:16px;z-index:3;color:var(--text-dim);font-size:16px;line-height:1;cursor:pointer;background:none;border:none;}
+
+  /* hero */
+  .m-hero{position:relative;flex:0 0 auto;height:230px;background:var(--surface-hover);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .m-hero .bg{position:absolute;inset:0;width:100%;height:100%;}
+  .avatar{position:relative;z-index:1;width:104px;height:104px;border-radius:var(--radius-full);overflow:hidden;
+          background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));box-shadow:var(--glow-blood),0 8px 24px rgba(0,0,0,.45);}
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  /* floating blood-drop mark on the avatar corner */
+  .drop-mark{position:absolute;z-index:2;bottom:8px;right:8px;width:34px;height:34px;border-radius:var(--radius-full);
+             background:var(--surface-panel);border:2px solid var(--blood);display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-blood);}
+  .drop-mark svg{width:16px;height:16px;}
+
+  /* body */
+  .m-body{flex:1 1 auto;padding:22px 28px 24px;text-align:center;}
+  .fb-badge{display:inline-flex;align-items:center;gap:7px;background:var(--blood-muted);border:1px solid var(--blood-dim);
+            color:var(--blood);border-radius:var(--radius-full);padding:6px 14px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
+  .fb-badge svg{width:14px;height:14px;}
+  .fb-badge .kind{color:var(--text-primary);}
+  /* system blood = deeper red + root chip */
+  .system .fb-badge{background:rgba(192,57,43,.16);border-color:rgba(192,57,43,.5);}
+
+  .title{margin-top:14px;font-size:22px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.2;}
+  .subtitle{margin-top:8px;color:var(--text-secondary);font-size:14px;font-weight:500;line-height:1.5;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 10px 3px 4px;font-size:13px;font-weight:500;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+  .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
+
+  .hero{margin:20px 0 4px;}
+  .hero .xp{font-size:54px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
+  .hero .xp small{font-size:22px;vertical-align:super;opacity:.7;margin-right:2px;}
+  .hero .lbl{margin-top:2px;color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .hero .bonus{margin-top:8px;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--blood);background:var(--blood-muted);border:1px solid var(--blood-dim);border-radius:var(--radius-full);padding:3px 10px;}
+
+  .metaline{margin-top:14px;color:var(--text-muted);font-size:14px;font-weight:500;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
+  .metaline .rank{color:var(--text-primary);font-variant-numeric:tabular-nums;font-weight:700;}
+  .metaline .sep{color:var(--text-dim);}
+  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 8px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+
+  .btn{width:100%;margin-top:24px;padding:13px;border:none;border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:pointer;background:var(--brand-primary);color:#111;}
+  .btn:hover{background:var(--brand-primary-hover);}
+</style>
+</head>
+<body>
+
+<!-- ════════ shared blood-drop symbol ════════ -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="drop" viewBox="0 0 24 24"><path d="M12 2C12 2 4 11 4 16a8 8 0 0 0 16 0c0-5-8-14-8-14z" fill="currentColor"/></symbol>
+</defs></svg>
+
+<!-- ════════ USER BLOOD ════════ -->
+<div>
+  <div class="label">First Blood · User</div>
+  <div class="modal user">
+    <button class="close">✕</button>
+    <div class="m-hero">
+      <svg class="bg" viewBox="0 0 300 230" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bv" cx="50%" cy="48%" r="60%"><stop offset="20%" stop-color="#151F2E" stop-opacity="0"/><stop offset="100%" stop-color="#151F2E" stop-opacity="0.6"/></radialGradient>
+          <radialGradient id="r1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F35E5E" stop-opacity="0.30"/><stop offset="45%" stop-color="#F35E5E" stop-opacity="0.16"/><stop offset="75%" stop-color="#F35E5E" stop-opacity="0.05"/><stop offset="100%" stop-color="#F35E5E" stop-opacity="0"/></radialGradient>
+          <radialGradient id="r2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#C0392B" stop-opacity="0.20"/><stop offset="45%" stop-color="#C0392B" stop-opacity="0.10"/><stop offset="100%" stop-color="#C0392B" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="300" height="230" fill="#1E2A3A"/>
+        <ellipse cx="150" cy="115" rx="200" ry="160" fill="url(#r1)">
+          <animate attributeName="cx" values="150;200;150;100;150" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          <animate attributeName="cy" values="115;80;150;80;115" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          <animate attributeName="rx" values="200;150;230;130;200" dur="8s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+        </ellipse>
+        <ellipse cx="150" cy="115" rx="130" ry="100" fill="url(#r2)">
+          <animate attributeName="cx" values="150;90;210;90;150" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+        </ellipse>
+        <rect width="300" height="230" fill="url(#bv)"/>
+        <!-- rising blood-red glyphs/drops -->
+        <g transform="translate(54,180)"><use href="#drop" width="9" height="9" color="rgba(243,94,94,.5)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;4,-150" dur="7s" begin="-1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/></use></g>
+        <g transform="translate(240,195)"><use href="#drop" width="8" height="8" color="rgba(243,94,94,.42)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-6,-175" dur="8.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.42;.42;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/></use></g>
+        <g transform="translate(150,210)"><use href="#drop" width="10" height="10" color="rgba(243,94,94,.55)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;3,-190" dur="9s" begin="-6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.55;.55;0" keyTimes="0;.25;.7;1" dur="9s" begin="-6s" repeatCount="indefinite"/></use></g>
+      </svg>
+      <div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint"></div>
+      <div class="drop-mark"><svg viewBox="0 0 24 24" style="color:var(--blood)"><use href="#drop"/></svg></div>
+    </div>
+    <div class="m-body">
+      <span class="fb-badge"><svg viewBox="0 0 24 24"><use href="#drop"/></svg>First Blood · <span class="kind">User</span></span>
+      <div class="title">You have solved Checkpoint!</div>
+      <div class="subtitle">Congratulations <span class="chip"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">silo</span> — you drew first blood!</div>
+      <div class="hero">
+        <div class="xp"><small>+</small>585</div><div class="lbl">XP Earned</div>
+        <div class="bonus"><svg viewBox="0 0 24 24" width="12" height="12"><use href="#drop"/></svg> incl. First Blood bonus</div>
+      </div>
+      <div class="metaline">Rank <span class="rank">#5941</span><span class="sep">·</span><span class="tag-state">Retired</span><span class="sep">·</span>Jan 22, 2021</div>
+      <button class="btn">Share your win</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SYSTEM (ROOT) BLOOD ════════ -->
+<div>
+  <div class="label">First Blood · System (Root)</div>
+  <div class="modal system">
+    <button class="close">✕</button>
+    <div class="m-hero">
+      <svg class="bg" viewBox="0 0 300 230" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bv2" cx="50%" cy="48%" r="60%"><stop offset="20%" stop-color="#151F2E" stop-opacity="0"/><stop offset="100%" stop-color="#151F2E" stop-opacity="0.65"/></radialGradient>
+          <radialGradient id="s1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#C0392B" stop-opacity="0.38"/><stop offset="45%" stop-color="#C0392B" stop-opacity="0.2"/><stop offset="75%" stop-color="#C0392B" stop-opacity="0.06"/><stop offset="100%" stop-color="#C0392B" stop-opacity="0"/></radialGradient>
+          <radialGradient id="s2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F35E5E" stop-opacity="0.22"/><stop offset="45%" stop-color="#F35E5E" stop-opacity="0.11"/><stop offset="100%" stop-color="#F35E5E" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="300" height="230" fill="#1E2A3A"/>
+        <ellipse cx="150" cy="115" rx="210" ry="165" fill="url(#s1)">
+          <animate attributeName="cx" values="150;205;150;95;150" dur="17s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          <animate attributeName="cy" values="115;78;152;78;115" dur="17s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+        </ellipse>
+        <ellipse cx="150" cy="115" rx="135" ry="105" fill="url(#s2)">
+          <animate attributeName="cx" values="150;88;212;88;150" dur="21s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+        </ellipse>
+        <rect width="300" height="230" fill="url(#bv2)"/>
+        <g transform="translate(54,180)"><use href="#drop" width="9" height="9" color="rgba(192,57,43,.55)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;4,-150" dur="7s" begin="-1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.55;.55;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/></use></g>
+        <g transform="translate(240,195)"><use href="#drop" width="8" height="8" color="rgba(243,94,94,.45)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-6,-175" dur="8.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/></use></g>
+        <g transform="translate(150,210)"><use href="#drop" width="10" height="10" color="rgba(192,57,43,.6)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;3,-190" dur="9s" begin="-6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.25;.7;1" dur="9s" begin="-6s" repeatCount="indefinite"/></use></g>
+      </svg>
+      <div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint"></div>
+      <div class="drop-mark" style="border-color:var(--blood-deep)"><svg viewBox="0 0 24 24" style="color:var(--blood-deep)"><use href="#drop"/></svg></div>
+    </div>
+    <div class="m-body">
+      <span class="fb-badge" style="color:var(--blood-deep)"><svg viewBox="0 0 24 24"><use href="#drop"/></svg>First Blood · <span class="kind">System</span></span>
+      <div class="title">You have rooted Checkpoint!</div>
+      <div class="subtitle">Congratulations <span class="chip"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">silo</span> — first to root this box!</div>
+      <div class="hero">
+        <div class="xp"><small>+</small>585</div><div class="lbl">XP Earned</div>
+        <div class="bonus" style="color:var(--blood-deep);background:rgba(192,57,43,.14);border-color:rgba(192,57,43,.4)"><svg viewBox="0 0 24 24" width="12" height="12"><use href="#drop"/></svg> incl. System First Blood bonus</div>
+      </div>
+      <div class="metaline">Rank <span class="rank">#5941</span><span class="sep">·</span><span class="tag-state">Retired</span><span class="sep">·</span>Jan 22, 2021</div>
+      <button class="btn">Share your win</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
