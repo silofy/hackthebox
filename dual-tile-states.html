@@ -22,9 +22,9 @@
   .material-symbols-rounded{font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;line-height:1;}
 
   .panel{width:380px;max-width:100%;background:var(--surface-panel);border:1px solid var(--border-default);border-radius:14px;padding:26px 28px;text-align:center;}
-  .cong{color:var(--text-secondary);font-size:16px;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
-  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 11px 3px 4px;font-size:16px;background:var(--surface-hover);color:var(--text-secondary);border:1px solid var(--border-default);}
-  .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
+  .cong{color:var(--text-primary);font-size:16px;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:7px;border-radius:var(--radius-full);padding:3px 12px 3px 4px;font-size:16px;background:var(--surface-hover);color:var(--text-primary);border:1px solid var(--border-default);}
+  .chip img{width:24px;height:24px;border-radius:var(--radius-full);object-fit:cover;}
 
   /* tiles */
   .tiles{margin-top:16px;display:flex;gap:10px;}
@@ -33,18 +33,22 @@
   .xpicon{width:46px;height:46px;display:block;}
   .rankicon{font-size:42px;color:#C06FF6;}
   .drop{width:34px;height:38px;}
-  .drops{display:flex;gap:2px;align-items:flex-end;}
+  .drops{display:flex;gap:1px;align-items:center;}
   .tile .big{font-size:36px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
   .big.xp{color:var(--brand-primary);text-shadow:0 0 22px rgba(197,245,102,.3);}
   .big.rank{color:var(--text-primary);}
   .tile .l{color:var(--text-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.3;}
 
-  /* first-blood tile accents */
-  .tile.fb-user{border-color:rgba(243,94,94,.45);background:linear-gradient(180deg,var(--surface-card),rgba(243,94,94,.07));}
-  .tile.fb-sys{border-color:rgba(192,57,43,.5);background:linear-gradient(180deg,var(--surface-card),rgba(192,57,43,.09));}
-  .tile.fb-both{border-color:rgba(243,94,94,.5);background:linear-gradient(180deg,rgba(192,57,43,.08),rgba(243,94,94,.08));}
-  .tile.fb-user .l,.tile.fb-both .l{color:var(--blood);}
-  .tile.fb-sys .l{color:var(--blood-deep);}
+  /* first-blood tile accent (subtle, keeps tiles balanced) */
+  .tile.fb{border-color:rgba(243,94,94,.4);background:linear-gradient(180deg,var(--surface-card),rgba(243,94,94,.07));}
+  .tile.fb.sys{border-color:rgba(192,57,43,.5);background:linear-gradient(180deg,var(--surface-card),rgba(192,57,43,.09));}
+
+  /* first-blood timestamped lines */
+  .fblines{margin-top:14px;display:flex;flex-direction:column;gap:7px;align-items:center;}
+  .fbitem{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--blood);background:rgba(243,94,94,.08);border:1px solid rgba(243,94,94,.25);border-radius:var(--radius-full);padding:5px 13px;}
+  .fbitem.sys{color:var(--blood-deep);background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.3);}
+  .fbitem .drop{width:11px;height:13px;flex:0 0 auto;}
+  .fbitem .t{color:var(--text-secondary);}
 
   /* submeta: solved-while state + date */
   .submeta{margin-top:16px;padding-top:14px;border-top:1px solid var(--border-subtle);font-size:14px;color:var(--text-muted);display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -78,40 +82,50 @@
   </div>
 </div>
 
-<!-- USER BLOOD -->
+<!-- USER BLOOD (you got user first blood, but someone rooted first → rank #2) -->
 <div>
-  <div class="vlabel">First Blood · User</div>
+  <div class="vlabel">First Blood · User (rank #2)</div>
   <div class="panel">
     <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
     <div class="tiles">
       <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
-      <div class="tile fb-user"><span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span><div class="big rank">#1</div><div class="l">User First Blood</div></div>
+      <div class="tile fb"><span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span><div class="big rank">#2</div><div class="l">Machine Rank</div></div>
+    </div>
+    <div class="fblines">
+      <span class="fbitem"><svg class="drop"><use href="#drop"/></svg>User first blood<span class="t">22 Jan 2021 · 14:32 UTC</span></span>
     </div>
     <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
   </div>
 </div>
 
-<!-- SYSTEM BLOOD -->
+<!-- SYSTEM BLOOD (first to root → rank #1) -->
 <div>
-  <div class="vlabel">First Blood · System (Root)</div>
+  <div class="vlabel">First Blood · System (rank #1)</div>
   <div class="panel">
     <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
     <div class="tiles">
       <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
-      <div class="tile fb-sys"><span class="ico"><svg class="drop" style="color:var(--blood-deep)"><use href="#drop"/></svg></span><div class="big rank">#1</div><div class="l">System First Blood</div></div>
+      <div class="tile fb sys"><span class="ico"><svg class="drop" style="color:var(--blood-deep)"><use href="#drop"/></svg></span><div class="big rank">#1</div><div class="l">Machine Rank</div></div>
+    </div>
+    <div class="fblines">
+      <span class="fbitem sys"><svg class="drop"><use href="#drop"/></svg>System first blood<span class="t">22 Jan 2021 · 16:05 UTC</span></span>
     </div>
     <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
   </div>
 </div>
 
-<!-- BOTH -->
+<!-- BOTH (user + system first blood → rank #1, two timestamped lines) -->
 <div>
-  <div class="vlabel">First Blood · User + System</div>
+  <div class="vlabel">First Blood · User + System (rank #1)</div>
   <div class="panel">
     <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
     <div class="tiles">
       <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
-      <div class="tile fb-both"><span class="ico"><span class="drops"><svg class="drop" style="width:26px;height:30px;color:var(--blood)"><use href="#drop"/></svg><svg class="drop" style="width:26px;height:30px;color:var(--blood-deep)"><use href="#drop"/></svg></span></span><div class="big rank">#1</div><div class="l">Double First Blood</div></div>
+      <div class="tile fb sys"><span class="ico"><span class="drops"><svg class="drop" style="width:24px;height:28px;color:var(--blood)"><use href="#drop"/></svg><svg class="drop" style="width:24px;height:28px;color:var(--blood-deep)"><use href="#drop"/></svg></span></span><div class="big rank">#1</div><div class="l">Machine Rank</div></div>
+    </div>
+    <div class="fblines">
+      <span class="fbitem"><svg class="drop"><use href="#drop"/></svg>User first blood<span class="t">22 Jan 2021 · 14:32 UTC</span></span>
+      <span class="fbitem sys"><svg class="drop"><use href="#drop"/></svg>System first blood<span class="t">22 Jan 2021 · 16:05 UTC</span></span>
     </div>
     <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
   </div>
