@@ -61,14 +61,17 @@
   .subtitle{margin-top:8px;color:var(--text-secondary);font-size:14px;font-weight:500;line-height:1.5;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
   .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 10px 3px 4px;font-size:13px;font-weight:500;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
   .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
-  .hero{margin:20px 0 4px;}
-  .hero .xp{font-size:56px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
-  .hero .xp small{font-size:22px;vertical-align:super;opacity:.7;margin-right:2px;}
-  .hero .lbl{margin-top:2px;color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-  .metaline{margin-top:14px;color:var(--text-muted);font-size:14px;font-weight:500;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
-  .metaline .rank{color:var(--text-primary);font-variant-numeric:tabular-nums;font-weight:700;}
-  .metaline .sep{color:var(--text-dim);}
-  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 8px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+  .reward{margin-top:20px;}
+  .reward .xp{font-size:58px;line-height:1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
+  .reward .xp .plus{font-size:26px;font-weight:800;vertical-align:18px;opacity:.6;margin-right:1px;}
+  .reward .xp .unit{font-size:20px;font-weight:700;opacity:.7;margin-left:5px;letter-spacing:.01em;}
+  .reward .rlbl{margin-top:5px;color:var(--text-muted);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
+  .meta{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-subtle);
+        display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;color:var(--text-muted);font-weight:500;}
+  .meta .v{color:var(--text-primary);font-weight:700;font-variant-numeric:tabular-nums;}
+  .meta .k{margin-left:5px;}
+  .meta .sep{color:var(--text-dim);}
+  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 9px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
 
   /* buttons */
   .actions{margin-top:24px;}
@@ -162,9 +165,13 @@
           <span class="chip"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">silo</span>
           — good luck capturing flags ahead!
         </div>
-        <div class="hero"><div class="xp"><small>+</small>585</div><div class="lbl">XP Earned</div></div>
-        <div class="metaline">
-          Rank <span class="rank">#5941</span><span class="sep">·</span><span class="tag-state">Retired</span><span class="sep">·</span>Jan 22, 2021
+        <div class="reward"><div class="xp"><span class="plus">+</span>585<span class="unit">XP</span></div><div class="rlbl">Earned</div></div>
+        <div class="meta">
+          <span><span class="v">#5941</span><span class="k">Rank</span></span>
+          <span class="sep">·</span>
+          <span class="tag-state">Retired</span>
+          <span class="sep">·</span>
+          <span><span class="v">22 Jan 2021</span></span>
         </div>
         <div class="actions"><button class="btn primary" id="toShare">Share your win</button></div>
       </div>
