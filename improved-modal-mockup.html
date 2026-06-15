@@ -3,88 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Improved Solve Modal</title>
+<title>Solve Modal — HTB Design System</title>
+<link rel="stylesheet" href="https://use.typekit.net/jxn7iyx.css">
 <style>
   :root{
-    --bg:#0e1525;
-    --card:#16203a;
-    --line:#243049;
-    --text:#e8edf7;
-    --muted:#8a96ad;
-    --green:#9fef00;
+    /* ── Brand ── */
+    --brand-primary:#C5F566;
+    --brand-primary-hover:#D4F98A;
+    --brand-primary-dim:#C5F56620;
+    --brand-primary-muted:#C5F56610;
+    /* ── Surface ── */
+    --surface-base:#0A0E17;
+    --surface-panel:#141D2B;
+    --surface-card:#1A2332;
+    --surface-input:#111927;
+    --surface-hover:#1E2A3A;
+    --surface-active:#243044;
+    /* ── Border ── */
+    --border-default:#1E2D40;
+    --border-subtle:#162030;
+    --border-hover:#2A3E58;
+    --border-focus:#9FEF00;
+    /* ── Text ── */
+    --text-primary:#F4F4F4;
+    --text-secondary:#8799B5;
+    --text-muted:#6B7A94;
+    --text-dim:#4A5568;
+    /* ── Semantic ── */
+    --success:#C5F566;
+    --error:#F35E5E;
+    --warning:#F3CB5E;
+    --info:#5E94F3;
+    --vip:#B75EF3;
+    /* ── Shape ── */
+    --radius-xs:4px; --radius-sm:6px; --radius-md:8px; --radius-lg:10px; --radius-xl:14px; --radius-full:100px;
+    /* ── Elevation ── */
+    --elevation-3:0 4px 16px rgba(0,0,0,0.4);
+    --glow-green:0 0 8px rgba(159,239,0,0.25);
+    /* ── Motion ── */
+    --ease-enter:cubic-bezier(0,0,0.2,1);
+    --font-sans:'neue-haas-unica',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    --font-mono:'roboto-mono','SF Mono',Consolas,monospace;
   }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
-  body{background:#060a14;display:flex;flex-direction:column;align-items:center;gap:28px;padding:48px 16px;min-height:100vh;overflow:hidden;}
-  .label{color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
+  body{
+    background:var(--surface-base);
+    display:flex;flex-direction:column;align-items:center;gap:24px;
+    padding:48px 16px;min-height:100vh;overflow:hidden;
+  }
+  .label{color:var(--text-muted);font-size:12px;font-weight:700;line-height:1.2;letter-spacing:.08em;text-transform:uppercase;}
 
-  /* single-focus celebration modal */
+  /* ── Modal frame (surface.panel + radius.xl + elevation.3) ── */
   .modal{
-    position:relative;
-    width:440px;max-width:100%;
-    background:radial-gradient(120% 80% at 50% 0%, #15233f 0%, var(--bg) 60%);
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:40px 36px 28px;
-    text-align:center;
-    box-shadow:0 24px 80px rgba(0,0,0,.6);
-    overflow:hidden;
+    position:relative;width:390px;max-width:100%;
+    background:var(--surface-panel);
+    border:1px solid var(--border-default);
+    border-radius:var(--radius-xl);
+    box-shadow:var(--elevation-3);
+    padding:32px 24px 20px;
+    text-align:center;overflow:hidden;
+    animation:rise .3s var(--ease-enter) both;
   }
-  .glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(159,239,0,.18),transparent 70%);pointer-events:none;}
+  @keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+  .glow{position:absolute;top:-90px;left:50%;transform:translateX(-50%);width:280px;height:280px;
+        background:radial-gradient(circle,rgba(197,245,102,.14),transparent 70%);pointer-events:none;}
+  .close{position:absolute;top:14px;right:16px;color:var(--text-dim);font-size:14px;cursor:pointer;line-height:1;}
 
+  /* ── Badge (brand border + green glow) ── */
   .badge{
-    width:104px;height:104px;border-radius:50%;margin:0 auto 18px;
-    background:radial-gradient(circle at 50% 40%,#2a3550,#121a2e);
-    border:4px solid var(--green);
-    display:flex;align-items:center;justify-content:center;font-size:42px;
+    width:96px;height:96px;border-radius:var(--radius-full);margin:0 auto 16px;
+    background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));
+    border:3px solid var(--brand-primary);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    box-shadow:var(--glow-green);
     animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;
-    box-shadow:0 0 28px rgba(159,239,0,.35);
   }
-  @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+  .badge img{width:100%;height:100%;object-fit:cover;}
+  @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 
-  .title{font-size:26px;font-weight:800;color:var(--text);}
-  .subtitle{margin-top:8px;color:var(--muted);font-size:14px;display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;}
-  .chip{display:inline-flex;align-items:center;gap:6px;background:#1c2740;border-radius:20px;padding:3px 11px;color:var(--text);font-weight:600;font-size:13px;}
-  .chip .dot{width:13px;height:13px;border-radius:50%;background:var(--green);}
+  /* ── Title / subtitle (type.heading + type.body.sm) ── */
+  .title{font-size:18px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.2;}
+  .subtitle{margin-top:6px;color:var(--text-secondary);font-size:13px;font-weight:500;line-height:1.5;
+            display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
+  /* online-style pill for the username */
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 8px;
+        font-size:11px;font-weight:700;letter-spacing:.04em;
+        background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+  .chip .dot{width:7px;height:7px;border-radius:var(--radius-full);background:var(--success);box-shadow:var(--glow-green);}
 
-  /* hero XP */
-  .hero{margin:26px 0 6px;}
-  .hero .xp{font-size:72px;line-height:1;font-weight:800;color:var(--green);text-shadow:0 0 24px rgba(159,239,0,.35);}
-  .hero .xp small{font-size:24px;vertical-align:super;margin-right:2px;color:var(--green);opacity:.8;}
-  .hero .lbl{color:var(--muted);font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-top:4px;}
+  /* ── Hero XP (type.display, tabular-nums) ── */
+  .hero{margin:24px 0 4px;}
+  .hero .xp{font-size:64px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);
+            font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
+  .hero .xp small{font-size:24px;vertical-align:super;opacity:.7;margin-right:2px;}
+  .hero .lbl{margin-top:4px;color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
 
-  /* compact stat strip — each datum once */
-  .strip{
-    display:flex;justify-content:center;gap:0;margin:22px 0 26px;
-    background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  /* ── Variant A · single inline meta line ── */
+  .metaline{margin-top:18px;color:var(--text-muted);font-size:13px;font-weight:500;
+            display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
+  .metaline b{color:var(--text-secondary);font-weight:700;}
+  .metaline .rank{color:var(--text-primary);font-variant-numeric:tabular-nums;}
+  .metaline .sep{color:var(--text-dim);}
+  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 8px;
+             font-size:11px;font-weight:700;letter-spacing:.04em;
+             background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+
+  /* ── Actions ── */
+  .share{width:100%;margin-top:22px;padding:12px;border:none;border-radius:var(--radius-md);
+         background:var(--brand-primary);color:#111111;font-family:var(--font-sans);font-size:14px;font-weight:700;
+         cursor:pointer;transition:background .1s ease;}
+  .share:hover{background:var(--brand-primary-hover);}
+  .share:active{transform:scale(.98);}
+  .share:focus-visible{outline:none;box-shadow:0 0 0 2px var(--surface-panel),0 0 0 4px var(--brand-primary);}
+  .dismiss{display:block;width:100%;margin-top:10px;padding:8px;background:none;border:none;
+           color:var(--text-muted);font-family:var(--font-sans);font-size:13px;font-weight:500;cursor:pointer;transition:color .1s ease;}
+  .dismiss:hover{color:var(--text-secondary);}
+
+  /* ── Confetti (semantic palette) ── */
+  .confetti{position:absolute;top:-12px;width:7px;height:13px;border-radius:1px;opacity:.9;animation:fall 2.4s linear infinite;}
+  @keyframes fall{to{transform:translateY(520px) rotate(540deg);opacity:0}}
+
+  @media (prefers-reduced-motion:reduce){
+    .modal,.badge,.confetti{animation:none!important;}
   }
-  .strip .s{flex:1;padding:14px 8px;}
-  .strip .s + .s{border-left:1px solid var(--line);}
-  .strip .n{font-size:16px;font-weight:700;color:var(--text);}
-  .strip .t{font-size:11px;color:var(--muted);margin-top:3px;}
-
-  /* actions — Share is the star */
-  .share{width:100%;padding:14px;border:none;border-radius:9px;background:var(--green);color:#0e1525;font-weight:800;font-size:15px;cursor:pointer;}
-  .dismiss{display:block;width:100%;margin-top:12px;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:6px;}
-
-  /* confetti */
-  .confetti{position:absolute;top:-10px;width:8px;height:14px;opacity:.9;animation:fall 2.4s linear infinite;}
-  @keyframes fall{to{transform:translateY(560px) rotate(540deg);opacity:0}}
 </style>
 </head>
 <body>
-  <div class="label">Improved — single-focus reward modal</div>
+  <div class="label">Solve modal · HTB design system · variant A</div>
 
   <div class="modal">
     <div class="glow"></div>
-    <!-- decorative confetti -->
-    <div class="confetti" style="left:12%;background:#9fef00;animation-delay:0s"></div>
-    <div class="confetti" style="left:30%;background:#6b8cff;animation-delay:.4s"></div>
-    <div class="confetti" style="left:55%;background:#ffd166;animation-delay:.2s"></div>
-    <div class="confetti" style="left:74%;background:#ef476f;animation-delay:.6s"></div>
-    <div class="confetti" style="left:88%;background:#9fef00;animation-delay:.3s"></div>
+    <span class="close">×</span>
+    <div class="confetti" style="left:12%;background:var(--brand-primary);animation-delay:0s"></div>
+    <div class="confetti" style="left:30%;background:var(--info);animation-delay:.4s"></div>
+    <div class="confetti" style="left:55%;background:var(--warning);animation-delay:.2s"></div>
+    <div class="confetti" style="left:74%;background:var(--vip);animation-delay:.6s"></div>
+    <div class="confetti" style="left:88%;background:var(--brand-primary);animation-delay:.3s"></div>
 
-    <div class="badge">🧑‍💻</div>
-    <div class="title">You have solved Academy!</div>
+    <div class="badge"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint machine avatar"></div>
+    <div class="title">You have solved Checkpoint!</div>
     <div class="subtitle">
       Congratulations
       <span class="chip"><span class="dot"></span>silo</span>
@@ -96,10 +153,12 @@
       <div class="lbl">XP Earned</div>
     </div>
 
-    <div class="strip">
-      <div class="s"><div class="n">#5941</div><div class="t">Machine Rank</div></div>
-      <div class="s"><div class="n">22 Jan 2021</div><div class="t">Pwn Date</div></div>
-      <div class="s"><div class="n">Retired</div><div class="t">State</div></div>
+    <div class="metaline">
+      Rank <span class="rank">#5941</span>
+      <span class="sep">·</span>
+      <span class="tag-state">Retired</span>
+      <span class="sep">·</span>
+      Jan 22, 2021
     </div>
 
     <button class="share">Share your win</button>
