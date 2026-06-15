@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Improved Solve Modal</title>
+<style>
+  :root{
+    --bg:#0e1525;
+    --card:#16203a;
+    --line:#243049;
+    --text:#e8edf7;
+    --muted:#8a96ad;
+    --green:#9fef00;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{background:#060a14;display:flex;flex-direction:column;align-items:center;gap:28px;padding:48px 16px;min-height:100vh;overflow:hidden;}
+  .label{color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase;}
+
+  /* single-focus celebration modal */
+  .modal{
+    position:relative;
+    width:440px;max-width:100%;
+    background:radial-gradient(120% 80% at 50% 0%, #15233f 0%, var(--bg) 60%);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:40px 36px 28px;
+    text-align:center;
+    box-shadow:0 24px 80px rgba(0,0,0,.6);
+    overflow:hidden;
+  }
+  .glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(159,239,0,.18),transparent 70%);pointer-events:none;}
+
+  .badge{
+    width:104px;height:104px;border-radius:50%;margin:0 auto 18px;
+    background:radial-gradient(circle at 50% 40%,#2a3550,#121a2e);
+    border:4px solid var(--green);
+    display:flex;align-items:center;justify-content:center;font-size:42px;
+    animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;
+    box-shadow:0 0 28px rgba(159,239,0,.35);
+  }
+  @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+
+  .title{font-size:26px;font-weight:800;color:var(--text);}
+  .subtitle{margin-top:8px;color:var(--muted);font-size:14px;display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#1c2740;border-radius:20px;padding:3px 11px;color:var(--text);font-weight:600;font-size:13px;}
+  .chip .dot{width:13px;height:13px;border-radius:50%;background:var(--green);}
+
+  /* hero XP */
+  .hero{margin:26px 0 6px;}
+  .hero .xp{font-size:72px;line-height:1;font-weight:800;color:var(--green);text-shadow:0 0 24px rgba(159,239,0,.35);}
+  .hero .xp small{font-size:24px;vertical-align:super;margin-right:2px;color:var(--green);opacity:.8;}
+  .hero .lbl{color:var(--muted);font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-top:4px;}
+
+  /* compact stat strip — each datum once */
+  .strip{
+    display:flex;justify-content:center;gap:0;margin:22px 0 26px;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  }
+  .strip .s{flex:1;padding:14px 8px;}
+  .strip .s + .s{border-left:1px solid var(--line);}
+  .strip .n{font-size:16px;font-weight:700;color:var(--text);}
+  .strip .t{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  /* actions — Share is the star */
+  .share{width:100%;padding:14px;border:none;border-radius:9px;background:var(--green);color:#0e1525;font-weight:800;font-size:15px;cursor:pointer;}
+  .dismiss{display:block;width:100%;margin-top:12px;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:6px;}
+
+  /* confetti */
+  .confetti{position:absolute;top:-10px;width:8px;height:14px;opacity:.9;animation:fall 2.4s linear infinite;}
+  @keyframes fall{to{transform:translateY(560px) rotate(540deg);opacity:0}}
+</style>
+</head>
+<body>
+  <div class="label">Improved — single-focus reward modal</div>
+
+  <div class="modal">
+    <div class="glow"></div>
+    <!-- decorative confetti -->
+    <div class="confetti" style="left:12%;background:#9fef00;animation-delay:0s"></div>
+    <div class="confetti" style="left:30%;background:#6b8cff;animation-delay:.4s"></div>
+    <div class="confetti" style="left:55%;background:#ffd166;animation-delay:.2s"></div>
+    <div class="confetti" style="left:74%;background:#ef476f;animation-delay:.6s"></div>
+    <div class="confetti" style="left:88%;background:#9fef00;animation-delay:.3s"></div>
+
+    <div class="badge">🧑‍💻</div>
+    <div class="title">You have solved Academy!</div>
+    <div class="subtitle">
+      Congratulations
+      <span class="chip"><span class="dot"></span>silo</span>
+      — good luck capturing flags ahead!
+    </div>
+
+    <div class="hero">
+      <div class="xp"><small>+</small>585</div>
+      <div class="lbl">XP Earned</div>
+    </div>
+
+    <div class="strip">
+      <div class="s"><div class="n">#5941</div><div class="t">Machine Rank</div></div>
+      <div class="s"><div class="n">22 Jan 2021</div><div class="t">Pwn Date</div></div>
+      <div class="s"><div class="n">Retired</div><div class="t">State</div></div>
+    </div>
+
+    <button class="share">Share your win</button>
+    <button class="dismiss">Continue</button>
+  </div>
+</body>
+</html>

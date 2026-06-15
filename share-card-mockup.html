@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share Card Mockup</title>
+<style>
+  :root{
+    --bg:#0e1525;--card:#16203a;--line:#243049;
+    --text:#e8edf7;--muted:#8a96ad;--green:#9fef00;--blue:#6b8cff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{background:#060a14;display:flex;flex-direction:column;align-items:center;gap:26px;padding:40px 16px;}
+  .label{color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase;}
+
+  /* 1200x630 OG card — the exported image */
+  .card{
+    width:1200px;max-width:100%;aspect-ratio:1200/630;
+    position:relative;overflow:hidden;border-radius:16px;
+    background:
+      radial-gradient(80% 120% at 100% 0%, rgba(107,140,255,.20), transparent 55%),
+      radial-gradient(70% 120% at 0% 100%, rgba(159,239,0,.18), transparent 55%),
+      var(--bg);
+    border:1px solid var(--line);
+    display:grid;grid-template-columns:1fr 360px;
+    box-shadow:0 24px 80px rgba(0,0,0,.6);
+  }
+  .card .body{padding:56px 60px;display:flex;flex-direction:column;justify-content:center;}
+  .brand{display:flex;align-items:center;gap:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;font-size:18px;}
+  .brand .mark{width:30px;height:30px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#0e1525;font-weight:900;}
+  .headline{margin-top:24px;font-size:44px;font-weight:800;color:var(--text);line-height:1.1;}
+  .headline .name{color:var(--green);}
+  .machine{margin-top:14px;font-size:22px;color:var(--muted);}
+  .machine b{color:var(--text);}
+  .stat-strip{margin-top:34px;display:flex;gap:36px;}
+  .stat .n{font-size:30px;font-weight:800;color:var(--text);}
+  .stat .t{font-size:14px;color:var(--muted);margin-top:4px;letter-spacing:.04em;}
+  .stat .n.xp{color:var(--green);}
+
+  /* right rail: avatar + big rank/xp */
+  .rail{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;border-left:1px solid var(--line);}
+  .avatar{width:140px;height:140px;border-radius:50%;border:5px solid var(--green);background:radial-gradient(circle at 50% 40%,#2a3550,#121a2e);display:flex;align-items:center;justify-content:center;font-size:56px;box-shadow:0 0 36px rgba(159,239,0,.35);}
+  .rail .url{position:absolute;bottom:22px;color:var(--muted);font-size:14px;}
+
+  /* the in-app modal that triggers it */
+  .panel{width:1200px;max-width:100%;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  .panel .txt{color:var(--text);font-size:15px;}
+  .panel .txt small{display:block;color:var(--muted);margin-top:4px;}
+  .btns{display:flex;gap:10px;}
+  .btn{padding:12px 18px;border-radius:9px;border:none;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+  .btn.x{background:#1da1f2;color:#fff;}
+  .btn.li{background:#0a66c2;color:#fff;}
+  .btn.dl{background:var(--green);color:#0e1525;}
+  .btn.cp{background:#2a3550;color:var(--text);}
+</style>
+</head>
+<body>
+  <div class="label">The exported share image (1200 × 630 — Twitter / LinkedIn / Discord)</div>
+
+  <div class="card">
+    <div class="body">
+      <div class="brand"><span class="mark">▣</span> HACK THE BOX</div>
+      <div class="headline"><span class="name">silo</span> just pwned a machine!</div>
+      <div class="machine">Owned <b>Academy</b> · ranked <b>#5941</b></div>
+      <div class="stat-strip">
+        <div class="stat"><div class="n xp">+585</div><div class="t">XP EARNED</div></div>
+        <div class="stat"><div class="n">22 Jan 2021</div><div class="t">PWN DATE</div></div>
+        <div class="stat"><div class="n">Retired</div><div class="t">STATE</div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="avatar">🧑‍💻</div>
+      <div class="url">hackthebox.com</div>
+    </div>
+  </div>
+
+  <div class="label">…and the in-app modal that generates &amp; shares it</div>
+
+  <div class="panel">
+    <div class="txt">You have solved Academy! <small>Share your win — image auto-generated above.</small></div>
+    <div class="btns">
+      <button class="btn x">𝕏 Share on X</button>
+      <button class="btn li">in Share</button>
+      <button class="btn dl">⬇ Save image</button>
+      <button class="btn cp">🔗 Copy link</button>
+    </div>
+  </div>
+</body>
+</html>
