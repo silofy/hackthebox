@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Content section — variations</title>
 <link rel="stylesheet" href="https://use.typekit.net/jxn7iyx.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,1,0">
 <style>
   :root{
     --brand-primary:#C5F566; --brand-primary-dim:#C5F56620; --brand-primary-muted:#C5F56610;
@@ -75,6 +76,28 @@
   .v5 .chips{margin-top:16px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;}
   .v5 .mchip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-full);padding:5px 12px;font-size:13px;color:var(--text-secondary);}
   .v5 .mchip .v{color:var(--text-primary);}
+
+  /* ── dual-hero shared (XP + Rank equal weight) ── */
+  .material-symbols-rounded{font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;line-height:1;}
+  .rankicon{font-size:42px;color:#C06FF6;}            /* echoes the XP icon's purple */
+  .dual{margin-top:18px;display:flex;align-items:stretch;}
+  .dual .h{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;padding:6px 8px;}
+  .dual .h + .h{border-left:1px solid var(--border-subtle);}
+  .dual .ico{display:flex;align-items:center;justify-content:center;height:46px;}
+  .dual .big{font-size:40px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
+  .dual .big.xp{color:var(--brand-primary);text-shadow:0 0 24px rgba(197,245,102,.3);}
+  .dual .big.rank{color:var(--text-primary);}
+  .dual .l{color:var(--text-muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .submeta{margin-top:16px;padding-top:14px;border-top:1px solid var(--border-subtle);font-size:14px;color:var(--text-muted);display:flex;justify-content:center;align-items:center;gap:10px;}
+  .submeta .sep{color:var(--text-dim);}
+
+  /* V7 tiles */
+  .v7 .tiles{margin-top:16px;display:flex;gap:10px;}
+  .v7 .tile{flex:1;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;}
+  .v7 .tile .big{font-size:36px;line-height:1;font-variant-numeric:tabular-nums;}
+  .v7 .tile .big.xp{color:var(--brand-primary);}
+  .v7 .tile .big.rank{color:var(--text-primary);}
+  .v7 .tile .l{color:var(--text-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;}
 </style>
 </head>
 <body>
@@ -156,6 +179,40 @@
       <span class="mchip tag-state" style="border-radius:100px">Retired</span>
       <span class="mchip"><span class="v">22 Jan 2021</span></span>
     </div>
+  </div>
+</div>
+
+<!-- V6 -->
+<div>
+  <div class="vlabel">V6 · Dual hero (XP = Rank)</div>
+  <div class="panel">
+    <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+    <div class="dual">
+      <div class="h">
+        <div class="ico"><svg class="xpicon"><use href="#xp"/></svg></div>
+        <div class="big xp">585</div>
+        <div class="l">XP Earned</div>
+      </div>
+      <div class="h">
+        <div class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></div>
+        <div class="big rank">#5941</div>
+        <div class="l">Machine Rank</div>
+      </div>
+    </div>
+    <div class="submeta"><span class="tag-state">Retired</span><span class="sep">·</span>22 Jan 2021</div>
+  </div>
+</div>
+
+<!-- V7 -->
+<div>
+  <div class="vlabel">V7 · Dual tiles</div>
+  <div class="panel v7">
+    <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+    <div class="tiles">
+      <div class="tile"><svg class="xpicon"><use href="#xp"/></svg><div class="big xp">585</div><div class="l">XP Earned</div></div>
+      <div class="tile"><span class="material-symbols-rounded rankicon">social_leaderboard</span><div class="big rank">#5941</div><div class="l">Machine Rank</div></div>
+    </div>
+    <div class="submeta"><span class="tag-state">Retired</span><span class="sep">·</span>22 Jan 2021</div>
   </div>
 </div>
 
