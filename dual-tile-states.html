@@ -15,6 +15,7 @@
     --blood:#F35E5E; --blood-deep:#C0392B;
     --radius-md:8px; --radius-lg:10px; --radius-full:100px;
     --font-sans:'neue-haas-unica',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    --font-mono:'roboto-mono','SF Mono',Consolas,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);font-weight:500;-webkit-font-smoothing:antialiased;}
   body{background:var(--surface-base);display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:28px;padding:48px 20px;}
@@ -27,8 +28,8 @@
   .chip img{width:24px;height:24px;border-radius:var(--radius-full);object-fit:cover;}
 
   /* tiles */
-  .tiles{margin-top:16px;display:flex;gap:10px;}
-  .tile{flex:1;min-width:0;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .tiles{margin-top:16px;display:flex;gap:10px;align-items:stretch;}
+  .tile{flex:1;min-width:0;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:16px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
   .tile .ico{height:46px;display:flex;align-items:center;justify-content:center;}
   .xpicon{width:46px;height:46px;display:block;}
   .rankicon{font-size:42px;color:#C06FF6;}
@@ -39,18 +40,16 @@
   .big.rank{color:var(--text-primary);}
   .tile .l{color:var(--text-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.3;}
 
-  /* first-blood tile accent (subtle, keeps tiles balanced) */
+  /* first-blood tile accent + in-tile time */
   .tile.fb{border-color:rgba(243,94,94,.4);background:linear-gradient(180deg,var(--surface-card),rgba(243,94,94,.07));}
   .tile.fb.sys{border-color:rgba(192,57,43,.5);background:linear-gradient(180deg,var(--surface-card),rgba(192,57,43,.09));}
+  .fbt{margin-top:4px;display:flex;flex-direction:column;gap:4px;width:100%;}
+  .fbt .row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;}
+  .fbt .flag{color:var(--blood);letter-spacing:.02em;}
+  .fbt .row.sys .flag{color:var(--blood-deep);}
+  .fbt .time{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-primary);letter-spacing:.02em;}
 
-  /* first-blood timestamped lines */
-  .fblines{margin-top:14px;display:flex;flex-direction:column;gap:7px;align-items:center;}
-  .fbitem{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--blood);background:rgba(243,94,94,.08);border:1px solid rgba(243,94,94,.25);border-radius:var(--radius-full);padding:5px 13px;}
-  .fbitem.sys{color:var(--blood-deep);background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.3);}
-  .fbitem .drop{width:11px;height:13px;flex:0 0 auto;}
-  .fbitem .t{color:var(--text-secondary);}
-
-  /* submeta: solved-while state + date */
+  /* submeta */
   .submeta{margin-top:16px;padding-top:14px;border-top:1px solid var(--border-subtle);font-size:14px;color:var(--text-muted);display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
   .submeta .sep{color:var(--text-dim);}
   .state{display:inline-block;border-radius:var(--radius-full);padding:3px 10px;font-size:13px;}
@@ -82,50 +81,58 @@
   </div>
 </div>
 
-<!-- USER BLOOD (you got user first blood, but someone rooted first → rank #2) -->
+<!-- USER BLOOD (rank #2 — someone rooted first) -->
 <div>
   <div class="vlabel">First Blood · User (rank #2)</div>
   <div class="panel">
     <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
     <div class="tiles">
       <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
-      <div class="tile fb"><span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span><div class="big rank">#2</div><div class="l">Machine Rank</div></div>
-    </div>
-    <div class="fblines">
-      <span class="fbitem"><svg class="drop"><use href="#drop"/></svg>User first blood<span class="t">22 Jan 2021 · 14:32 UTC</span></span>
+      <div class="tile fb">
+        <span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span>
+        <div class="big rank">#2</div>
+        <div class="l">Machine Rank</div>
+        <div class="fbt"><div class="row"><span class="flag">User blood</span><span class="time">0H 21M 4S</span></div></div>
+      </div>
     </div>
     <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
   </div>
 </div>
 
-<!-- SYSTEM BLOOD (first to root → rank #1) -->
+<!-- SYSTEM BLOOD (rank #1) -->
 <div>
   <div class="vlabel">First Blood · System (rank #1)</div>
   <div class="panel">
     <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
     <div class="tiles">
       <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
-      <div class="tile fb sys"><span class="ico"><svg class="drop" style="color:var(--blood-deep)"><use href="#drop"/></svg></span><div class="big rank">#1</div><div class="l">Machine Rank</div></div>
-    </div>
-    <div class="fblines">
-      <span class="fbitem sys"><svg class="drop"><use href="#drop"/></svg>System first blood<span class="t">22 Jan 2021 · 16:05 UTC</span></span>
+      <div class="tile fb sys">
+        <span class="ico"><svg class="drop" style="color:var(--blood-deep)"><use href="#drop"/></svg></span>
+        <div class="big rank">#1</div>
+        <div class="l">Machine Rank</div>
+        <div class="fbt"><div class="row sys"><span class="flag">System blood</span><span class="time">1H 05M 12S</span></div></div>
+      </div>
     </div>
     <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
   </div>
 </div>
 
-<!-- BOTH (user + system first blood → rank #1, two timestamped lines) -->
+<!-- BOTH (rank #1 — two times in-tile) -->
 <div>
   <div class="vlabel">First Blood · User + System (rank #1)</div>
   <div class="panel">
     <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
     <div class="tiles">
       <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
-      <div class="tile fb sys"><span class="ico"><span class="drops"><svg class="drop" style="width:24px;height:28px;color:var(--blood)"><use href="#drop"/></svg><svg class="drop" style="width:24px;height:28px;color:var(--blood-deep)"><use href="#drop"/></svg></span></span><div class="big rank">#1</div><div class="l">Machine Rank</div></div>
-    </div>
-    <div class="fblines">
-      <span class="fbitem"><svg class="drop"><use href="#drop"/></svg>User first blood<span class="t">22 Jan 2021 · 14:32 UTC</span></span>
-      <span class="fbitem sys"><svg class="drop"><use href="#drop"/></svg>System first blood<span class="t">22 Jan 2021 · 16:05 UTC</span></span>
+      <div class="tile fb sys">
+        <span class="ico"><span class="drops"><svg class="drop" style="width:24px;height:28px;color:var(--blood)"><use href="#drop"/></svg><svg class="drop" style="width:24px;height:28px;color:var(--blood-deep)"><use href="#drop"/></svg></span></span>
+        <div class="big rank">#1</div>
+        <div class="l">Machine Rank</div>
+        <div class="fbt">
+          <div class="row"><span class="flag">User blood</span><span class="time">0H 21M 4S</span></div>
+          <div class="row sys"><span class="flag">System blood</span><span class="time">1H 05M 12S</span></div>
+        </div>
+      </div>
     </div>
     <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
   </div>
