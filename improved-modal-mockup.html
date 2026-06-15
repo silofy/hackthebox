@@ -54,127 +54,171 @@
   .label{color:var(--text-muted);font-size:12px;font-weight:700;line-height:1.2;letter-spacing:.08em;text-transform:uppercase;}
 
   /* ════════════════════════════════════════════════════════════════
-     Modal Expressive — responsive sizing system
-     (values read from spec screenshot — CONFIRM exact %/px)
-
-       Max-width tier   | % of viewport | px cap (this modal = "Small")
-       -----------------|---------------|------------------------------
-       Medium           |  ~70%         |
-       Small            |  ~50%         |  440px
-       X-small          |  ~30%         |
-       Collapses toward full-width at the mobile breakpoint.
-
-       Max-height tiers : 90% / 70% / 50% of viewport (this modal = 90%);
-                          body scrolls internally past the cap.
+     Modal Expressive — responsive sizing (values read from spec; CONFIRM)
+       Max-width : Small tier — min(50vw, 440px), widens on smaller bp's
+       Max-height: 90% tier   — body scrolls internally past the cap
      ════════════════════════════════════════════════════════════════ */
-  :root{
-    --modal-max-w:440px;   /* Small tier, px cap */
-    --modal-vw:50vw;       /* Small tier, % of viewport */
-    --modal-max-h:90vh;    /* 90% max-height tier */
-  }
-  @media (max-width:1024px){ :root{ --modal-vw:62vw; } }  /* M breakpoint */
-  @media (max-width:768px){  :root{ --modal-vw:80vw; } }  /* S breakpoint */
-  @media (max-width:600px){  :root{ --modal-vw:92vw; --modal-max-h:94vh; } } /* XS / mobile */
+  :root{ --modal-max-w:440px; --modal-vw:50vw; --modal-max-h:90vh; }
+  @media (max-width:1024px){ :root{ --modal-vw:62vw; } }
+  @media (max-width:768px){  :root{ --modal-vw:80vw; } }
+  @media (max-width:600px){  :root{ --modal-vw:92vw; --modal-max-h:94vh; } }
 
-  /* ── Modal frame (surface.panel + radius.xl + elevation.3) ── */
+  /* ── Modal frame ── */
   .modal{
     position:relative;
     width:min(var(--modal-vw),var(--modal-max-w));
     max-height:var(--modal-max-h);
-    display:flex;flex-direction:column;
+    display:flex;flex-direction:column;overflow:hidden;
     background:var(--surface-panel);
     border:1px solid var(--border-default);
     border-radius:var(--radius-xl);
     box-shadow:var(--elevation-3);
-    text-align:center;overflow:hidden;
     animation:rise .3s var(--ease-enter) both;
   }
-  /* scrollable content region — keeps glow/close/confetti pinned to the frame */
+  @keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+  .close{position:absolute;top:14px;right:16px;z-index:3;color:var(--text-dim);font-size:16px;line-height:1;cursor:pointer;}
+  .close:hover{color:var(--text-secondary);}
+
+  /* ════ ZONE 1 · HERO — image + animated background ONLY (no text) ════ */
+  .m-hero{
+    position:relative;flex:0 0 auto;
+    height:clamp(200px,36vh,260px);
+    background:var(--surface-hover);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .m-hero .bg{position:absolute;inset:0;width:100%;height:100%;}
+  .avatar{
+    position:relative;z-index:1;
+    width:104px;height:104px;border-radius:var(--radius-full);
+    border:3px solid var(--brand-primary);overflow:hidden;
+    background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));
+    box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);
+    animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* ════ ZONE 2 · BODY — all text + actions live here ════ */
   .m-body{
     flex:1 1 auto;min-height:0;overflow-y:auto;
-    padding:32px 24px 20px;
+    padding:26px 28px 24px;text-align:center;
     scrollbar-width:thin;scrollbar-color:var(--border-default) transparent;
   }
   .m-body::-webkit-scrollbar{width:3px;}
   .m-body::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:var(--radius-full);}
-  @keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
-  .glow{position:absolute;top:-90px;left:50%;transform:translateX(-50%);width:280px;height:280px;
-        background:radial-gradient(circle,rgba(197,245,102,.14),transparent 70%);pointer-events:none;}
-  .close{position:absolute;top:14px;right:16px;color:var(--text-dim);font-size:14px;cursor:pointer;line-height:1;}
 
-  /* ── Badge (brand border + green glow) ── */
-  .badge{
-    width:96px;height:96px;border-radius:var(--radius-full);margin:0 auto 16px;
-    background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));
-    border:3px solid var(--brand-primary);
-    display:flex;align-items:center;justify-content:center;overflow:hidden;
-    box-shadow:var(--glow-green);
-    animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;
-  }
-  .badge img{width:100%;height:100%;object-fit:cover;}
-  @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
-
-  /* ── Title / subtitle (type.heading + type.body.sm) ── */
-  .title{font-size:18px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.2;}
-  .subtitle{margin-top:6px;color:var(--text-secondary);font-size:13px;font-weight:500;line-height:1.5;
+  .title{font-size:22px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.2;}
+  .subtitle{margin-top:8px;color:var(--text-secondary);font-size:13px;font-weight:500;line-height:1.5;
             display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
-  /* online-style pill for the username */
   .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 8px;
         font-size:11px;font-weight:700;letter-spacing:.04em;
         background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
   .chip .dot{width:7px;height:7px;border-radius:var(--radius-full);background:var(--success);box-shadow:var(--glow-green);}
 
-  /* ── Hero XP (type.display, tabular-nums) ── */
-  .hero{margin:24px 0 4px;}
-  .hero .xp{font-size:64px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);
+  .hero{margin:20px 0 4px;}
+  .hero .xp{font-size:56px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);
             font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
-  .hero .xp small{font-size:24px;vertical-align:super;opacity:.7;margin-right:2px;}
-  .hero .lbl{margin-top:4px;color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .hero .xp small{font-size:22px;vertical-align:super;opacity:.7;margin-right:2px;}
+  .hero .lbl{margin-top:2px;color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
 
-  /* ── Variant A · single inline meta line ── */
-  .metaline{margin-top:18px;color:var(--text-muted);font-size:13px;font-weight:500;
+  .metaline{margin-top:14px;color:var(--text-muted);font-size:13px;font-weight:500;
             display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
-  .metaline b{color:var(--text-secondary);font-weight:700;}
-  .metaline .rank{color:var(--text-primary);font-variant-numeric:tabular-nums;}
+  .metaline .rank{color:var(--text-primary);font-variant-numeric:tabular-nums;font-weight:700;}
   .metaline .sep{color:var(--text-dim);}
   .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 8px;
              font-size:11px;font-weight:700;letter-spacing:.04em;
              background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
 
-  /* ── Actions ── */
-  .share{width:100%;margin-top:22px;padding:12px;border:none;border-radius:var(--radius-md);
-         background:var(--brand-primary);color:#111111;font-family:var(--font-sans);font-size:14px;font-weight:700;
-         cursor:pointer;transition:background .1s ease;}
-  .share:hover{background:var(--brand-primary-hover);}
-  .share:active{transform:scale(.98);}
-  .share:focus-visible{outline:none;box-shadow:0 0 0 2px var(--surface-panel),0 0 0 4px var(--brand-primary);}
-  .dismiss{display:block;width:100%;margin-top:10px;padding:8px;background:none;border:none;
-           color:var(--text-muted);font-family:var(--font-sans);font-size:13px;font-weight:500;cursor:pointer;transition:color .1s ease;}
-  .dismiss:hover{color:var(--text-secondary);}
+  /* actions — two side-by-side, per base anatomy */
+  .actions{margin-top:24px;display:flex;gap:10px;}
+  .btn{flex:1;padding:12px;border:none;border-radius:var(--radius-md);
+       font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:pointer;transition:background .1s ease,border-color .1s ease,color .1s ease;}
+  .btn.secondary{background:var(--surface-active);color:var(--text-primary);border:1px solid var(--border-default);}
+  .btn.secondary:hover{background:var(--surface-hover);border-color:var(--border-hover);}
+  .btn.primary{background:var(--brand-primary);color:#111111;}
+  .btn.primary:hover{background:var(--brand-primary-hover);}
+  .btn:active{transform:scale(.98);}
+  .btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--surface-panel),0 0 0 4px var(--brand-primary);}
 
-  /* ── Confetti (semantic palette) ── */
-  .confetti{position:absolute;top:-12px;width:7px;height:13px;border-radius:1px;opacity:.9;animation:fall 2.4s linear infinite;}
-  @keyframes fall{to{transform:translateY(520px) rotate(540deg);opacity:0}}
-
-  @media (prefers-reduced-motion:reduce){
-    .modal,.badge,.confetti{animation:none!important;}
-  }
+  @media (prefers-reduced-motion:reduce){ .modal,.avatar,.bg *{animation:none!important;} }
 </style>
 </head>
 <body>
-  <div class="label">Solve modal · HTB design system · variant A</div>
+  <div class="label">Solve modal · two-zone base · HTB design system</div>
 
   <div class="modal">
-    <div class="glow"></div>
-    <span class="close">×</span>
-    <div class="confetti" style="left:12%;background:var(--brand-primary);animation-delay:0s"></div>
-    <div class="confetti" style="left:30%;background:var(--info);animation-delay:.4s"></div>
-    <div class="confetti" style="left:55%;background:var(--warning);animation-delay:.2s"></div>
-    <div class="confetti" style="left:74%;background:var(--vip);animation-delay:.6s"></div>
-    <div class="confetti" style="left:88%;background:var(--brand-primary);animation-delay:.3s"></div>
+    <span class="close">✕</span>
 
+    <!-- ZONE 1 · HERO : image + animated background only -->
+    <div class="m-hero">
+      <svg class="bg" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="vig" cx="50%" cy="48%" r="60%">
+            <stop offset="20%" stop-color="#151F2E" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#151F2E" stop-opacity="0.6"/>
+          </radialGradient>
+          <radialGradient id="b1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#9FEF00" stop-opacity="0.28"/>
+            <stop offset="45%" stop-color="#9FEF00" stop-opacity="0.154"/>
+            <stop offset="75%" stop-color="#9FEF00" stop-opacity="0.042"/>
+            <stop offset="100%" stop-color="#9FEF00" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="b2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#79B500" stop-opacity="0.18"/>
+            <stop offset="45%" stop-color="#79B500" stop-opacity="0.099"/>
+            <stop offset="100%" stop-color="#79B500" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="300" height="260" fill="#1E2A3A"/>
+        <ellipse cx="150" cy="130" rx="200" ry="170" fill="url(#b1)">
+          <animate attributeName="cx" values="150;200;150;100;150" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          <animate attributeName="cy" values="130;90;170;90;130" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          <animate attributeName="rx" values="200;150;230;130;200" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          <animate attributeName="ry" values="170;130;190;110;170" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+        </ellipse>
+        <ellipse cx="150" cy="130" rx="130" ry="110" fill="url(#b2)">
+          <animate attributeName="cx" values="150;90;210;90;150" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+          <animate attributeName="cy" values="130;170;90;170;130" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+        </ellipse>
+        <rect width="300" height="260" fill="url(#vig)"/>
+
+        <!-- rising binary glyphs -->
+        <g transform="translate(46,200)"><text font-family="'roboto-mono',monospace" font-size="12" font-weight="700" fill="rgba(159,239,0,.5)" opacity="0">10
+          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;6,-150" dur="7s" begin="-1s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/></text></g>
+        <g transform="translate(238,220)"><text font-family="'roboto-mono',monospace" font-size="11" font-weight="700" fill="rgba(159,239,0,.42)" opacity="0">01
+          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-8,-180" dur="8.5s" begin="-4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;.42;.42;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/></text></g>
+        <g transform="translate(150,240)"><text font-family="'roboto-mono',monospace" font-size="13" font-weight="700" fill="rgba(159,239,0,.5)" opacity="0">1
+          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;4,-200" dur="9s" begin="-6s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="9s" begin="-6s" repeatCount="indefinite"/></text></g>
+
+        <!-- rotating hexagons (node motif) -->
+        <g transform="translate(60,70)"><polygon points="7,0 3.5,6.06 -3.5,6.06 -7,0 -3.5,-6.06 3.5,-6.06" fill="none" stroke="rgba(159,239,0,.35)" stroke-width="0.75" opacity="0">
+          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-26,-18" dur="5s" begin="-7s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;360" dur="31.5s" begin="-7s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;.7;.7;0" keyTimes="0;.3;.7;1" dur="5s" begin="-7s" repeatCount="indefinite"/></polygon></g>
+        <g transform="translate(244,76)"><polygon points="6,0 3,5.196 -3,5.196 -6,0 -3,-5.196 3,-5.196" fill="none" stroke="rgba(159,239,0,.3)" stroke-width="0.75" opacity="0">
+          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-30,16" dur="6s" begin="-4s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="25.5s" begin="-4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-4s" repeatCount="indefinite"/></polygon></g>
+        <g transform="translate(210,150)"><polygon points="5,0 2.5,4.33 -2.5,4.33 -5,0 -2.5,-4.33 2.5,-4.33" fill="none" stroke="rgba(159,239,0,.28)" stroke-width="0.75" opacity="0">
+          <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-16,34" dur="6s" begin="-1s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="41.25s" begin="-1s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-1s" repeatCount="indefinite"/></polygon></g>
+        <circle cx="84" cy="120" r="2" fill="rgba(159,239,0,.45)" opacity="0">
+          <animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-22,-38" dur="5s" begin="-3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.3;.7;1" dur="5s" begin="-3s" repeatCount="indefinite"/></circle>
+        <circle cx="225" cy="120" r="2" fill="rgba(159,239,0,.4)" opacity="0">
+          <animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;30,-26" dur="6s" begin="-5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.3;.7;1" dur="6s" begin="-5s" repeatCount="indefinite"/></circle>
+      </svg>
+
+      <div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint machine avatar"></div>
+    </div>
+
+    <!-- ZONE 2 · BODY : all text + actions -->
     <div class="m-body">
-      <div class="badge"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint machine avatar"></div>
       <div class="title">You have solved Checkpoint!</div>
       <div class="subtitle">
         Congratulations
@@ -195,8 +239,10 @@
         Jan 22, 2021
       </div>
 
-      <button class="share">Share your win</button>
-      <button class="dismiss">Continue</button>
+      <div class="actions">
+        <button class="btn secondary">Continue</button>
+        <button class="btn primary">Share your win</button>
+      </div>
     </div>
   </div>
 </body>
