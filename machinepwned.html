@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body{margin:0;background:#0f1624;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif}
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<svg width="300" height="420" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg" style="border-radius:8px;overflow:hidden">
+  <defs>
+    <radialGradient id="vig" cx="50%" cy="48%" r="60%">
+      <stop offset="20%" stop-color="#151F2E" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#151F2E" stop-opacity="0.88"/>
+    </radialGradient>
+    <radialGradient id="b1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#9FEF00" stop-opacity="0.28"/>
+      <stop offset="45%"  stop-color="#9FEF00" stop-opacity="0.154"/>
+      <stop offset="75%"  stop-color="#9FEF00" stop-opacity="0.042"/>
+      <stop offset="100%" stop-color="#9FEF00" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="b2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#79B500" stop-opacity="0.18"/>
+      <stop offset="45%"  stop-color="#79B500" stop-opacity="0.099"/>
+      <stop offset="75%"  stop-color="#79B500" stop-opacity="0.027"/>
+      <stop offset="100%" stop-color="#79B500" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="300" height="420" fill="#141c2e"/>
+
+  <!-- ── shared glow blobs (same family as rank) ── -->
+  <ellipse cx="150" cy="210" rx="230" ry="320" fill="url(#b1)">
+    <animate attributeName="cx" values="150;207;150;93;150"  dur="18s"   repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    <animate attributeName="cy" values="210;147;273;147;210" dur="18s"   repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    <animate attributeName="rx" values="230;170;260;140;230" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    <animate attributeName="ry" values="320;240;350;200;320" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+  </ellipse>
+  <ellipse cx="150" cy="210" rx="149" ry="207" fill="url(#b2)">
+    <animate attributeName="cx" values="150;83;213;83;150"   dur="22s"    repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    <animate attributeName="cy" values="210;273;147;273;210" dur="22s"    repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    <animate attributeName="rx" values="149;100;180;90;149"  dur="10.35s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    <animate attributeName="ry" values="207;150;240;120;207" dur="10.35s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" values="0,0;12,8;0,0;-12,-8;0,0" dur="13s" repeatCount="indefinite" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+  </ellipse>
+
+  <rect width="300" height="420" fill="url(#vig)"/>
+
+  <!-- ════════ MACHINE MOTIF ════════ -->
+
+  <!-- ── rising binary glyphs (data stream) ── -->
+  <g transform="translate(58,300)">
+    <text font-family="'roboto-mono',monospace" font-size="12" font-weight="700" fill="rgba(159,239,0,.5)" opacity="0">10
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;6,-150" dur="7s" begin="-1s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" values="0,0;5,0;0,0;-5,0;0,0" dur="11s" begin="-2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/>
+    </text>
+  </g>
+  <g transform="translate(212,330)">
+    <text font-family="'roboto-mono',monospace" font-size="11" font-weight="700" fill="rgba(159,239,0,.42)" opacity="0">01
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-8,-170" dur="8.5s" begin="-4s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" values="0,0;-6,0;0,0;6,0;0,0" dur="14s" begin="-3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.42;.42;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/>
+    </text>
+  </g>
+  <g transform="translate(150,360)">
+    <text font-family="'roboto-mono',monospace" font-size="13" font-weight="700" fill="rgba(159,239,0,.55)" opacity="0">1
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;4,-190" dur="9s" begin="-6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.55;.55;0" keyTimes="0;.25;.7;1" dur="9s" begin="-6s" repeatCount="indefinite"/>
+    </text>
+  </g>
+  <g transform="translate(96,340)">
+    <text font-family="'roboto-mono',monospace" font-size="10" font-weight="700" fill="rgba(159,239,0,.38)" opacity="0">0
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-3,-160" dur="7.5s" begin="-3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.38;.38;0" keyTimes="0;.25;.7;1" dur="7.5s" begin="-3s" repeatCount="indefinite"/>
+    </text>
+  </g>
+  <g transform="translate(248,300)">
+    <text font-family="'roboto-mono',monospace" font-size="11" font-weight="700" fill="rgba(159,239,0,.4)" opacity="0">10
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-5,-200" dur="9.5s" begin="-8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.25;.7;1" dur="9.5s" begin="-8s" repeatCount="indefinite"/>
+    </text>
+  </g>
+
+  <!-- ── rotating hexagon outlines (node / cube motif) ── -->
+  <g transform="translate(78,150)">
+    <polygon points="7,0 3.5,6.06 -3.5,6.06 -7,0 -3.5,-6.06 3.5,-6.06" fill="none" stroke="rgba(159,239,0,.35)" stroke-width="0.75" opacity="0">
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-34,-28" dur="5s" begin="-7s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" values="0,0;-5,-8;0,0;5,8;0,0" dur="11s" begin="-2s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;360" dur="31.5s" begin="-7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.7;.7;0" keyTimes="0;.3;.7;1" dur="5s" begin="-7s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+  <g transform="translate(266,148)">
+    <polygon points="6,0 3,5.196 -3,5.196 -6,0 -3,-5.196 3,-5.196" fill="none" stroke="rgba(159,239,0,.3)" stroke-width="0.75" opacity="0">
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-40,18" dur="6s" begin="-4s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" values="0,0;-8,6;0,0;8,-6;0,0" dur="13s" begin="-9s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="25.5s" begin="-4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-4s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+  <g transform="translate(36,232)">
+    <polygon points="8,0 4,6.93 -4,6.93 -8,0 -4,-6.93 4,-6.93" fill="none" stroke="rgba(159,239,0,.22)" stroke-width="0.75" opacity="0">
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-18,-34" dur="8s" begin="-3s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" values="0,0;6,-7;0,0;-6,7;0,0" dur="16s" begin="-8s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;360" dur="46.5s" begin="-3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.3;.7;1" dur="8s" begin="-3s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+  <g transform="translate(208,170)">
+    <polygon points="5,0 2.5,4.33 -2.5,4.33 -5,0 -2.5,-4.33 2.5,-4.33" fill="none" stroke="rgba(159,239,0,.28)" stroke-width="0.75" opacity="0">
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-16,40" dur="6s" begin="-1s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" values="0,0;7,-6;0,0;-7,6;0,0" dur="17s" begin="-8s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="41.25s" begin="-1s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-1s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+
+  <!-- ── solid node dots (drift, same as rank dots) ── -->
+  <circle cx="84"  cy="201" r="2"   fill="rgba(159,239,0,.45)" opacity="0">
+    <animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-22,-38" dur="5s" begin="-3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.3;.7;1" dur="5s" begin="-3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="174" cy="126" r="1.5" fill="rgba(159,239,0,.4)"  opacity="0">
+    <animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;36,28" dur="6s" begin="-8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.3;.7;1" dur="6s" begin="-8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="225" cy="234" r="2"   fill="rgba(159,239,0,.45)" opacity="0">
+    <animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-30,-26" dur="5s" begin="-5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.3;.7;1" dur="5s" begin="-5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="270" cy="216" r="1.5" fill="rgba(159,239,0,.4)"  opacity="0">
+    <animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;34,-16" dur="7s" begin="-6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.3;.7;1" dur="7s" begin="-6s" repeatCount="indefinite"/>
+  </circle>
+</svg>
+</body>
+</html>
