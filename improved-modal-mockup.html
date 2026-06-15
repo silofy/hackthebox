@@ -43,27 +43,27 @@
   @keyframes fade{from{opacity:0}to{opacity:1}}
 
   /* ════ RESULT · hero ════ */
-  .m-hero{position:relative;flex:0 0 auto;height:clamp(190px,34vh,240px);background:var(--surface-hover);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .m-hero{position:relative;flex:0 0 auto;height:clamp(244px,42vh,300px);background:var(--surface-hover);display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .m-hero .bg{position:absolute;inset:0;width:100%;height:100%;}
-  .avatar{position:relative;z-index:1;width:100px;height:100px;border-radius:var(--radius-full);overflow:hidden;
+  .hero-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 20px;text-align:center;}
+  .avatar{width:96px;height:96px;border-radius:var(--radius-full);overflow:hidden;
           background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;}
   .avatar img{width:100%;height:100%;object-fit:cover;}
   @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+  .mname{font-size:24px;font-weight:500;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.15;text-shadow:0 2px 10px rgba(0,0,0,.5);}
+  .mspec{margin-top:6px;font-size:13px;color:var(--text-secondary);display:flex;justify-content:center;align-items:center;gap:7px;text-shadow:0 1px 6px rgba(0,0,0,.5);}
+  .mspec .diff{color:var(--warning);}
+  .mspec .os{display:inline-flex;align-items:center;gap:4px;}
+  .mspec .os .material-symbols-rounded{font-size:15px;color:var(--text-muted);}
+  .mspec .sep{color:var(--text-dim);}
 
   /* ════ RESULT · body ════ */
   .m-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:22px 28px 24px;text-align:center;scrollbar-width:thin;scrollbar-color:var(--border-default) transparent;}
   .m-body::-webkit-scrollbar,.s-body::-webkit-scrollbar{width:3px;}
   .m-body::-webkit-scrollbar-thumb,.s-body::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:var(--radius-full);}
 
-  .mname{font-size:24px;font-weight:500;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.15;}
-  .mspec{margin-top:6px;font-size:13px;color:var(--text-secondary);display:flex;justify-content:center;align-items:center;gap:7px;}
-  .mspec .diff{color:var(--warning);}            /* Medium */
-  .mspec .os{display:inline-flex;align-items:center;gap:4px;}
-  .mspec .os .material-symbols-rounded{font-size:15px;color:var(--text-muted);}
-  .mspec .sep{color:var(--text-dim);}
-
-  .subtitle{margin-top:14px;color:var(--text-secondary);font-size:14px;line-height:1.5;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
-  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 11px 3px 4px;font-size:13px;
+  .subtitle{margin-top:2px;color:var(--text-secondary);font-size:14px;line-height:1.5;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 11px 3px 4px;font-size:14px;
         background:var(--surface-hover);color:var(--text-secondary);border:1px solid var(--border-default);}
   .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
 
@@ -124,7 +124,7 @@
   /* ── editable post field (hashtags inline) ── */
   .composer{margin-top:18px;position:relative;}
   .post{width:100%;min-height:110px;resize:vertical;background:var(--surface-input);border:1px solid var(--border-default);border-radius:var(--radius-md);
-        padding:13px 14px;color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.55;outline:none;transition:border-color .12s ease,box-shadow .12s ease;}
+        padding:13px 14px;color:var(--text-primary);font-family:var(--font-sans);font-weight:400;font-size:14px;line-height:1.55;outline:none;transition:border-color .12s ease,box-shadow .12s ease;}
   .post:focus{border-color:var(--brand-primary);box-shadow:0 0 0 2px var(--brand-primary-dim);}
   .post::placeholder{color:var(--text-dim);}
   .ccount{position:absolute;right:10px;bottom:8px;font-size:11px;color:var(--text-dim);font-variant-numeric:tabular-nums;}
@@ -175,17 +175,20 @@
           <circle cx="84" cy="115" r="2" fill="rgba(159,239,0,.45)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-22,-38" dur="5s" begin="-3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.3;.7;1" dur="5s" begin="-3s" repeatCount="indefinite"/></circle>
           <circle cx="225" cy="115" r="2" fill="rgba(159,239,0,.4)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;30,-26" dur="6s" begin="-5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.3;.7;1" dur="6s" begin="-5s" repeatCount="indefinite"/></circle>
         </svg>
-        <div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint machine avatar"></div>
+        <div class="hero-content">
+          <div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint machine avatar"></div>
+          <div>
+            <div class="mname">Checkpoint</div>
+            <div class="mspec">
+              <span class="diff">Medium</span>
+              <span class="sep">·</span>
+              <span class="os"><span class="material-symbols-rounded">desktop_windows</span>Windows</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="m-body">
-        <div class="mname">Checkpoint</div>
-        <div class="mspec">
-          <span class="diff">Medium</span>
-          <span class="sep">·</span>
-          <span class="os"><span class="material-symbols-rounded">desktop_windows</span>Windows</span>
-        </div>
-
         <div class="subtitle">
           Congratulations
           <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span>
