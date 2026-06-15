@@ -3,120 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solve Modal — HTB Design System</title>
+<title>Solve Modal — HTB</title>
 <link rel="stylesheet" href="https://use.typekit.net/jxn7iyx.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0">
 <style>
   :root{
     --brand-primary:#C5F566; --brand-primary-hover:#D4F98A; --brand-primary-dim:#C5F56620; --brand-primary-muted:#C5F56610;
     --surface-base:#0A0E17; --surface-panel:#141D2B; --surface-card:#1A2332; --surface-input:#111927; --surface-hover:#1E2A3A; --surface-active:#243044;
-    --border-default:#1E2D40; --border-subtle:#162030; --border-hover:#2A3E58; --border-focus:#9FEF00;
+    --border-default:#1E2D40; --border-subtle:#162030; --border-hover:#2A3E58;
     --text-primary:#F4F4F4; --text-secondary:#8799B5; --text-muted:#6B7A94; --text-dim:#4A5568;
     --success:#C5F566; --error:#F35E5E; --warning:#F3CB5E; --info:#5E94F3; --vip:#B75EF3;
-    --radius-xs:4px; --radius-sm:6px; --radius-md:8px; --radius-lg:10px; --radius-xl:14px; --radius-full:100px;
+    --radius-sm:6px; --radius-md:8px; --radius-lg:10px; --radius-xl:14px; --radius-full:100px;
     --elevation-3:0 4px 16px rgba(0,0,0,0.4); --glow-green:0 0 8px rgba(159,239,0,0.25);
     --ease-enter:cubic-bezier(0,0,0.2,1);
     --font-sans:'neue-haas-unica',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
     --font-mono:'roboto-mono','SF Mono',Consolas,monospace;
-    /* Modal Expressive responsive sizing (CONFIRM exact %) */
     --modal-max-w:440px; --modal-vw:50vw; --modal-max-h:90vh;
   }
   @media (max-width:1024px){ :root{ --modal-vw:62vw; } }
   @media (max-width:768px){  :root{ --modal-vw:80vw; } }
   @media (max-width:600px){  :root{ --modal-vw:92vw; --modal-max-h:94vh; } }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);font-weight:500;-webkit-font-smoothing:antialiased;}
   body{background:var(--surface-base);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:48px 16px;min-height:100vh;overflow:auto;}
-  .label{color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .label{color:var(--text-muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+  .material-symbols-rounded{font-family:'Material Symbols Rounded';font-weight:normal;line-height:1;display:inline-block;}
 
   /* ── Modal frame ── */
-  .modal{
-    position:relative;width:min(var(--modal-vw),var(--modal-max-w));max-height:var(--modal-max-h);
-    display:flex;flex-direction:column;overflow:hidden;
-    background:var(--surface-panel);border:1px solid var(--border-default);border-radius:var(--radius-xl);
-    box-shadow:var(--elevation-3);animation:rise .3s var(--ease-enter) both;
-  }
+  .modal{position:relative;width:min(var(--modal-vw),var(--modal-max-w));max-height:var(--modal-max-h);
+         display:flex;flex-direction:column;overflow:hidden;background:var(--surface-panel);
+         border:1px solid var(--border-default);border-radius:var(--radius-xl);box-shadow:var(--elevation-3);animation:rise .3s var(--ease-enter) both;}
   @keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
-  .close{position:absolute;top:14px;right:16px;z-index:3;color:var(--text-dim);font-size:16px;line-height:1;cursor:pointer;background:none;border:none;}
+  .close{position:absolute;top:12px;right:14px;z-index:3;color:var(--text-dim);cursor:pointer;background:none;border:none;display:flex;}
+  .close .material-symbols-rounded{font-size:20px;}
   .close:hover{color:var(--text-secondary);}
 
-  /* ── Screen switching (result ⇄ share) ── */
   .screen{display:flex;flex-direction:column;min-height:0;animation:fade .25s var(--ease-enter) both;}
   .modal:not(.sharing) .screen.share{display:none;}
   .modal.sharing .screen.result{display:none;}
   @keyframes fade{from{opacity:0}to{opacity:1}}
 
-  /* ════ RESULT · ZONE 1 hero (image + animated bg only) ════ */
-  .m-hero{position:relative;flex:0 0 auto;height:clamp(200px,36vh,260px);background:var(--surface-hover);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  /* ════ RESULT · hero ════ */
+  .m-hero{position:relative;flex:0 0 auto;height:clamp(190px,34vh,240px);background:var(--surface-hover);display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .m-hero .bg{position:absolute;inset:0;width:100%;height:100%;}
-  .avatar{position:relative;z-index:1;width:104px;height:104px;border-radius:var(--radius-full);overflow:hidden;
-          background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));
-          box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;}
+  .avatar{position:relative;z-index:1;width:100px;height:100px;border-radius:var(--radius-full);overflow:hidden;
+          background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;}
   .avatar img{width:100%;height:100%;object-fit:cover;}
   @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 
-  /* ════ RESULT · ZONE 2 body ════ */
-  .m-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:26px 28px 24px;text-align:center;scrollbar-width:thin;scrollbar-color:var(--border-default) transparent;}
+  /* ════ RESULT · body ════ */
+  .m-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:22px 28px 24px;text-align:center;scrollbar-width:thin;scrollbar-color:var(--border-default) transparent;}
   .m-body::-webkit-scrollbar,.s-body::-webkit-scrollbar{width:3px;}
   .m-body::-webkit-scrollbar-thumb,.s-body::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:var(--radius-full);}
-  .title{font-size:22px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.2;}
-  .subtitle{margin-top:8px;color:var(--text-secondary);font-size:14px;font-weight:500;line-height:1.5;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
-  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 10px 3px 4px;font-size:13px;font-weight:500;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
-  .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
-  .reward{margin-top:20px;}
-  .reward .xp{font-size:58px;line-height:1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
-  .reward .xp .plus{font-size:26px;font-weight:800;vertical-align:18px;opacity:.6;margin-right:1px;}
-  .reward .xp .unit{font-size:20px;font-weight:700;opacity:.7;margin-left:5px;letter-spacing:.01em;}
-  .reward .rlbl{margin-top:5px;color:var(--text-muted);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
-  .meta{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-subtle);
-        display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;color:var(--text-muted);font-weight:500;}
-  .meta .v{color:var(--text-primary);font-weight:700;font-variant-numeric:tabular-nums;}
-  .meta .k{margin-left:5px;}
-  .meta .sep{color:var(--text-dim);}
-  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 9px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
 
-  /* buttons */
-  .actions{margin-top:24px;}
-  .btn{width:100%;padding:13px;border:none;border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:pointer;transition:background .1s ease;display:flex;align-items:center;justify-content:center;gap:8px;}
-  .btn.primary{background:var(--brand-primary);color:#111111;}
-  .btn.primary:hover{background:var(--brand-primary-hover);}
+  .mname{font-size:24px;font-weight:500;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.15;}
+  .mspec{margin-top:6px;font-size:13px;color:var(--text-secondary);display:flex;justify-content:center;align-items:center;gap:7px;}
+  .mspec .diff{color:var(--warning);}            /* Medium */
+  .mspec .os{display:inline-flex;align-items:center;gap:4px;}
+  .mspec .os .material-symbols-rounded{font-size:15px;color:var(--text-muted);}
+  .mspec .sep{color:var(--text-dim);}
+
+  .subtitle{margin-top:14px;color:var(--text-secondary);font-size:14px;line-height:1.5;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 11px 3px 4px;font-size:13px;
+        background:var(--surface-hover);color:var(--text-secondary);border:1px solid var(--border-default);}
+  .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
+
+  .reward{margin-top:20px;}
+  .reward .xp{font-size:56px;line-height:1;font-weight:500;letter-spacing:-0.02em;color:var(--brand-primary);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
+  .reward .xp .plus{font-size:26px;vertical-align:16px;opacity:.6;margin-right:1px;}
+  .reward .xp .unit{font-size:20px;opacity:.7;margin-left:5px;}
+  .reward .rlbl{margin-top:5px;color:var(--text-muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+
+  .meta{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-subtle);
+        display:flex;align-items:center;justify-content:center;gap:12px;font-size:16px;color:var(--text-muted);}
+  .meta .v{color:var(--text-primary);font-variant-numeric:tabular-nums;}
+  .meta .k{margin-left:6px;font-size:14px;}
+  .meta .sep{color:var(--text-dim);}
+  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 10px;font-size:13px;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+
+  .btn{width:100%;margin-top:24px;padding:13px;border:none;border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;font-weight:500;cursor:pointer;background:var(--brand-primary);color:#111;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn .material-symbols-rounded{font-size:18px;}
+  .btn:hover{background:var(--brand-primary-hover);}
   .btn:active{transform:scale(.98);}
-  .btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--surface-panel),0 0 0 4px var(--brand-primary);}
 
   /* ════ SHARE composer ════ */
-  .s-head{display:flex;align-items:center;gap:10px;padding:16px 18px 14px;border-bottom:1px solid var(--border-subtle);flex:0 0 auto;}
-  .back{background:none;border:none;color:var(--text-muted);font-size:18px;line-height:1;cursor:pointer;padding:2px 4px;border-radius:var(--radius-sm);}
-  .back:hover{color:var(--text-primary);background:var(--surface-hover);}
-  .s-title{font-size:15px;font-weight:700;color:var(--text-primary);}
+  .s-head{display:flex;align-items:center;gap:8px;padding:14px 14px 12px;border-bottom:1px solid var(--border-subtle);flex:0 0 auto;}
+  .iconbtn{background:none;border:none;color:var(--text-muted);cursor:pointer;display:flex;padding:4px;border-radius:var(--radius-sm);}
+  .iconbtn .material-symbols-rounded{font-size:22px;}
+  .iconbtn:hover{color:var(--text-primary);background:var(--surface-hover);}
+  .s-title{font-size:15px;color:var(--text-primary);}
   .s-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:18px;scrollbar-width:thin;scrollbar-color:var(--border-default) transparent;}
-  .s-label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin:0 0 8px;}
+  .s-lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin:0 0 9px;}
 
-  /* OG image preview (1200×630) */
-  .og{position:relative;aspect-ratio:1200/630;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-default);
-      background:radial-gradient(80% 120% at 100% 0%,rgba(94,148,243,.18),transparent 55%),radial-gradient(70% 120% at 0% 100%,rgba(197,245,102,.16),transparent 55%),var(--surface-base);
-      display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:14px 16px;}
-  .og .brand{display:flex;align-items:center;gap:7px;color:var(--text-secondary);font-weight:700;font-size:11px;letter-spacing:.04em;}
-  .og .brand .mark{width:16px;height:16px;border-radius:4px;background:var(--brand-primary);color:#111;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;}
-  .og .headline{margin-top:8px;font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.15;}
-  .og .headline b{color:var(--brand-primary);}
-  .og .stats{margin-top:10px;display:flex;gap:16px;}
-  .og .stats .n{font-size:15px;font-weight:800;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+  /* ── enhanced OG card ── */
+  .og{position:relative;aspect-ratio:1200/630;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border-default);
+      background:
+        radial-gradient(90% 130% at 110% -10%, rgba(94,148,243,.22), transparent 55%),
+        radial-gradient(80% 120% at -10% 110%, rgba(197,245,102,.20), transparent 55%),
+        linear-gradient(160deg,#11192a,#0A0E17);}
+  .og::before{content:"";position:absolute;inset:0;opacity:.5;
+      background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:14px 14px;}
+  .og .accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--brand-primary),#79B500);}
+  .og .inner{position:relative;height:100%;display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;padding:18px 20px 18px 22px;}
+  .og .brand{display:flex;align-items:center;gap:7px;color:var(--text-secondary);font-size:10px;letter-spacing:.14em;text-transform:uppercase;}
+  .og .brand svg{width:15px;height:15px;}
+  .og .eyebrow{margin-top:11px;color:var(--brand-primary);font-size:10px;letter-spacing:.16em;text-transform:uppercase;}
+  .og .name{margin-top:3px;font-size:26px;font-weight:500;color:#fff;letter-spacing:-0.01em;line-height:1;}
+  .og .spec{margin-top:6px;font-size:11px;color:var(--text-secondary);}
+  .og .spec .diff{color:var(--warning);}
+  .og .stats{margin-top:14px;display:flex;gap:20px;}
+  .og .stats .n{font-size:18px;color:#fff;font-variant-numeric:tabular-nums;line-height:1;}
   .og .stats .n.xp{color:var(--brand-primary);}
-  .og .stats .t{font-size:9px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-top:1px;}
-  .og .av{width:62px;height:62px;border-radius:var(--radius-full);overflow:hidden;box-shadow:var(--glow-green);}
-  .og .av img{width:100%;height:100%;object-fit:cover;}
+  .og .stats .t{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-top:3px;}
+  .og .side{display:flex;flex-direction:column;align-items:center;gap:9px;}
+  .og .side .pic{width:84px;height:84px;border-radius:var(--radius-full);overflow:hidden;box-shadow:var(--glow-green),0 6px 18px rgba(0,0,0,.5);}
+  .og .side .pic img{width:100%;height:100%;object-fit:cover;}
+  .og .side .user{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary);}
+  .og .side .user img{width:16px;height:16px;border-radius:var(--radius-full);object-fit:cover;}
+  .og .url{position:absolute;left:22px;bottom:12px;font-size:9.5px;color:var(--text-dim);letter-spacing:.06em;}
 
-  /* caption + hashtags */
-  .caption{margin-top:14px;background:var(--surface-input);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:12px;font-size:13px;color:var(--text-secondary);line-height:1.55;text-align:left;}
-  .tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;}
-  .tag{font-size:12px;color:var(--brand-primary);background:var(--brand-primary-muted);border:1px solid var(--brand-primary-dim);border-radius:var(--radius-full);padding:3px 9px;font-weight:500;}
+  /* ── editable post field (hashtags inline) ── */
+  .composer{margin-top:18px;position:relative;}
+  .post{width:100%;min-height:110px;resize:vertical;background:var(--surface-input);border:1px solid var(--border-default);border-radius:var(--radius-md);
+        padding:13px 14px;color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.55;outline:none;transition:border-color .12s ease,box-shadow .12s ease;}
+  .post:focus{border-color:var(--brand-primary);box-shadow:0 0 0 2px var(--brand-primary-dim);}
+  .post::placeholder{color:var(--text-dim);}
+  .ccount{position:absolute;right:10px;bottom:8px;font-size:11px;color:var(--text-dim);font-variant-numeric:tabular-nums;}
 
-  /* platform picker */
-  .platforms{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .pbtn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:var(--radius-md);border:1px solid var(--border-default);background:var(--surface-card);color:var(--text-primary);font-weight:600;font-size:13px;cursor:pointer;transition:background .1s ease,border-color .1s ease;}
-  .pbtn:hover{background:var(--surface-hover);border-color:var(--border-hover);}
-  .pbtn:active{transform:scale(.98);}
-  .pbtn .ic{font-weight:900;font-size:14px;}
-  .pbtn.x .ic{color:#fff;} .pbtn.li .ic{color:#5E94F3;} .pbtn.fb .ic{color:#5E94F3;} .pbtn.rd .ic{color:#F3CB5E;}
-  .pbtn.copy,.pbtn.save{grid-column:span 1;color:var(--text-secondary);}
+  /* ── square icon-only social buttons ── */
+  .socials{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;}
+  .sbtn{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);
+        border:1px solid var(--border-default);background:var(--surface-card);color:var(--text-secondary);cursor:pointer;transition:background .12s ease,border-color .12s ease,color .12s ease;}
+  .sbtn:hover{background:var(--surface-hover);border-color:var(--border-hover);}
+  .sbtn:active{transform:scale(.96);}
+  .sbtn svg{width:20px;height:20px;fill:currentColor;}
+  .sbtn .material-symbols-rounded{font-size:22px;}
+  .sbtn.x:hover{color:#fff;} .sbtn.li:hover{color:#0A66C2;} .sbtn.fb:hover{color:#1877F2;}
+  .sbtn.wa:hover{color:#25D366;} .sbtn.rd:hover{color:#FF4500;} .sbtn.copy:hover,.sbtn.dl:hover{color:var(--brand-primary);}
 
   @media (prefers-reduced-motion:reduce){ .modal,.avatar,.screen,.bg *{animation:none!important;} }
 </style>
@@ -125,47 +147,53 @@
   <div class="label">Solve modal · result → share composer</div>
 
   <div class="modal" id="modal">
-    <button class="close" aria-label="Close">✕</button>
+    <button class="close" aria-label="Close"><span class="material-symbols-rounded">close</span></button>
 
     <!-- ══════════ SCREEN 1 · RESULT ══════════ -->
     <div class="screen result">
       <div class="m-hero">
-        <svg class="bg" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <svg class="bg" viewBox="0 0 300 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="vig" cx="50%" cy="48%" r="60%"><stop offset="20%" stop-color="#151F2E" stop-opacity="0"/><stop offset="100%" stop-color="#151F2E" stop-opacity="0.6"/></radialGradient>
             <radialGradient id="b1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#9FEF00" stop-opacity="0.28"/><stop offset="45%" stop-color="#9FEF00" stop-opacity="0.154"/><stop offset="75%" stop-color="#9FEF00" stop-opacity="0.042"/><stop offset="100%" stop-color="#9FEF00" stop-opacity="0"/></radialGradient>
             <radialGradient id="b2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#79B500" stop-opacity="0.18"/><stop offset="45%" stop-color="#79B500" stop-opacity="0.099"/><stop offset="100%" stop-color="#79B500" stop-opacity="0"/></radialGradient>
           </defs>
-          <rect width="300" height="260" fill="#1E2A3A"/>
-          <ellipse cx="150" cy="130" rx="200" ry="170" fill="url(#b1)">
+          <rect width="300" height="240" fill="#1E2A3A"/>
+          <ellipse cx="150" cy="120" rx="200" ry="165" fill="url(#b1)">
             <animate attributeName="cx" values="150;200;150;100;150" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-            <animate attributeName="cy" values="130;90;170;90;130" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-            <animate attributeName="rx" values="200;150;230;130;200" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-            <animate attributeName="ry" values="170;130;190;110;170" dur="8.05s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+            <animate attributeName="cy" values="120;85;160;85;120" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+            <animate attributeName="rx" values="200;150;230;130;200" dur="8s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
           </ellipse>
-          <ellipse cx="150" cy="130" rx="130" ry="110" fill="url(#b2)">
+          <ellipse cx="150" cy="120" rx="130" ry="105" fill="url(#b2)">
             <animate attributeName="cx" values="150;90;210;90;150" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
-            <animate attributeName="cy" values="130;170;90;170;130" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
           </ellipse>
-          <rect width="300" height="260" fill="url(#vig)"/>
-          <g transform="translate(46,200)"><text font-family="'roboto-mono',monospace" font-size="12" font-weight="700" fill="rgba(159,239,0,.5)" opacity="0">10<animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;6,-150" dur="7s" begin="-1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/></text></g>
-          <g transform="translate(238,220)"><text font-family="'roboto-mono',monospace" font-size="11" font-weight="700" fill="rgba(159,239,0,.42)" opacity="0">01<animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-8,-180" dur="8.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.42;.42;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/></text></g>
-          <g transform="translate(60,70)"><polygon points="7,0 3.5,6.06 -3.5,6.06 -7,0 -3.5,-6.06 3.5,-6.06" fill="none" stroke="rgba(159,239,0,.35)" stroke-width="0.75" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-26,-18" dur="5s" begin="-7s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" additive="sum" values="0;360" dur="31.5s" begin="-7s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;.7;0" keyTimes="0;.3;.7;1" dur="5s" begin="-7s" repeatCount="indefinite"/></polygon></g>
-          <g transform="translate(244,76)"><polygon points="6,0 3,5.196 -3,5.196 -6,0 -3,-5.196 3,-5.196" fill="none" stroke="rgba(159,239,0,.3)" stroke-width="0.75" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-30,16" dur="6s" begin="-4s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="25.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-4s" repeatCount="indefinite"/></polygon></g>
-          <circle cx="84" cy="120" r="2" fill="rgba(159,239,0,.45)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-22,-38" dur="5s" begin="-3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.3;.7;1" dur="5s" begin="-3s" repeatCount="indefinite"/></circle>
-          <circle cx="225" cy="120" r="2" fill="rgba(159,239,0,.4)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;30,-26" dur="6s" begin="-5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.3;.7;1" dur="6s" begin="-5s" repeatCount="indefinite"/></circle>
+          <rect width="300" height="240" fill="url(#vig)"/>
+          <g transform="translate(46,190)"><text font-family="'roboto-mono',monospace" font-size="12" fill="rgba(159,239,0,.5)" opacity="0">10<animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;6,-150" dur="7s" begin="-1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/></text></g>
+          <g transform="translate(238,205)"><text font-family="'roboto-mono',monospace" font-size="11" fill="rgba(159,239,0,.42)" opacity="0">01<animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-8,-180" dur="8.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.42;.42;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/></text></g>
+          <g transform="translate(60,72)"><polygon points="7,0 3.5,6.06 -3.5,6.06 -7,0 -3.5,-6.06 3.5,-6.06" fill="none" stroke="rgba(159,239,0,.35)" stroke-width="0.75" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-26,-18" dur="5s" begin="-7s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" additive="sum" values="0;360" dur="31.5s" begin="-7s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;.7;0" keyTimes="0;.3;.7;1" dur="5s" begin="-7s" repeatCount="indefinite"/></polygon></g>
+          <g transform="translate(244,78)"><polygon points="6,0 3,5.196 -3,5.196 -6,0 -3,-5.196 3,-5.196" fill="none" stroke="rgba(159,239,0,.3)" stroke-width="0.75" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-30,16" dur="6s" begin="-4s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="25.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="6s" begin="-4s" repeatCount="indefinite"/></polygon></g>
+          <circle cx="84" cy="115" r="2" fill="rgba(159,239,0,.45)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;-22,-38" dur="5s" begin="-3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.45;.45;0" keyTimes="0;.3;.7;1" dur="5s" begin="-3s" repeatCount="indefinite"/></circle>
+          <circle cx="225" cy="115" r="2" fill="rgba(159,239,0,.4)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" values="0,0;30,-26" dur="6s" begin="-5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.4;.4;0" keyTimes="0;.3;.7;1" dur="6s" begin="-5s" repeatCount="indefinite"/></circle>
         </svg>
         <div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint machine avatar"></div>
       </div>
 
       <div class="m-body">
-        <div class="title">You have solved Checkpoint!</div>
+        <div class="mname">Checkpoint</div>
+        <div class="mspec">
+          <span class="diff">Medium</span>
+          <span class="sep">·</span>
+          <span class="os"><span class="material-symbols-rounded">desktop_windows</span>Windows</span>
+        </div>
+
         <div class="subtitle">
           Congratulations
-          <span class="chip"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">silo</span>
+          <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span>
           — good luck capturing flags ahead!
         </div>
+
         <div class="reward"><div class="xp"><span class="plus">+</span>585<span class="unit">XP</span></div><div class="rlbl">Earned</div></div>
+
         <div class="meta">
           <span><span class="v">#5941</span><span class="k">Rank</span></span>
           <span class="sep">·</span>
@@ -173,44 +201,58 @@
           <span class="sep">·</span>
           <span><span class="v">22 Jan 2021</span></span>
         </div>
-        <div class="actions"><button class="btn primary" id="toShare">Share your win</button></div>
+
+        <button class="btn" id="toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
       </div>
     </div>
 
     <!-- ══════════ SCREEN 2 · SHARE COMPOSER ══════════ -->
     <div class="screen share">
       <div class="s-head">
-        <button class="back" id="backBtn" aria-label="Back">←</button>
+        <button class="iconbtn" id="backBtn" aria-label="Back"><span class="material-symbols-rounded">arrow_back</span></button>
         <span class="s-title">Share your win</span>
       </div>
       <div class="s-body">
-        <p class="s-label">Preview</p>
+        <p class="s-lbl">Preview</p>
         <div class="og">
-          <div>
-            <div class="brand"><span class="mark">▣</span> HACK THE BOX</div>
-            <div class="headline"><b>silo</b> just pwned Checkpoint!</div>
-            <div class="stats">
-              <div><div class="n xp">+585</div><div class="t">XP</div></div>
-              <div><div class="n">#5941</div><div class="t">Rank</div></div>
-              <div><div class="n">Retired</div><div class="t">State</div></div>
+          <span class="accent"></span>
+          <div class="inner">
+            <div>
+              <div class="brand">
+                <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.5 3.6L12 11.5 5.5 7.9 12 4.3ZM5 9.4l6 3.3v6.8l-6-3.3V9.4Zm14 0v6.8l-6 3.3v-6.8l6-3.3Z" fill="#C5F566"/></svg>
+                Hack The Box
+              </div>
+              <div class="eyebrow">Machine Pwned</div>
+              <div class="name">Checkpoint</div>
+              <div class="spec"><span class="diff">Medium</span> · Windows</div>
+              <div class="stats">
+                <div><div class="n xp">+585</div><div class="t">XP Earned</div></div>
+                <div><div class="n">#5941</div><div class="t">Global Rank</div></div>
+              </div>
+            </div>
+            <div class="side">
+              <div class="pic"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint"></div>
+              <div class="user"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</div>
             </div>
           </div>
-          <div class="av"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="Checkpoint"></div>
+          <span class="url">hackthebox.com</span>
         </div>
 
-        <div class="caption">Just pwned <b>Checkpoint</b> on Hack The Box! 🚩 Earned +585 XP and I'm now ranked #5941. On to the next flag.</div>
-        <div class="tags">
-          <span class="tag">#HackTheBox</span><span class="tag">#CTF</span><span class="tag">#PenTesting</span><span class="tag">#InfoSec</span><span class="tag">#CyberSecurity</span>
+        <p class="s-lbl" style="margin-top:20px">Your post</p>
+        <div class="composer">
+          <textarea class="post" id="postText" maxlength="280">Just pwned Checkpoint on Hack The Box! 🚩 Earned +585 XP and climbed to #5941. On to the next flag. #HackTheBox #CTF #InfoSec #CyberSecurity</textarea>
+          <span class="ccount" id="ccount"></span>
         </div>
 
-        <p class="s-label" style="margin-top:20px">Share to</p>
-        <div class="platforms">
-          <button class="pbtn x"><span class="ic">𝕏</span> X</button>
-          <button class="pbtn li"><span class="ic">in</span> LinkedIn</button>
-          <button class="pbtn fb"><span class="ic">f</span> Facebook</button>
-          <button class="pbtn rd"><span class="ic">⦿</span> Reddit</button>
-          <button class="pbtn copy"><span class="ic">🔗</span> Copy link</button>
-          <button class="pbtn save"><span class="ic">⬇</span> Save image</button>
+        <p class="s-lbl" style="margin-top:18px">Share to</p>
+        <div class="socials">
+          <button class="sbtn x" data-share="x" title="Share on X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644Z"/></svg></button>
+          <button class="sbtn li" data-share="linkedin" title="Share on LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065Zm1.782 13.019H3.555V9h3.564v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0Z"/></svg></button>
+          <button class="sbtn fb" data-share="facebook" title="Share on Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg></button>
+          <button class="sbtn rd" data-share="reddit" title="Share on Reddit"><svg viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0Zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701ZM9.25 12c-.687 0-1.25.561-1.25 1.25 0 .687.563 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.248-1.249Zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249Zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.91 2.961.91.477 0 2.105-.057 2.961-.91a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095Z"/></svg></button>
+          <button class="sbtn wa" data-share="whatsapp" title="Share on WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347ZM12.05 21.785h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884Zm8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button>
+          <button class="sbtn copy" data-share="copy" title="Copy link"><span class="material-symbols-rounded">link</span></button>
+          <button class="sbtn dl" data-share="download" title="Save image"><span class="material-symbols-rounded">download</span></button>
         </div>
       </div>
     </div>
@@ -220,6 +262,27 @@
     const modal = document.getElementById('modal');
     document.getElementById('toShare').addEventListener('click', () => modal.classList.add('sharing'));
     document.getElementById('backBtn').addEventListener('click', () => modal.classList.remove('sharing'));
+
+    const post = document.getElementById('postText');
+    const ccount = document.getElementById('ccount');
+    const sync = () => ccount.textContent = post.value.length + '/280';
+    post.addEventListener('input', sync); sync();
+
+    const pageUrl = 'https://www.hackthebox.com/';
+    document.querySelectorAll('.sbtn').forEach(b => b.addEventListener('click', () => {
+      const text = post.value, u = encodeURIComponent(pageUrl), t = encodeURIComponent(text);
+      const map = {
+        x: `https://twitter.com/intent/tweet?text=${t}`,
+        linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${u}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}&quote=${t}`,
+        reddit: `https://www.reddit.com/submit?url=${u}&title=${t}`,
+        whatsapp: `https://wa.me/?text=${t}%20${u}`
+      };
+      const k = b.dataset.share;
+      if (map[k]) window.open(map[k], '_blank', 'noopener,width=600,height=560');
+      else if (k === 'copy') navigator.clipboard?.writeText(pageUrl);
+      // 'download' would export the rendered OG image as PNG
+    }));
   </script>
 </body>
 </html>
