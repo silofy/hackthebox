@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merged Modal Mockup</title>
+<style>
+  :root{
+    --bg:#0e1525;
+    --panel:#0b1a3a;
+    --card:#16203a;
+    --line:#243049;
+    --text:#e8edf7;
+    --muted:#8a96ad;
+    --blue:#6b8cff;
+    --green:#9fef00;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{background:#060a14;display:flex;flex-direction:column;align-items:center;gap:28px;padding:40px 16px;min-height:100vh;}
+  .label{color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase;}
+
+  /* ===== Merged modal ===== */
+  .modal{
+    width:1040px;max-width:100%;
+    display:grid;grid-template-columns:1fr 0.9fr;
+    background:var(--bg);border-radius:14px;overflow:hidden;
+    box-shadow:0 24px 80px rgba(0,0,0,.6);
+  }
+
+  /* Left: detail / identity panel */
+  .left{padding:34px 36px;display:flex;flex-direction:column;}
+  .badge{
+    width:96px;height:96px;border-radius:50%;
+    background:radial-gradient(circle at 50% 40%,#2a3550,#121a2e);
+    border:4px solid var(--green);
+    display:flex;align-items:center;justify-content:center;
+    font-size:38px;margin-bottom:18px;
+  }
+  .title{font-size:30px;font-weight:800;color:var(--text);line-height:1.15;}
+  .subtitle{margin-top:10px;color:var(--muted);font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#1c2740;border-radius:20px;padding:4px 12px;color:var(--text);font-weight:600;font-size:13px;}
+  .chip .dot{width:14px;height:14px;border-radius:50%;background:var(--green);}
+
+  .breakdown{margin-top:30px;}
+  .breakdown h3{color:var(--text);font-size:16px;margin-bottom:14px;}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);font-size:15px;}
+  .row .k{color:var(--muted);}
+  .row .v{color:var(--text);font-weight:600;}
+
+  .actions{margin-top:auto;padding-top:28px;display:flex;gap:12px;}
+  .btn{flex:1;padding:14px;border-radius:8px;border:none;font-size:15px;font-weight:700;cursor:pointer;}
+  .btn.secondary{background:#2a3550;color:var(--text);}
+  .btn.primary{background:var(--green);color:#0e1525;}
+
+  /* Right: hero panel */
+  .right{
+    background:var(--panel);padding:34px 36px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:relative;text-align:center;
+  }
+  .right .pill{position:absolute;top:24px;left:50%;transform:translateX(-50%);color:var(--blue);font-size:14px;}
+  .right .close{position:absolute;top:20px;right:24px;color:var(--muted);font-size:20px;cursor:pointer;}
+  .hero{font-size:140px;line-height:1;font-weight:800;color:var(--green);}
+  .hero-label{color:var(--blue);font-size:18px;margin-top:6px;}
+  .substats{margin-top:40px;display:flex;gap:28px;}
+  .substat{text-align:center;}
+  .substat .n{font-size:22px;font-weight:800;color:var(--text);}
+  .substat .t{font-size:12px;color:var(--muted);margin-top:4px;}
+</style>
+</head>
+<body>
+  <div class="label">Merged: "Solved" content inside the Alert-Result two-panel shell</div>
+
+  <div class="modal">
+    <!-- LEFT -->
+    <div class="left">
+      <div class="badge">🧑‍💻</div>
+      <div class="title">You have solved Academy!</div>
+      <div class="subtitle">
+        Congratulations
+        <span class="chip"><span class="dot"></span>silo</span>
+        best of luck in capturing flags ahead!
+      </div>
+
+      <div class="breakdown">
+        <h3>Details</h3>
+        <div class="row"><span class="k">Machine Rank</span><span class="v">#5941</span></div>
+        <div class="row"><span class="k">Pwn Date</span><span class="v">22 Jan 2021</span></div>
+        <div class="row"><span class="k">Machine State</span><span class="v">Retired</span></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary">Ok</button>
+        <button class="btn primary">Share</button>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      <div class="pill">Academy</div>
+      <span class="close">✕</span>
+      <div class="hero">585</div>
+      <div class="hero-label">XP Earned</div>
+      <div class="substats">
+        <div class="substat"><div class="n">#5941</div><div class="t">Machine Rank</div></div>
+        <div class="substat"><div class="n">Retired</div><div class="t">State</div></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
