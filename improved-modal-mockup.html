@@ -90,7 +90,7 @@
   .avatar{
     position:relative;z-index:1;
     width:104px;height:104px;border-radius:var(--radius-full);
-    border:3px solid var(--brand-primary);overflow:hidden;
+    overflow:hidden;
     background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));
     box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);
     animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;
@@ -108,12 +108,12 @@
   .m-body::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:var(--radius-full);}
 
   .title{font-size:22px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary);line-height:1.2;}
-  .subtitle{margin-top:8px;color:var(--text-secondary);font-size:13px;font-weight:500;line-height:1.5;
+  .subtitle{margin-top:8px;color:var(--text-secondary);font-size:14px;font-weight:500;line-height:1.5;
             display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
-  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 8px;
-        font-size:11px;font-weight:700;letter-spacing:.04em;
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);padding:3px 10px 3px 4px;
+        font-size:13px;font-weight:500;
         background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
-  .chip .dot{width:7px;height:7px;border-radius:var(--radius-full);background:var(--success);box-shadow:var(--glow-green);}
+  .chip img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
 
   .hero{margin:20px 0 4px;}
   .hero .xp{font-size:56px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;color:var(--brand-primary);
@@ -121,7 +121,7 @@
   .hero .xp small{font-size:22px;vertical-align:super;opacity:.7;margin-right:2px;}
   .hero .lbl{margin-top:2px;color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
 
-  .metaline{margin-top:14px;color:var(--text-muted);font-size:13px;font-weight:500;
+  .metaline{margin-top:14px;color:var(--text-muted);font-size:14px;font-weight:500;
             display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
   .metaline .rank{color:var(--text-primary);font-variant-numeric:tabular-nums;font-weight:700;}
   .metaline .sep{color:var(--text-dim);}
@@ -222,7 +222,7 @@
       <div class="title">You have solved Checkpoint!</div>
       <div class="subtitle">
         Congratulations
-        <span class="chip"><span class="dot"></span>silo</span>
+        <span class="chip"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">silo</span>
         — good luck capturing flags ahead!
       </div>
 
