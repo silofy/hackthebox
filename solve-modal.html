@@ -139,6 +139,22 @@
   .s-cta .txt .material-symbols-rounded{font-size:18px;color:var(--brand-primary);}
   .s-cta .cta-btn{flex:0 0 auto;background:var(--surface-base);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-full);padding:8px 15px;font-size:13px;white-space:nowrap;}
   .s-cta:hover .cta-btn{border-color:var(--brand-primary);color:var(--brand-primary);}
+
+  /* ════ MOBILE (phone-framed, scoped under .phone) ════ */
+  .phone{width:384px;max-width:100%;height:772px;border-radius:42px;background:#0c0c0e;border:11px solid #0c0c0e;overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.6);}
+  .phone .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:26px;background:#0c0c0e;border-radius:0 0 18px 18px;z-index:50;}
+  .phone .modal{width:100%;height:100%;border-radius:0;border:none;box-shadow:none;}
+  .phone .screen{flex:1 1 auto;}
+  .phone .close{top:42px;right:16px;}
+  .phone .m-hero{height:288px;}
+  .phone .hero-content{padding-top:18px;}
+  .phone .avatar{width:116px;height:116px;}
+  .phone .m-body{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;}
+  .phone .m-body::-webkit-scrollbar{display:none;}
+  .phone .fbt .row{flex-direction:column;gap:2px;white-space:normal;}   /* wrap blood line on mobile */
+  .phone .s-header{height:52px;padding-top:6px;}
+  .phone .s-back{top:calc(50% + 3px);}
+  .phone .btn{padding:14px;font-size:15px;}
 </style>
 </head>
 <body>
@@ -211,6 +227,7 @@
         <div class="submeta">Solved while <span class="state retired">Retired</span><span class="sep">·</span>22 Jan 2021</div>
         <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
       </div>
+      <a class="s-cta" href="https://help.hackthebox.com/en/articles/13616849-htb-profile" target="_blank" rel="noopener"><span class="txt"><span class="material-symbols-rounded">bolt</span>Want more people to see your wins?</span><span class="cta-btn">Get your HTB Profile</span></a>
     </div>
 
     <div class="screen share">
@@ -342,6 +359,91 @@
         <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
         <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
       </div></div>
+  </div>
+</div>
+
+<div class="section-label">Mobile</div>
+<div class="grid">
+  <!-- PHONE A · standard (interactive → share) -->
+  <div class="col"><div class="vlabel">Standard · tap “Share your win”</div>
+    <div class="phone"><div class="notch"></div>
+      <div class="modal">
+        <button class="close"><span class="material-symbols-rounded">close</span></button>
+        <div class="screen result">
+          <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+            <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+              <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
+          <div class="m-body">
+            <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+            <div class="csub">You've pwned the machine — here's what you earned.</div>
+            <div class="tiles">
+              <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+              <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#5941</div><div class="l">Machine Rank</div></div>
+            </div>
+            <div class="submeta">Solved while <span class="state retired">Retired</span><span class="sep">·</span>22 Jan 2021</div>
+            <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+          </div>
+          <a class="s-cta" href="https://help.hackthebox.com/en/articles/13616849-htb-profile" target="_blank" rel="noopener"><span class="txt"><span class="material-symbols-rounded">bolt</span>Want more people to see your wins?</span><span class="cta-btn">Get your HTB Profile</span></a>
+        </div>
+        <div class="screen share">
+          <div class="s-header"><button class="s-back"><span class="material-symbols-rounded">arrow_back</span></button><span class="s-title">Share</span></div>
+          <div class="s-scroll">
+            <div class="og-wrap"><div class="og"><span class="grid"></span>
+              <svg class="hex" viewBox="0 0 100 100" fill="none"><polygon points="50,4 91,27 91,73 50,96 9,73 9,27" stroke="currentColor" stroke-width="2"/><polygon points="50,22 75,36 75,64 50,78 25,64 25,36" stroke="currentColor" stroke-width="1.5"/></svg>
+              <span class="accent"></span>
+              <div class="inner"><div>
+                <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.5 3.6L12 11.5 5.5 7.9 12 4.3ZM5 9.4l6 3.3v6.8l-6-3.3V9.4Zm14 0v6.8l-6 3.3v-6.8l6-3.3Z" fill="#C5F566"/></svg> Hack The Box</div>
+                <div class="pwned"><span class="material-symbols-rounded">flag</span> Machine Pwned</div>
+                <div class="name">Checkpoint</div>
+                <div class="pills"><span class="pill diff">Medium</span><span class="pill">Windows</span></div>
+                <div class="stats">
+                  <div class="stat"><svg class="si"><use href="#xp"/></svg><div><div class="n xp">+585</div><div class="t">XP Earned</div></div></div>
+                  <div class="stat"><span class="material-symbols-rounded rankico">social_leaderboard</span><div><div class="n">#5941</div><div class="t">Global Rank</div></div></div>
+                </div></div>
+                <div class="side"><span class="ring"><span class="pic"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></span></span><div class="user"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</div></div>
+              </div>
+              <span class="url">hackthebox.com</span>
+            </div></div>
+            <h2 class="s-h">Share this with your community</h2>
+            <div class="socials">
+              <button class="sbtn x" data-share="x"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644Z"/></svg></button>
+              <button class="sbtn li" data-share="linkedin"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065Zm1.782 13.019H3.555V9h3.564v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0Z"/></svg></button>
+              <button class="sbtn fb" data-share="facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg></button>
+              <button class="sbtn rd" data-share="reddit"><svg viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0Zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701ZM9.25 12c-.687 0-1.25.561-1.25 1.25 0 .687.563 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.248-1.249Zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249Zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.91 2.961.91.477 0 2.105-.057 2.961-.91a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095Z"/></svg></button>
+            </div>
+            <p class="s-copylbl">or copy link</p>
+            <div class="copyrow"><span class="url">https://hackthebox.com/achievement/machine/silo/Checkpoint</span><button class="copybtn">Copy</button></div>
+          </div>
+          <a class="s-cta" href="https://help.hackthebox.com/en/articles/13616849-htb-profile" target="_blank" rel="noopener"><span class="txt"><span class="material-symbols-rounded">bolt</span>Want more people to see your wins?</span><span class="cta-btn">Get your HTB Profile</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE B · system blood -->
+  <div class="col"><div class="vlabel">First Blood · System</div>
+    <div class="phone"><div class="notch"></div>
+      <div class="modal blood">
+        <button class="close"><span class="material-symbols-rounded">close</span></button>
+        <div class="screen result">
+          <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg-blood" width="300" height="244"/></svg>
+            <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+              <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
+          <div class="m-body">
+            <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+            <div class="csub">You've pwned the machine — here's what you earned.</div>
+            <div class="tiles">
+              <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+              <div class="tile fb"><span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span><div class="big rank">#1</div><div class="l">Machine Rank</div>
+                <div class="fbt"><div class="row"><span class="flag">System blood</span><span class="time">1H 05M 12S</span></div></div></div>
+            </div>
+            <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
+            <button class="btn"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+          </div>
+          <a class="s-cta" href="https://help.hackthebox.com/en/articles/13616849-htb-profile" target="_blank" rel="noopener"><span class="txt"><span class="material-symbols-rounded">bolt</span>Want more people to see your wins?</span><span class="cta-btn">Get your HTB Profile</span></a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
