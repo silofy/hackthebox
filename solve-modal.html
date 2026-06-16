@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solve Modal — final</title>
+<link rel="stylesheet" href="https://use.typekit.net/jxn7iyx.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,1,0">
+<style>
+  :root{
+    --brand-primary:#C5F566; --brand-primary-hover:#D4F98A; --brand-primary-dim:#C5F56620; --brand-primary-muted:#C5F56610;
+    --surface-base:#0A0E17; --surface-panel:#141D2B; --surface-card:#1A2332; --surface-input:#111927; --surface-hover:#1E2A3A; --surface-active:#243044;
+    --border-default:#1E2D40; --border-subtle:#1E2939; --border-hover:#2A3E58;
+    --text-primary:#F4F4F4; --text-secondary:#8799B5; --text-muted:#6B7A94; --text-dim:#4A5568;
+    --warning:#F3CB5E; --blood:#F35E5E;
+    --radius-sm:6px; --radius-md:8px; --radius-lg:10px; --radius-xl:14px; --radius-full:100px;
+    --elevation-3:0 4px 16px rgba(0,0,0,0.4); --glow-green:0 0 8px rgba(159,239,0,0.25);
+    --ease-enter:cubic-bezier(0,0,0.2,1);
+    --font-sans:'neue-haas-unica',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    --font-mono:'roboto-mono','SF Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);font-weight:500;-webkit-font-smoothing:antialiased;}
+  body{background:var(--surface-base);display:flex;flex-direction:column;align-items:center;gap:14px;padding:48px 20px;}
+  .section-label{color:var(--text-muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-top:24px;}
+  .grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:32px;}
+  .col{display:flex;flex-direction:column;align-items:center;}
+  .vlabel{color:var(--text-muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
+  .material-symbols-rounded{font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;line-height:1;display:inline-block;}
+
+  .modal{position:relative;width:480px;max-width:100%;display:flex;flex-direction:column;overflow:hidden;background:var(--surface-panel);
+         border:1px solid var(--border-default);border-radius:var(--radius-xl);box-shadow:var(--elevation-3);}
+  .close{position:absolute;top:12px;right:14px;z-index:4;color:var(--text-dim);cursor:pointer;background:none;border:none;display:flex;}
+  .close .material-symbols-rounded{font-size:20px;}
+  .close:hover{color:var(--text-secondary);}
+  .screen{display:flex;flex-direction:column;min-height:0;animation:fade .25s var(--ease-enter) both;}
+  .modal:not(.sharing) .screen.share{display:none;}
+  .modal.sharing .screen.result{display:none;}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  /* ════ RESULT ════ */
+  .m-hero{position:relative;height:244px;background:var(--surface-hover);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .m-hero .bg{position:absolute;inset:0;width:100%;height:100%;}
+  .hero-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}
+  .avatar{width:120px;height:120px;border-radius:var(--radius-full);overflow:hidden;background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);}
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  .mname{font-size:24px;color:var(--text-primary);line-height:1.15;text-shadow:0 2px 10px rgba(0,0,0,.5);}
+  .mspec{margin-top:6px;font-size:13px;color:var(--text-secondary);text-shadow:0 1px 6px rgba(0,0,0,.5);}
+  .mspec .diff{color:var(--warning);} .mspec .sep{color:var(--border-subtle);}
+
+  .m-body{padding:22px 28px 24px;text-align:center;}
+  .cong{color:var(--text-primary);font-size:16px;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:7px;border-radius:var(--radius-full);padding:3px 12px 3px 4px;font-size:16px;background:var(--surface-hover);color:var(--text-primary);border:1px solid var(--border-default);}
+  .chip img{width:24px;height:24px;border-radius:var(--radius-full);object-fit:cover;}
+  .csub{margin-top:6px;color:var(--text-secondary);font-size:14px;line-height:1.5;}
+
+  .tiles{margin-top:18px;display:flex;gap:10px;align-items:stretch;}
+  .tile{flex:1;min-width:0;background:var(--surface-card);border-radius:var(--radius-lg);padding:16px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+  .tile .ico{height:46px;display:flex;align-items:center;justify-content:center;}
+  .xpicon{width:46px;height:46px;display:block;}
+  .rankicon{font-size:42px;color:#C06FF6;}
+  .drop{width:34px;height:38px;}
+  .tile .big{font-size:36px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+  .big.xp{color:var(--brand-primary);text-shadow:0 0 22px rgba(197,245,102,.3);}
+  .big.rank{color:var(--text-primary);}
+  .tile .l{color:var(--text-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.3;}
+  .tile.fb{background:#330A0A;}
+  .fbt{margin-top:4px;display:flex;flex-direction:column;gap:4px;width:100%;}
+  .fbt .row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;white-space:nowrap;}
+  .fbt .flag{color:var(--blood);letter-spacing:.02em;}
+  .fbt .time{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-primary);letter-spacing:.02em;}
+
+  .submeta{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--text-muted);}
+  .submeta .sep{color:var(--text-dim);}
+  .state{display:inline-block;border-radius:var(--radius-full);padding:3px 10px;font-size:13px;}
+  .state.active{background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+  .state.retired{background:var(--surface-active);color:var(--text-secondary);border:1px solid var(--border-default);}
+
+  .btn{width:100%;margin-top:24px;padding:13px;border:none;border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;cursor:pointer;background:var(--brand-primary);color:#111;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn .material-symbols-rounded{font-size:18px;}
+  .btn:hover{background:var(--brand-primary-hover);}
+
+  /* ════ SHARE step (preview → socials → copy) ════ */
+  .s-back{position:absolute;top:10px;left:12px;z-index:4;background:none;border:none;color:var(--text-muted);cursor:pointer;display:flex;padding:4px;border-radius:var(--radius-sm);}
+  .s-back .material-symbols-rounded{font-size:22px;}
+  .s-back:hover{color:var(--text-primary);background:var(--surface-hover);}
+  .s-scroll{overflow-y:auto;padding-bottom:24px;}
+  .og-wrap{padding:46px 18px 0;}
+  .og{position:relative;aspect-ratio:1200/630;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border-default);
+      background:radial-gradient(90% 130% at 110% -10%, rgba(94,148,243,.22), transparent 55%),radial-gradient(80% 120% at -10% 110%, rgba(197,245,102,.20), transparent 55%),linear-gradient(160deg,#11192a,#0A0E17);}
+  .og::before{content:"";position:absolute;inset:0;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:14px 14px;}
+  .og .accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--brand-primary),#79B500);}
+  .og .inner{position:relative;height:100%;display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;padding:18px 22px 18px 24px;}
+  .og .brand{display:flex;align-items:center;gap:7px;color:var(--text-secondary);font-size:11px;letter-spacing:.14em;text-transform:uppercase;}
+  .og .brand svg{width:16px;height:16px;}
+  .og .eyebrow{margin-top:12px;color:var(--brand-primary);font-size:11px;letter-spacing:.16em;text-transform:uppercase;}
+  .og .name{margin-top:3px;font-size:30px;color:#fff;letter-spacing:-0.01em;line-height:1;}
+  .og .spec{margin-top:7px;font-size:12px;color:var(--text-secondary);}
+  .og .spec .diff{color:var(--warning);}
+  .og .stats{margin-top:16px;display:flex;gap:22px;}
+  .og .stats .n{font-size:20px;color:#fff;font-variant-numeric:tabular-nums;line-height:1;}
+  .og .stats .n.xp{color:var(--brand-primary);}
+  .og .stats .t{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-top:3px;}
+  .og .side{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .og .side .pic{width:92px;height:92px;border-radius:var(--radius-full);overflow:hidden;box-shadow:var(--glow-green),0 6px 18px rgba(0,0,0,.5);}
+  .og .side .pic img{width:100%;height:100%;object-fit:cover;}
+  .og .side .user{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);}
+  .og .side .user img{width:18px;height:18px;border-radius:var(--radius-full);object-fit:cover;}
+  .og .url{position:absolute;left:24px;bottom:13px;font-size:10px;color:var(--text-dim);letter-spacing:.06em;}
+
+  .s-h{margin:26px 28px 0;text-align:center;font-size:22px;line-height:1.25;color:var(--text-primary);}
+  .socials{margin-top:22px;display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+  .sbtn{width:56px;height:56px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;
+        border:1px solid var(--border-default);background:var(--surface-card);color:var(--text-secondary);cursor:pointer;transition:background .12s ease,border-color .12s ease,color .12s ease,transform .1s ease;}
+  .sbtn:hover{background:var(--surface-hover);border-color:var(--border-hover);}
+  .sbtn:active{transform:scale(.95);}
+  .sbtn svg{width:22px;height:22px;fill:currentColor;}
+  .sbtn.x:hover{color:#fff;} .sbtn.li:hover{color:#0A66C2;} .sbtn.fb:hover{color:#1877F2;}
+  .sbtn.wa:hover{color:#25D366;} .sbtn.rd:hover{color:#FF4500;}
+  .s-copylbl{margin:26px 28px 8px;font-size:13px;color:var(--text-muted);}
+  .copyrow{margin:0 28px;display:flex;align-items:center;gap:10px;background:var(--surface-input);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:11px 12px 11px 14px;}
+  .copyrow .url{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-dim);font-size:13px;}
+  .copyrow .copybtn{flex:0 0 auto;background:none;border:none;color:var(--text-primary);font-family:var(--font-sans);font-size:14px;cursor:pointer;padding:2px 4px;}
+  .copyrow .copybtn:hover{color:var(--brand-primary);}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="xp" viewBox="0 0 80 80">
+    <path d="M68.623 51.082C69.5391 51.082 70.3316 51.4162 70.998 52.082C71.6644 52.7484 71.9977 53.5409 71.998 54.457C71.998 55.3737 71.6647 56.1654 70.998 56.832L56.834 71C56.1676 71.6663 55.3751 71.9997 54.459 72C53.5426 72 52.7505 71.6662 52.084 71L44.998 63.918C44.3872 63.2516 44.0843 62.4591 44.084 61.543C44.084 60.6263 44.4173 59.8346 45.084 59.168C45.7506 58.5013 46.5271 58.168 47.416 58.168C48.3049 58.168 49.0814 58.5013 49.748 59.168L54.498 63.918L66.248 52.082C66.9144 51.4157 67.7069 51.0823 68.623 51.082Z" fill="#C5F566"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M59.998 10C61.8314 10 63.4034 10.6515 64.709 11.957C66.0145 13.2626 66.666 14.8346 66.666 16.668V39.582C66.666 40.4709 66.4841 41.3194 66.123 42.125C65.762 42.9304 65.277 43.639 64.666 44.25L54.498 54.5L52.084 52.082C50.8062 50.8042 49.2342 50.168 47.373 50.168C47.1284 50.168 46.8888 50.1771 46.6543 50.1992V46.4531H59.998V29.1523H39.0957V55.7148L37.998 56.832C37.3314 57.4987 36.8314 58.2374 36.498 59.043C36.1651 59.848 35.998 60.6672 35.998 61.5C35.998 62.2778 36.1118 62.9861 36.334 63.625C36.5562 64.2637 36.8896 64.889 37.334 65.5C37.9999 66.4438 38.1248 67.43 37.709 68.457C37.2923 69.4848 36.5536 70 35.498 70H13.334C11.5007 70 9.9286 69.3485 8.62305 68.043C7.31749 66.7374 6.66602 65.1654 6.66602 63.332V16.668C6.66602 14.8346 7.31749 13.2626 8.62305 11.957C9.9286 10.6515 11.5007 10 13.334 10H59.998ZM27.4902 26.668V35.1914L24.1895 37.6758L20.8926 35.1914V29.2031H13.334V36.3555L18.2051 39.9609L13.334 43.5117V53.25H20.8926V44.6758L24.1895 42.1914L27.4902 44.6758V50.6641H35.0488V43.5117L30.1777 39.9609L35.0488 36.3555V26.668H27.4902Z" fill="#C06FF6"/>
+    <path d="M52.4394 41.8359H46.6543V33.7695H52.4394V41.8359Z" fill="#C06FF6"/>
+  </symbol>
+  <symbol id="drop" viewBox="0 0 24 24"><path d="M12 2S4 11 4 16a8 8 0 0 0 16 0C20 11 12 2 12 2Z" fill="currentColor"/></symbol>
+  <symbol id="herobg" viewBox="0 0 300 244">
+    <radialGradient id="vig" cx="50%" cy="48%" r="60%"><stop offset="20%" stop-color="#151F2E" stop-opacity="0"/><stop offset="100%" stop-color="#151F2E" stop-opacity="0.6"/></radialGradient>
+    <radialGradient id="b1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#9FEF00" stop-opacity="0.26"/><stop offset="45%" stop-color="#9FEF00" stop-opacity="0.14"/><stop offset="100%" stop-color="#9FEF00" stop-opacity="0"/></radialGradient>
+    <radialGradient id="b2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#79B500" stop-opacity="0.16"/><stop offset="45%" stop-color="#79B500" stop-opacity="0.09"/><stop offset="100%" stop-color="#79B500" stop-opacity="0"/></radialGradient>
+    <rect width="300" height="244" fill="#1E2A3A"/>
+    <ellipse cx="150" cy="122" rx="200" ry="165" fill="url(#b1)">
+      <animate attributeName="cx" values="150;200;150;100;150" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+      <animate attributeName="cy" values="122;86;162;86;122" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    </ellipse>
+    <ellipse cx="150" cy="122" rx="130" ry="105" fill="url(#b2)">
+      <animate attributeName="cx" values="150;90;210;90;150" dur="22s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    </ellipse>
+    <rect width="300" height="244" fill="url(#vig)"/>
+    <g transform="translate(46,196)"><text font-family="'roboto-mono',monospace" font-size="12" fill="rgba(159,239,0,.5)" opacity="0">10<animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;6,-150" dur="7s" begin="-1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.25;.7;1" dur="7s" begin="-1s" repeatCount="indefinite"/></text></g>
+    <g transform="translate(238,210)"><text font-family="'roboto-mono',monospace" font-size="11" fill="rgba(159,239,0,.42)" opacity="0">01<animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.45 0 0.55 1" values="0,0;-8,-180" dur="8.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.42;.42;0" keyTimes="0;.25;.7;1" dur="8.5s" begin="-4s" repeatCount="indefinite"/></text></g>
+    <g transform="translate(60,74)"><polygon points="7,0 3.5,6.06 -3.5,6.06 -7,0 -3.5,-6.06 3.5,-6.06" fill="none" stroke="rgba(159,239,0,.32)" stroke-width="0.75" opacity="0"><animateTransform attributeName="transform" type="rotate" additive="sum" values="0;360" dur="31.5s" begin="-7s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.6;.6;0" keyTimes="0;.3;.7;1" dur="5s" begin="-7s" repeatCount="indefinite"/></polygon></g>
+    <g transform="translate(244,80)"><polygon points="6,0 3,5.196 -3,5.196 -6,0 -3,-5.196 3,-5.196" fill="none" stroke="rgba(159,239,0,.28)" stroke-width="0.75" opacity="0"><animateTransform attributeName="transform" type="rotate" additive="sum" values="0;-360" dur="25.5s" begin="-4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.55;.55;0" keyTimes="0;.3;.7;1" dur="6s" begin="-4s" repeatCount="indefinite"/></polygon></g>
+  </symbol>
+</defs></svg>
+
+<div class="section-label">Interactive — click “Share your win”</div>
+<div class="grid">
+  <!-- ░░ DEMO (standard + working share) ░░ -->
+  <div class="modal" id="m-demo">
+    <button class="close"><span class="material-symbols-rounded">close</span></button>
+
+    <div class="screen result">
+      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+        <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+          <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div>
+      </div>
+      <div class="m-body">
+        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+        <div class="csub">You've pwned the machine — here's what you earned.</div>
+        <div class="tiles">
+          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+          <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#5941</div><div class="l">Machine Rank</div></div>
+        </div>
+        <div class="submeta">Solved while <span class="state retired">Retired</span><span class="sep">·</span>22 Jan 2021</div>
+        <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+      </div>
+    </div>
+
+    <div class="screen share">
+      <button class="s-back"><span class="material-symbols-rounded">arrow_back</span></button>
+      <div class="s-scroll">
+        <div class="og-wrap">
+          <div class="og">
+            <span class="accent"></span>
+            <div class="inner">
+              <div>
+                <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.5 3.6L12 11.5 5.5 7.9 12 4.3ZM5 9.4l6 3.3v6.8l-6-3.3V9.4Zm14 0v6.8l-6 3.3v-6.8l6-3.3Z" fill="#C5F566"/></svg> Hack The Box</div>
+                <div class="eyebrow">Machine Pwned</div>
+                <div class="name">Checkpoint</div>
+                <div class="spec"><span class="diff">Medium</span> · Windows</div>
+                <div class="stats">
+                  <div><div class="n xp">+585</div><div class="t">XP Earned</div></div>
+                  <div><div class="n">#5941</div><div class="t">Global Rank</div></div>
+                </div>
+              </div>
+              <div class="side">
+                <div class="pic"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+                <div class="user"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</div>
+              </div>
+            </div>
+            <span class="url">hackthebox.com</span>
+          </div>
+        </div>
+
+        <h2 class="s-h">Share this with your community</h2>
+
+        <div class="socials">
+          <button class="sbtn x" data-share="x" title="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644Z"/></svg></button>
+          <button class="sbtn li" data-share="linkedin" title="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065Zm1.782 13.019H3.555V9h3.564v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0Z"/></svg></button>
+          <button class="sbtn fb" data-share="facebook" title="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg></button>
+          <button class="sbtn rd" data-share="reddit" title="Reddit"><svg viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0Zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701ZM9.25 12c-.687 0-1.25.561-1.25 1.25 0 .687.563 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.248-1.249Zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249Zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.91 2.961.91.477 0 2.105-.057 2.961-.91a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095Z"/></svg></button>
+          <button class="sbtn wa" data-share="whatsapp" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347ZM12.05 21.785h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884Zm8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></button>
+        </div>
+
+        <p class="s-copylbl">or copy link</p>
+        <div class="copyrow">
+          <span class="url">https://hackthebox.com/achievement/machine/silo/Checkpoint</span>
+          <button class="copybtn">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-label">All states</div>
+<div class="grid">
+  <!-- ░░ STANDARD ░░ -->
+  <div class="col"><div class="vlabel">Standard</div>
+    <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
+      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+        <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+          <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
+      <div class="m-body">
+        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+        <div class="csub">You've pwned the machine — here's what you earned.</div>
+        <div class="tiles">
+          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+          <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#5941</div><div class="l">Machine Rank</div></div>
+        </div>
+        <div class="submeta">Solved while <span class="state retired">Retired</span><span class="sep">·</span>22 Jan 2021</div>
+        <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+      </div></div>
+  </div>
+
+  <!-- ░░ USER BLOOD ░░ -->
+  <div class="col"><div class="vlabel">First Blood · User</div>
+    <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
+      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+        <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+          <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
+      <div class="m-body">
+        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+        <div class="csub">You've pwned the machine — here's what you earned.</div>
+        <div class="tiles">
+          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+          <div class="tile fb"><span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span><div class="big rank">#2</div><div class="l">Machine Rank</div>
+            <div class="fbt"><div class="row"><span class="flag">User blood</span><span class="time">0H 21M 4S</span></div></div></div>
+        </div>
+        <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
+        <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+      </div></div>
+  </div>
+
+  <!-- ░░ SYSTEM BLOOD ░░ -->
+  <div class="col"><div class="vlabel">First Blood · System</div>
+    <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
+      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+        <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+          <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
+      <div class="m-body">
+        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+        <div class="csub">You've pwned the machine — here's what you earned.</div>
+        <div class="tiles">
+          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+          <div class="tile fb"><span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span><div class="big rank">#1</div><div class="l">Machine Rank</div>
+            <div class="fbt"><div class="row"><span class="flag">System blood</span><span class="time">1H 05M 12S</span></div></div></div>
+        </div>
+        <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
+        <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+      </div></div>
+  </div>
+
+  <!-- ░░ BOTH ░░ -->
+  <div class="col"><div class="vlabel">First Blood · User + System</div>
+    <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
+      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+        <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+          <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
+      <div class="m-body">
+        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+        <div class="csub">You've pwned the machine — here's what you earned.</div>
+        <div class="tiles">
+          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+          <div class="tile fb"><span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span><div class="big rank">#1</div><div class="l">Machine Rank</div>
+            <div class="fbt"><div class="row"><span class="flag">User blood</span><span class="time">0H 21M 4S</span></div><div class="row"><span class="flag">System blood</span><span class="time">1H 05M 12S</span></div></div></div>
+        </div>
+        <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
+        <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+      </div></div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.querySelector('.toShare')?.addEventListener('click', () => { if(modal.querySelector('.screen.share')) modal.classList.add('sharing'); });
+    modal.querySelector('.s-back')?.addEventListener('click', () => modal.classList.remove('sharing'));
+    const url = modal.querySelector('.copyrow .url')?.textContent;
+    modal.querySelector('.copybtn')?.addEventListener('click', e => { navigator.clipboard?.writeText(url); e.target.textContent='Copied'; setTimeout(()=>e.target.textContent='Copy',1500); });
+    modal.querySelectorAll('.sbtn').forEach(b => b.addEventListener('click', () => {
+      const t = encodeURIComponent('Just pwned Checkpoint on Hack The Box! 🚩 +585 XP. #HackTheBox #CTF'), u = encodeURIComponent(url||'https://hackthebox.com');
+      const map = {x:`https://twitter.com/intent/tweet?text=${t}`,linkedin:`https://www.linkedin.com/sharing/share-offsite/?url=${u}`,facebook:`https://www.facebook.com/sharer/sharer.php?u=${u}&quote=${t}`,reddit:`https://www.reddit.com/submit?url=${u}&title=${t}`,whatsapp:`https://wa.me/?text=${t}%20${u}`};
+      const k=b.dataset.share; if(map[k]) window.open(map[k],'_blank','noopener,width=600,height=560');
+    }));
+  });
+</script>
+</body>
+</html>
