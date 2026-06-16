@@ -44,6 +44,8 @@
   .avatar{width:120px;height:120px;border-radius:var(--radius-full);overflow:hidden;background:radial-gradient(circle at 50% 38%,var(--surface-active),var(--surface-input));box-shadow:var(--glow-green),0 8px 24px rgba(0,0,0,.45);}
   .avatar img{width:100%;height:100%;object-fit:cover;}
   .modal.blood .avatar{box-shadow:0 0 12px rgba(243,94,94,.45),0 8px 24px rgba(0,0,0,.45);}
+  .avatar.icon{display:flex;align-items:center;justify-content:center;color:var(--brand-primary);}
+  .avatar.icon svg{width:56px;height:56px;}
   .mname{font-size:24px;color:var(--text-primary);line-height:1.15;text-shadow:0 2px 10px rgba(0,0,0,.5);}
   .mspec{margin-top:6px;font-size:13px;color:var(--text-secondary);text-shadow:0 1px 6px rgba(0,0,0,.5);}
   .mspec .diff{color:var(--warning);} .mspec .sep{color:var(--border-subtle);}
@@ -359,6 +361,69 @@
         <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
         <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
       </div></div>
+  </div>
+</div>
+
+<div class="section-label">Product types</div>
+<div class="grid">
+  <!-- ░░ MACHINE ░░ -->
+  <div class="col"><div class="vlabel">Machine</div>
+    <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
+      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+        <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+          <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
+      <div class="m-body">
+        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+        <div class="csub">You've pwned the machine — here's what you earned.</div>
+        <div class="tiles">
+          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+          <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#5941</div><div class="l">Machine Rank</div></div>
+        </div>
+        <div class="submeta">Solved while <span class="state retired">Retired</span><span class="sep">·</span>22 Jan 2021</div>
+        <button class="btn"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+      </div>
+      <a class="s-cta" href="https://help.hackthebox.com/en/articles/13616849-htb-profile" target="_blank" rel="noopener"><span class="txt"><span class="material-symbols-rounded">bolt</span>Want more people to see your wins?</span><span class="cta-btn">Get your HTB Profile</span></a>
+    </div>
+  </div>
+
+  <!-- ░░ SHERLOCKS ░░ -->
+  <div class="col"><div class="vlabel">Sherlocks</div>
+    <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
+      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+        <div class="hero-content"><div class="avatar"><img src="https://cdn.services-k8s.prod.aws.htb.systems/content/sherlocks/avatar/9e4d9101-1abc-4804-920c-c4bf913a7b69.png" alt=""></div>
+          <div><div class="mname">Meerkat</div><div class="mspec"><span class="diff">Easy</span> <span class="sep">·</span> DFIR</div></div></div></div>
+      <div class="m-body">
+        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+        <div class="csub">You've solved the Sherlock — here's what you earned.</div>
+        <div class="tiles">
+          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">120</div><div class="l">XP Earned</div></div>
+          <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#1422</div><div class="l">Sherlocks Rank</div></div>
+        </div>
+        <div class="submeta">Solved while <span class="state retired">Retired</span><span class="sep">·</span>22 Jan 2021</div>
+        <button class="btn"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+      </div>
+      <a class="s-cta" href="https://help.hackthebox.com/en/articles/13616849-htb-profile" target="_blank" rel="noopener"><span class="txt"><span class="material-symbols-rounded">bolt</span>Want more people to see your wins?</span><span class="cta-btn">Get your HTB Profile</span></a>
+    </div>
+  </div>
+
+  <!-- ░░ CHALLENGE ░░ -->
+  <div class="col"><div class="vlabel">Challenge</div>
+    <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
+      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+        <div class="hero-content"><div class="avatar icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.60071 16.6586C9.55787 16.6182 9.49737 16.6025 9.44029 16.6169C9.00492 16.7288 8.55718 16.7856 8.10765 16.7857C7.82269 16.7857 7.59167 17.0167 7.59167 17.3017C7.59167 17.5866 7.82269 17.8176 8.10765 17.8176C8.81674 17.8207 9.52121 17.7032 10.191 17.4704C10.2523 17.4488 10.2961 17.3946 10.3046 17.3302C10.3129 17.2657 10.2843 17.2021 10.2305 17.1655C10.0074 17.0137 9.79673 16.8442 9.60071 16.6586Z" fill="currentColor"></path><path d="M13.4404 8.206V8.24975C13.4405 8.32542 13.4967 8.3893 13.5717 8.39906C13.8021 8.42983 14.0298 8.47788 14.2529 8.54281C14.3048 8.55792 14.3608 8.54765 14.404 8.51513C14.4473 8.48259 14.4726 8.4316 14.4723 8.37753V8.206C14.4768 6.79774 14.0094 5.42858 13.1446 4.31712C13.0616 4.2085 12.9388 4.13736 12.8033 4.11938C12.6678 4.1014 12.5308 4.13807 12.4223 4.22128C12.3134 4.30427 12.2425 4.42764 12.2257 4.56355C12.2088 4.69945 12.2474 4.83642 12.3328 4.9435C13.0536 5.87808 13.4433 7.02577 13.4404 8.206Z" fill="currentColor"></path><path d="M6.03401 16.3677C4.05792 15.5347 2.77441 13.5976 2.77776 11.4532V10.1538C2.76757 9.87603 2.53942 9.65609 2.26144 9.65609C1.98346 9.65609 1.75531 9.87603 1.74512 10.1538V11.4532C1.74203 14.0127 3.27492 16.3244 5.63401 17.3177C5.69675 17.3458 5.76459 17.3607 5.83332 17.3615C6.0785 17.3611 6.28955 17.1882 6.33822 16.9479C6.38689 16.7076 6.25972 16.4662 6.03401 16.3705V16.3677Z" fill="currentColor"></path><path d="M2.24029 8.39477H2.26876C2.54219 8.39486 2.76821 8.18163 2.78404 7.90866C2.92587 5.04858 5.24515 2.77952 8.10765 2.70033C9.05861 2.76078 9.97775 3.06628 10.7757 3.58713C10.8939 3.65605 11.0348 3.67502 11.1671 3.63983C11.2994 3.60464 11.4122 3.5182 11.4806 3.39963C11.622 3.09811 11.5454 2.73925 11.2931 2.52185C10.3249 1.96183 9.22614 1.66697 8.10765 1.66699C4.69646 1.74598 1.9243 4.44393 1.75279 7.85172C1.7454 7.98838 1.79262 8.12238 1.88405 8.22423C1.97548 8.32607 2.10362 8.38742 2.24029 8.39477Z" fill="currentColor"></path><path d="M11.5598 8.47814C11.6016 8.51089 11.6563 8.52243 11.7077 8.50939C11.9381 8.45103 12.1726 8.4104 12.4091 8.38786C12.475 8.3811 12.5251 8.32561 12.5251 8.25939V8.20592C12.5258 6.78965 11.8471 5.45898 10.7003 4.62795C9.55353 3.79691 8.07771 3.56635 6.73206 4.008C6.60077 4.04991 6.49181 4.14279 6.42966 4.26579C6.36751 4.3888 6.35736 4.53161 6.40151 4.66217C6.49201 4.92916 6.77875 5.07545 7.04804 4.99203C7.38936 4.87658 7.74744 4.81838 8.10776 4.81981C9.97616 4.82363 11.4897 6.33752 11.4931 8.20592V8.34481C11.4938 8.39712 11.5184 8.44624 11.5598 8.47814Z" fill="currentColor"></path><path d="M5.58267 5.94806C5.6756 5.84721 5.7243 5.71336 5.71791 5.57637C5.71152 5.43939 5.65056 5.31065 5.54864 5.21889C5.33497 5.03064 5.00964 5.04922 4.81878 5.26056C4.09149 6.06903 3.68947 7.11824 3.69031 8.2057V11.4529C3.69337 13.8913 5.66929 15.8672 8.10767 15.8702C8.28108 15.871 8.45435 15.8606 8.62642 15.839C8.68363 15.8316 8.7333 15.7959 8.75872 15.7441C8.78413 15.6923 8.78191 15.6312 8.75281 15.5814C8.63284 15.378 8.53038 15.1647 8.44656 14.9439C8.42017 14.8734 8.35088 14.8283 8.27573 14.8327C8.21948 14.8327 8.16253 14.8383 8.10767 14.8383C6.23938 14.8349 4.72569 13.3212 4.72225 11.4529V8.2057C4.72324 7.37324 5.02936 6.57003 5.58267 5.94806Z" fill="currentColor"></path><path d="M6.67639 11.453C6.67639 11.168 6.44538 10.937 6.16042 10.937C5.87546 10.937 5.64445 11.168 5.64445 11.453C5.64371 12.1065 5.90298 12.7334 6.36508 13.1956C6.82718 13.6577 7.45413 13.9169 8.10764 13.9162C8.12319 13.9163 8.13797 13.9094 8.14792 13.8974C8.15789 13.886 8.16222 13.8708 8.15973 13.8558C8.12471 13.6299 8.10729 13.4017 8.10764 13.1732C8.10764 13.1183 8.10764 13.0634 8.10764 13.0086C8.11324 12.9377 8.06047 12.8756 7.98958 12.8697C7.24958 12.8118 6.67811 12.1953 6.67639 11.453Z" fill="currentColor"></path><path d="M9.6382 9.51404C9.69882 9.5424 9.7704 9.53291 9.82153 9.48974C10.0451 9.30116 10.2852 9.13312 10.5389 8.98765C10.5587 8.97587 10.5709 8.95449 10.5708 8.9314V8.20571C10.5708 7.32569 10.1013 6.51253 9.33924 6.07252C8.57713 5.63251 7.63817 5.63251 6.87605 6.07252C6.11393 6.51253 5.64445 7.32569 5.64445 8.20571V9.17793C5.64445 9.46289 5.87546 9.6939 6.16042 9.6939C6.44539 9.6939 6.6764 9.46289 6.6764 9.17793V8.20571C6.6764 7.41525 7.31719 6.77446 8.10765 6.77446C8.89811 6.77446 9.5389 7.41525 9.5389 8.20571V9.35779C9.53881 9.42475 9.57754 9.48569 9.6382 9.51404Z" fill="currentColor"></path><path d="M8.31737 11.5974C8.3618 11.5777 8.39602 11.5405 8.41182 11.4946C8.46415 11.3382 8.5287 11.1861 8.60488 11.0397C8.61727 11.0149 8.62368 10.9876 8.62363 10.9599V9.17515C8.62363 8.8902 8.39262 8.65918 8.10765 8.65918C7.82269 8.65918 7.59167 8.8902 7.59167 9.17515V11.13C7.59394 11.414 7.82363 11.6437 8.10765 11.646C8.18014 11.6442 8.25152 11.6277 8.31737 11.5974Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M16.264 15.1248L18.005 16.8658C18.3408 17.2016 18.3408 17.7453 18.005 18.0811C17.6692 18.4169 17.1248 18.4169 16.789 18.0811L15.048 16.3402C14.9925 16.2853 14.9074 16.2742 14.8397 16.3131C14.2641 16.6482 13.61 16.8248 12.9439 16.8248C11.4049 16.8248 10.0175 15.8977 9.42859 14.4759C8.83971 13.054 9.16537 11.4174 10.2537 10.3293C11.342 9.24116 12.9787 8.91581 14.4005 9.50494C15.8222 10.0941 16.749 11.4817 16.7488 13.0207C16.7486 13.6867 16.572 14.3408 16.237 14.9165C16.1977 14.9841 16.2088 15.0696 16.264 15.1248ZM10.5133 13.0186C10.5133 14.361 11.6015 15.4492 12.9439 15.4492C14.2862 15.4492 15.3744 14.361 15.3744 13.0186C15.3744 11.6762 14.2862 10.5881 12.9439 10.5881C11.6015 10.5881 10.5133 11.6762 10.5133 13.0186Z" fill="currentColor"></path></svg></div>
+          <div><div class="mname">An unusual sighting</div><div class="mspec"><span class="diff">Easy</span> <span class="sep">·</span> Forensics</div></div></div></div>
+      <div class="m-body">
+        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+        <div class="csub">You've solved the challenge — here's what you earned.</div>
+        <div class="tiles">
+          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">75</div><div class="l">XP Earned</div></div>
+          <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#8730</div><div class="l">Challenge Rank</div></div>
+        </div>
+        <div class="submeta">Solved while <span class="state active">Active</span><span class="sep">·</span>22 Jan 2021</div>
+        <button class="btn"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
+      </div>
+      <a class="s-cta" href="https://help.hackthebox.com/en/articles/13616849-htb-profile" target="_blank" rel="noopener"><span class="txt"><span class="material-symbols-rounded">bolt</span>Want more people to see your wins?</span><span class="cta-btn">Get your HTB Profile</span></a>
+    </div>
   </div>
 </div>
 
