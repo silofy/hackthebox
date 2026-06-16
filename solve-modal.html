@@ -21,7 +21,13 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);font-weight:500;-webkit-font-smoothing:antialiased;}
   body{background:var(--surface-base);display:flex;flex-direction:column;align-items:center;gap:14px;padding:48px 20px;}
-  .section-label{color:var(--text-muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-top:24px;}
+  .section-label{color:var(--text-muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-top:8px;}
+  .tabs{position:sticky;top:12px;z-index:100;display:flex;gap:4px;padding:5px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-full);box-shadow:var(--elevation-3);}
+  .tab{border:none;background:none;color:var(--text-secondary);font-family:var(--font-sans);font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--radius-full);cursor:pointer;transition:background .12s,color .12s;}
+  .tab:hover{color:var(--text-primary);}
+  .tab.active{background:var(--brand-primary);color:#111;}
+  .view{display:none;flex-direction:column;align-items:center;gap:14px;}
+  .view.active{display:flex;}
   .grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:32px;}
   .col{display:flex;flex-direction:column;align-items:center;}
   .vlabel{color:var(--text-muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
@@ -210,6 +216,14 @@
   </symbol>
 </defs></svg>
 
+<nav class="tabs">
+  <button class="tab active" data-view="v-interactive">Interactive</button>
+  <button class="tab" data-view="v-blood">First blood</button>
+  <button class="tab" data-view="v-products">Product types</button>
+  <button class="tab" data-view="v-mobile">Mobile</button>
+</nav>
+
+<section class="view active" id="v-interactive">
 <div class="section-label">Interactive — click “Share your win”</div>
 <div class="grid">
   <!-- ░░ DEMO (standard + working share) ░░ -->
@@ -288,26 +302,11 @@
   </div>
 </div>
 
-<div class="section-label">All states</div>
-<div class="grid">
-  <!-- ░░ STANDARD ░░ -->
-  <div class="col"><div class="vlabel">Standard</div>
-    <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
-      <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
-        <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
-          <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
-      <div class="m-body">
-        <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
-        <div class="csub">You've pwned the machine — here's what you earned.</div>
-        <div class="tiles">
-          <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
-          <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#5941</div><div class="l">Machine Rank</div></div>
-        </div>
-        <div class="submeta">Solved while <span class="state retired">Retired</span><span class="sep">·</span>22 Jan 2021</div>
-        <button class="btn toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
-      </div></div>
-  </div>
+</section>
 
+<section class="view" id="v-blood">
+<div class="section-label">First blood</div>
+<div class="grid">
   <!-- ░░ USER BLOOD ░░ -->
   <div class="col"><div class="vlabel">First Blood · User</div>
     <div class="modal blood"><button class="close"><span class="material-symbols-rounded">close</span></button>
@@ -366,6 +365,9 @@
   </div>
 </div>
 
+</section>
+
+<section class="view" id="v-products">
 <div class="section-label">Product types</div>
 <div class="grid">
   <!-- ░░ MACHINE ░░ -->
@@ -429,6 +431,9 @@
   </div>
 </div>
 
+</section>
+
+<section class="view" id="v-mobile">
 <div class="section-label">Mobile</div>
 <div class="grid">
   <!-- PHONE A · standard (interactive → share) -->
@@ -513,6 +518,7 @@
     </div>
   </div>
 </div>
+</section>
 
 <script>
   document.querySelectorAll('.modal').forEach(modal => {
@@ -526,6 +532,14 @@
       const k=b.dataset.share; if(map[k]) window.open(map[k],'_blank','noopener,width=600,height=560');
     }));
   });
+
+  document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.view).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }));
 </script>
 </body>
 </html>
