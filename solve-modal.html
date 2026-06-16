@@ -162,6 +162,29 @@
   .phone .s-header{height:52px;padding-top:6px;}
   .phone .s-back{top:calc(50% + 3px);}
   .phone .btn{padding:14px;font-size:15px;}
+
+  /* ════ PUBLIC achievement page ════ */
+  .browser{width:940px;max-width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--border-default);box-shadow:var(--elevation-3);}
+  .browser .bar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface-card);border-bottom:1px solid var(--border-subtle);}
+  .browser .dots{display:flex;gap:7px;}
+  .browser .dots i{width:11px;height:11px;border-radius:50%;display:block;}
+  .browser .addr{flex:1;display:flex;align-items:center;gap:8px;background:var(--surface-input);border:1px solid var(--border-default);border-radius:var(--radius-full);padding:7px 14px;color:var(--text-secondary);font-size:12px;}
+  .browser .addr .material-symbols-rounded{font-size:14px;color:var(--text-muted);}
+  .page{background:var(--surface-base);}
+  .pnav{display:flex;align-items:center;justify-content:space-between;padding:15px 26px;border-bottom:1px solid var(--border-subtle);}
+  .pnav .brand{display:flex;align-items:center;gap:9px;color:var(--text-primary);font-size:13px;letter-spacing:.12em;text-transform:uppercase;}
+  .pnav .brand svg{width:20px;height:20px;}
+  .pnav-cta{background:var(--brand-primary);color:#111;border-radius:var(--radius-md);padding:9px 16px;font-size:13px;text-decoration:none;}
+  .page .m-hero{height:300px;}
+  .pbody{text-align:center;padding:26px 28px 6px;}
+  .powned{color:var(--text-secondary);font-size:16px;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;}
+  .powned .sep{color:var(--text-dim);}
+  .page .tiles{max-width:440px;margin:20px auto 0;}
+  .page .submeta{max-width:440px;margin:18px auto 0;}
+  .pcta{margin:26px 28px 30px;padding:24px 26px;border-radius:var(--radius-lg);background:linear-gradient(120deg,rgba(197,245,102,.10),rgba(94,148,243,.12));border:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+  .pcta-txt b{display:block;color:var(--text-primary);font-size:18px;}
+  .pcta-txt span{color:var(--text-secondary);font-size:14px;}
+  .btn-cta{background:var(--brand-primary);color:#111;border-radius:var(--radius-md);padding:12px 20px;font-size:14px;text-decoration:none;white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -241,6 +264,7 @@
   <button class="tab" data-view="v-blood">First blood</button>
   <button class="tab" data-view="v-products">Product types</button>
   <button class="tab" data-view="v-mobile">Mobile</button>
+  <button class="tab" data-view="v-public">Public page</button>
 </nav>
 
 <section class="view active" id="v-interactive">
@@ -532,6 +556,37 @@
           <a class="s-cta" href="https://help.hackthebox.com/en/articles/13616849-htb-profile" target="_blank" rel="noopener"><span class="txt"><span class="material-symbols-rounded">bolt</span>Want more people to see your wins?</span><span class="cta-btn">Get your HTB Profile</span></a>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="view" id="v-public">
+<div class="section-label">Public achievement page (shared URL)</div>
+<div class="browser">
+  <div class="bar">
+    <span class="dots"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i></span>
+    <span class="addr"><span class="material-symbols-rounded">lock</span>hackthebox.com/achievement/machine/silo/Checkpoint</span>
+  </div>
+  <div class="page">
+    <header class="pnav">
+      <span class="brand"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.5 3.6L12 11.5 5.5 7.9 12 4.3ZM5 9.4l6 3.3v6.8l-6-3.3V9.4Zm14 0v6.8l-6 3.3v-6.8l6-3.3Z" fill="#C5F566"/></svg> Hack The Box</span>
+      <a class="pnav-cta" href="#">Sign up free</a>
+    </header>
+    <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
+      <div class="hero-content"><div class="avatar"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div>
+        <div><div class="mname">Checkpoint</div><div class="mspec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div></div></div></div>
+    <div class="pbody">
+      <div class="powned">Pwned by <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span><span class="sep">·</span>22 Jan 2021</div>
+      <div class="tiles">
+        <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
+        <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#5941</div><div class="l">Machine Rank</div></div>
+      </div>
+      <div class="submeta">Solved while <span class="state retired">Retired</span></div>
+    </div>
+    <div class="pcta">
+      <div class="pcta-txt"><b>Think you've got what it takes?</b><span>Join the largest hacking playground and start owning machines.</span></div>
+      <a class="btn-cta" href="#">Get started — it's free</a>
     </div>
   </div>
 </div>
