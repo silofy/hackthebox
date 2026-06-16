@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTB Solve Background — First Blood</title>
+<style>
+  html,body{margin:0;height:100%;background:#0A0E17;}
+  svg{display:block;width:100vw;height:100vh;}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;}}
+</style>
+</head>
+<body>
+<!-- First-blood background (red): sunburst halo, red glints, dripping blood. viewBox 300x244; scales to fill. -->
+<svg viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="vigR" cx="50%" cy="46%" r="62%"><stop offset="18%" stop-color="#180A0E" stop-opacity="0"/><stop offset="100%" stop-color="#180A0E" stop-opacity="0.72"/></radialGradient>
+    <radialGradient id="rg1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F35E5E" stop-opacity="0.32"/><stop offset="45%" stop-color="#F35E5E" stop-opacity="0.16"/><stop offset="100%" stop-color="#F35E5E" stop-opacity="0"/></radialGradient>
+    <radialGradient id="rg2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#B0202A" stop-opacity="0.30"/><stop offset="45%" stop-color="#B0202A" stop-opacity="0.14"/><stop offset="100%" stop-color="#B0202A" stop-opacity="0"/></radialGradient>
+    <symbol id="drop" viewBox="0 0 24 24"><path d="M12 2S4 11 4 16a8 8 0 0 0 16 0C20 11 12 2 12 2Z" fill="currentColor"/></symbol>
+  </defs>
+  <rect width="300" height="244" fill="#241319"/>
+  <ellipse cx="150" cy="116" rx="205" ry="168" fill="url(#rg1)">
+    <animate attributeName="cx" values="150;200;150;100;150" dur="17s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+    <animate attributeName="cy" values="116;84;156;84;116" dur="17s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+  </ellipse>
+  <ellipse cx="150" cy="116" rx="135" ry="108" fill="url(#rg2)">
+    <animate attributeName="cx" values="150;92;208;92;150" dur="21s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/>
+  </ellipse>
+  <g transform="translate(150,116)" opacity="0.5">
+    <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="100s" repeatCount="indefinite"/>
+      <g fill="rgba(243,94,94,0.04)">
+        <polygon points="0,0 -6,-260 6,-260"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(30)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(60)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(90)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(120)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(150)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(180)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(210)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(240)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(270)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(300)"/><polygon points="0,0 -6,-260 6,-260" transform="rotate(330)"/>
+      </g>
+    </g>
+  </g>
+  <rect width="300" height="244" fill="url(#vigR)"/>
+  <g transform="translate(90,64)"><path d="M0,-6 L1.4,-1.4 L6,0 L1.4,1.4 L0,6 L-1.4,1.4 L-6,0 L-1.4,-1.4 Z" fill="#FF8A8A" opacity="0"><animateTransform attributeName="transform" type="scale" values="0;1;0" dur="3.6s" begin="-0.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.85;0" dur="3.6s" begin="-0.5s" repeatCount="indefinite"/></path></g>
+  <g transform="translate(216,150)"><path d="M0,-5 L1.2,-1.2 L5,0 L1.2,1.2 L0,5 L-1.2,1.2 L-5,0 L-1.2,-1.2 Z" fill="#F35E5E" opacity="0"><animateTransform attributeName="transform" type="scale" values="0;1;0" dur="4.2s" begin="-2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.8;0" dur="4.2s" begin="-2s" repeatCount="indefinite"/></path></g>
+  <g transform="translate(58,158)"><path d="M0,-5 L1.2,-1.2 L5,0 L1.2,1.2 L0,5 L-1.2,1.2 L-5,0 L-1.2,-1.2 Z" fill="#FF8A8A" opacity="0"><animateTransform attributeName="transform" type="scale" values="0;1;0" dur="3.9s" begin="-1.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.8;0" dur="3.9s" begin="-1.4s" repeatCount="indefinite"/></path></g>
+  <g transform="translate(40,-8)"><use href="#drop" width="9" height="11" color="rgba(243,94,94,.55)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.4 0 0.7 1" values="0,0;0,262" dur="6.5s" begin="-1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.55;.5;0" keyTimes="0;.15;.8;1" dur="6.5s" begin="-1s" repeatCount="indefinite"/></use></g>
+  <g transform="translate(96,-8)"><use href="#drop" width="7" height="9" color="rgba(243,94,94,.45)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.4 0 0.7 1" values="0,0;0,262" dur="8s" begin="-3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.45;.4;0" keyTimes="0;.15;.8;1" dur="8s" begin="-3s" repeatCount="indefinite"/></use></g>
+  <g transform="translate(168,-8)"><use href="#drop" width="11" height="13" color="rgba(243,94,94,.5)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.4 0 0.7 1" values="0,0;0,262" dur="7.2s" begin="-5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.5;.45;0" keyTimes="0;.15;.8;1" dur="7.2s" begin="-5s" repeatCount="indefinite"/></use></g>
+  <g transform="translate(225,-8)"><use href="#drop" width="8" height="10" color="rgba(243,94,94,.42)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.4 0 0.7 1" values="0,0;0,262" dur="9s" begin="-2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.42;.38;0" keyTimes="0;.15;.8;1" dur="9s" begin="-2s" repeatCount="indefinite"/></use></g>
+  <g transform="translate(265,-8)"><use href="#drop" width="6" height="8" color="rgba(243,94,94,.38)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.4 0 0.7 1" values="0,0;0,262" dur="7.8s" begin="-6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.38;.34;0" keyTimes="0;.15;.8;1" dur="7.8s" begin="-6s" repeatCount="indefinite"/></use></g>
+  <g transform="translate(132,-8)"><use href="#drop" width="6" height="8" color="rgba(243,94,94,.4)" opacity="0"><animateTransform attributeName="transform" type="translate" additive="sum" calcMode="spline" keySplines="0.4 0 0.7 1" values="0,0;0,262" dur="8.6s" begin="-7s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.4;.36;0" keyTimes="0;.15;.8;1" dur="8.6s" begin="-7s" repeatCount="indefinite"/></use></g>
+</svg>
+</body>
+</html>
