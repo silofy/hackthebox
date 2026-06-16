@@ -46,6 +46,8 @@
   .modal.blood .avatar{box-shadow:0 0 12px rgba(243,94,94,.45),0 8px 24px rgba(0,0,0,.45);}
   .avatar.icon{display:flex;align-items:center;justify-content:center;color:var(--brand-primary);}
   .avatar.icon svg{width:56px;height:56px;}
+  .avatar.square{border-radius:var(--radius-lg);background:none;}
+  .avatar.square img{object-fit:contain;}
   .mname{font-size:24px;color:var(--text-primary);line-height:1.15;text-shadow:0 2px 10px rgba(0,0,0,.5);}
   .mspec{margin-top:6px;font-size:13px;color:var(--text-secondary);text-shadow:0 1px 6px rgba(0,0,0,.5);}
   .mspec .diff{color:var(--warning);} .mspec .sep{color:var(--border-subtle);}
@@ -390,8 +392,8 @@
   <div class="col"><div class="vlabel">Sherlocks</div>
     <div class="modal"><button class="close"><span class="material-symbols-rounded">close</span></button>
       <div class="m-hero"><svg class="bg" viewBox="0 0 300 244" preserveAspectRatio="xMidYMid slice"><use href="#herobg" width="300" height="244"/></svg>
-        <div class="hero-content"><div class="avatar"><img src="https://cdn.services-k8s.prod.aws.htb.systems/content/sherlocks/avatar/9e4d9101-1abc-4804-920c-c4bf913a7b69.png" alt=""></div>
-          <div><div class="mname">Meerkat</div><div class="mspec"><span class="diff">Easy</span> <span class="sep">·</span> DFIR</div></div></div></div>
+        <div class="hero-content"><div class="avatar square"><img src="https://cdn.services-k8s.prod.aws.htb.systems/content/sherlocks/avatar/9e4d9101-1abc-4804-920c-c4bf913a7b69.png" alt=""></div>
+          <div><div class="mname">Lockpick4.0</div><div class="mspec"><span class="diff" style="color:#FF7B8A">Insane</span> <span class="sep">·</span> DFIR</div></div></div></div>
       <div class="m-body">
         <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
         <div class="csub">You've solved the Sherlock — here's what you earned.</div>
