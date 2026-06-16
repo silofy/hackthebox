@@ -105,24 +105,24 @@
   .og .grid{position:absolute;inset:0;opacity:.4;background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:16px 16px;}
   .og .bgav{position:absolute;z-index:0;right:-50px;top:50%;transform:translateY(-50%);width:360px;height:360px;border-radius:50%;object-fit:cover;filter:blur(42px);opacity:.30;}
   .og .accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--brand-primary),#79B500);z-index:3;}
-  .og .inner{position:relative;z-index:2;height:100%;display:grid;grid-template-columns:1fr auto;align-items:center;gap:18px;padding:22px 26px 22px 28px;}
+  .og .inner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:center;padding:22px 26px;}
   .og .brand{display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:11px;letter-spacing:.16em;text-transform:uppercase;}
   .og .brand svg{width:17px;height:17px;}
   .og .pwned{margin-top:26px;color:var(--brand-primary);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;}
   .og .name{margin-top:6px;font-size:34px;color:#fff;letter-spacing:-0.015em;line-height:1;}
   .og .spec{margin-top:9px;font-size:13px;color:var(--text-secondary);}
   .og .spec .diff{color:var(--warning);} .og .spec .sep{color:var(--border-subtle);}
-  .og .stats{margin-top:22px;display:flex;align-items:center;gap:36px;}
-  .og .stat{display:flex;align-items:center;gap:8px;}
+  .og .stats{margin-top:22px;display:flex;align-items:center;gap:36px;flex-wrap:wrap;}
+  .og .stat{display:flex;align-items:center;gap:8px;white-space:nowrap;}
   .og .stat .si{width:30px;height:30px;display:block;flex:0 0 auto;}
   .og .stat .rankico{font-size:27px;color:#C06FF6;}
   .og .stat .n{font-size:19px;color:#fff;font-variant-numeric:tabular-nums;line-height:1;}
   .og .stat .n.xp{color:var(--brand-primary);}
-  .og .stat .t{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-top:3px;}
+  .og .stat .t{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-top:3px;white-space:nowrap;}
   .og .uchip{display:inline-flex;align-items:center;gap:7px;border-radius:var(--radius-full);padding:4px 13px 4px 4px;font-size:13px;background:rgba(255,255,255,.06);color:var(--text-primary);border:1px solid var(--border-default);}
   .og .uchip img{width:24px;height:24px;border-radius:var(--radius-full);object-fit:cover;}
-  .og .side{display:flex;align-items:center;justify-content:center;}
-  .og .side .pic{width:112px;height:112px;border-radius:var(--radius-full);overflow:hidden;display:block;box-shadow:0 8px 28px rgba(0,0,0,.55);}
+  .og .side{position:absolute;z-index:2;top:20px;right:22px;}
+  .og .side .pic{width:92px;height:92px;border-radius:var(--radius-full);overflow:hidden;display:block;box-shadow:0 8px 28px rgba(0,0,0,.55);}
   .og .side .pic img{width:100%;height:100%;object-fit:cover;}
   .og .url{position:absolute;z-index:3;left:28px;bottom:14px;font-size:10px;color:var(--text-dim);letter-spacing:.08em;}
 
@@ -144,7 +144,7 @@
          background:linear-gradient(90deg,rgba(197,245,102,.10),rgba(94,148,243,.12));border-top:1px solid var(--border-subtle);}
   .s-cta .txt{display:flex;align-items:center;gap:9px;color:var(--text-secondary);font-size:13.5px;}
   .s-cta .txt .material-symbols-rounded{font-size:18px;color:var(--brand-primary);}
-  .s-cta .cta-btn{flex:0 0 auto;background:var(--surface-base);color:var(--text-primary);border:1px solid var(--border-default);border-radius:var(--radius-full);padding:8px 15px;font-size:13px;white-space:nowrap;}
+  .s-cta .cta-btn{flex:0 0 auto;background:#1B2A4A;color:var(--text-primary);border:1px solid #2A3E58;border-radius:var(--radius-full);padding:8px 15px;font-size:13px;white-space:nowrap;}
   .s-cta:hover .cta-btn{border-color:var(--brand-primary);color:var(--brand-primary);}
 
   /* ════ MOBILE (phone-framed, scoped under .phone) ════ */
@@ -256,6 +256,7 @@
             <span class="grid"></span>
             <img class="bgav" src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">
             <span class="accent"></span>
+            <div class="side"><div class="pic"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div></div>
             <div class="inner">
               <div>
                 <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.5 3.6L12 11.5 5.5 7.9 12 4.3ZM5 9.4l6 3.3v6.8l-6-3.3V9.4Zm14 0v6.8l-6 3.3v-6.8l6-3.3Z" fill="#C5F566"/></svg> Hack The Box</div>
@@ -264,13 +265,11 @@
                 <div class="spec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div>
                 <div class="stats">
                   <div class="stat"><svg class="si"><use href="#xp"/></svg><div><div class="n xp">585</div><div class="t">XP Earned</div></div></div>
-                  <div class="stat"><span class="material-symbols-rounded rankico">social_leaderboard</span><div><div class="n">#5941</div><div class="t">Global Rank</div></div></div>
+                  <div class="stat"><span class="material-symbols-rounded rankico">social_leaderboard</span><div><div class="n">#5941</div><div class="t">Machine Rank</div></div></div>
                   <span class="uchip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span>
                 </div>
               </div>
-              <div class="side"><div class="pic"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div></div>
             </div>
-            <span class="url">hackthebox.com</span>
           </div>
         </div>
 
@@ -458,6 +457,7 @@
             <div class="og-wrap"><div class="og"><span class="grid"></span>
               <img class="bgav" src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt="">
               <span class="accent"></span>
+              <div class="side"><div class="pic"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div></div>
               <div class="inner"><div>
                 <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.5 3.6L12 11.5 5.5 7.9 12 4.3ZM5 9.4l6 3.3v6.8l-6-3.3V9.4Zm14 0v6.8l-6 3.3v-6.8l6-3.3Z" fill="#C5F566"/></svg> Hack The Box</div>
                 <div class="pwned">Machine Pwned</div>
@@ -465,12 +465,10 @@
                 <div class="spec"><span class="diff">Medium</span> <span class="sep">·</span> Windows</div>
                 <div class="stats">
                   <div class="stat"><svg class="si"><use href="#xp"/></svg><div><div class="n xp">585</div><div class="t">XP Earned</div></div></div>
-                  <div class="stat"><span class="material-symbols-rounded rankico">social_leaderboard</span><div><div class="n">#5941</div><div class="t">Global Rank</div></div></div>
+                  <div class="stat"><span class="material-symbols-rounded rankico">social_leaderboard</span><div><div class="n">#5941</div><div class="t">Machine Rank</div></div></div>
                   <span class="uchip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span>
                 </div></div>
-                <div class="side"><div class="pic"><img src="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/d90d9ba3228fb458485c03a1b4c2f6e5.png" alt=""></div></div>
               </div>
-              <span class="url">hackthebox.com</span>
             </div></div>
             <h2 class="s-h">Share this with your community</h2>
             <div class="socials">
