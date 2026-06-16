@@ -13,12 +13,13 @@
     --border-default:#1E2D40; --border-subtle:#162030; --border-hover:#2A3E58;
     --text-primary:#F4F4F4; --text-secondary:#8799B5; --text-muted:#6B7A94; --text-dim:#4A5568;
     --success:#C5F566; --error:#F35E5E; --warning:#F3CB5E; --info:#5E94F3; --vip:#B75EF3;
+    --blood:#F35E5E; --blood-deep:#C0392B;
     --radius-sm:6px; --radius-md:8px; --radius-lg:10px; --radius-xl:14px; --radius-full:100px;
     --elevation-3:0 4px 16px rgba(0,0,0,0.4); --glow-green:0 0 8px rgba(159,239,0,0.25);
     --ease-enter:cubic-bezier(0,0,0.2,1);
     --font-sans:'neue-haas-unica',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
     --font-mono:'roboto-mono','SF Mono',Consolas,monospace;
-    --modal-max-w:440px; --modal-vw:50vw; --modal-max-h:90vh;
+    --modal-max-w:480px; --modal-vw:52vw; --modal-max-h:90vh;
   }
   @media (max-width:1024px){ :root{ --modal-vw:62vw; } }
   @media (max-width:768px){  :root{ --modal-vw:80vw; } }
@@ -67,17 +68,34 @@
         background:var(--surface-hover);color:var(--text-primary);border:1px solid var(--border-default);}
   .chip img{width:24px;height:24px;border-radius:var(--radius-full);object-fit:cover;}
 
-  .reward{margin-top:20px;}
-  .reward .xp{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:56px;line-height:1;font-weight:500;letter-spacing:-0.02em;color:var(--brand-primary);font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(197,245,102,.3);}
-  .reward .xp .xpicon{width:48px;height:48px;display:block;flex:0 0 auto;}
-  .reward .rlbl{margin-top:5px;color:var(--text-muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+  /* ── dual tiles (XP + Rank/First-blood) ── */
+  .tiles{margin-top:18px;display:flex;gap:10px;align-items:stretch;}
+  .tile{flex:1;min-width:0;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);
+        padding:16px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+  .tile .ico{height:46px;display:flex;align-items:center;justify-content:center;}
+  .xpicon{width:46px;height:46px;display:block;}
+  .rankicon{font-size:42px;color:#C06FF6;font-variation-settings:'FILL' 1;}
+  .drop{width:34px;height:38px;}
+  .drops{display:flex;gap:1px;align-items:center;}
+  .tile .big{font-size:36px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+  .big.xp{color:var(--brand-primary);text-shadow:0 0 22px rgba(197,245,102,.3);}
+  .big.rank{color:var(--text-primary);}
+  .tile .l{color:var(--text-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.3;}
+  .tile.fb{border-color:rgba(243,94,94,.4);background:linear-gradient(180deg,var(--surface-card),rgba(243,94,94,.07));}
+  .tile.fb.sys{border-color:rgba(192,57,43,.5);background:linear-gradient(180deg,var(--surface-card),rgba(192,57,43,.09));}
+  .fbt{margin-top:4px;display:flex;flex-direction:column;gap:4px;width:100%;}
+  .fbt .row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;white-space:nowrap;}
+  .fbt .flag{color:var(--blood);letter-spacing:.02em;}
+  .fbt .row.sys .flag{color:var(--blood-deep);}
+  .fbt .time{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-primary);letter-spacing:.02em;}
 
-  .meta{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-subtle);
-        display:flex;align-items:center;justify-content:center;gap:12px;font-size:16px;color:var(--text-muted);}
-  .meta .v{color:var(--text-primary);font-variant-numeric:tabular-nums;}
-  .meta .k{margin-left:6px;font-size:14px;}
-  .meta .sep{color:var(--text-dim);}
-  .tag-state{display:inline-block;border-radius:var(--radius-full);padding:3px 10px;font-size:13px;background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+  /* ── submeta (solved-while state + date) ── */
+  .submeta{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-subtle);
+           display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--text-muted);}
+  .submeta .sep{color:var(--text-dim);}
+  .state{display:inline-block;border-radius:var(--radius-full);padding:3px 10px;font-size:13px;}
+  .state.active{background:var(--brand-primary-muted);color:var(--brand-primary);border:1px solid var(--brand-primary-dim);}
+  .state.retired{background:var(--surface-active);color:var(--text-secondary);border:1px solid var(--border-default);}
 
   .btn{width:100%;margin-top:24px;padding:13px;border:none;border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;font-weight:500;cursor:pointer;background:var(--brand-primary);color:#111;display:flex;align-items:center;justify-content:center;gap:8px;}
   .btn .material-symbols-rounded{font-size:18px;}
@@ -193,15 +211,18 @@
           <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span>
         </div>
 
-        <div class="reward"><div class="xp"><svg class="xpicon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M68.623 51.082C69.5391 51.082 70.3316 51.4162 70.998 52.082C71.6644 52.7484 71.9977 53.5409 71.998 54.457C71.998 55.3737 71.6647 56.1654 70.998 56.832L56.834 71C56.1676 71.6663 55.3751 71.9997 54.459 72C53.5426 72 52.7505 71.6662 52.084 71L44.998 63.918C44.3872 63.2516 44.0843 62.4591 44.084 61.543C44.084 60.6263 44.4173 59.8346 45.084 59.168C45.7506 58.5013 46.5271 58.168 47.416 58.168C48.3049 58.168 49.0814 58.5013 49.748 59.168L54.498 63.918L66.248 52.082C66.9144 51.4157 67.7069 51.0823 68.623 51.082Z" fill="#C5F566"/><path fill-rule="evenodd" clip-rule="evenodd" d="M59.998 10C61.8314 10 63.4034 10.6515 64.709 11.957C66.0145 13.2626 66.666 14.8346 66.666 16.668V39.582C66.666 40.4709 66.4841 41.3194 66.123 42.125C65.762 42.9304 65.277 43.639 64.666 44.25L54.498 54.5L52.084 52.082C50.8062 50.8042 49.2342 50.168 47.373 50.168C47.1284 50.168 46.8888 50.1771 46.6543 50.1992V46.4531H59.998V29.1523H39.0957V55.7148L37.998 56.832C37.3314 57.4987 36.8314 58.2374 36.498 59.043C36.1651 59.848 35.998 60.6672 35.998 61.5C35.998 62.2778 36.1118 62.9861 36.334 63.625C36.5562 64.2637 36.8896 64.889 37.334 65.5C37.9999 66.4438 38.1248 67.43 37.709 68.457C37.2923 69.4848 36.5536 70 35.498 70H13.334C11.5007 70 9.9286 69.3485 8.62305 68.043C7.31749 66.7374 6.66602 65.1654 6.66602 63.332V16.668C6.66602 14.8346 7.31749 13.2626 8.62305 11.957C9.9286 10.6515 11.5007 10 13.334 10H59.998ZM27.4902 26.668V35.1914L24.1895 37.6758L20.8926 35.1914V29.2031H13.334V36.3555L18.2051 39.9609L13.334 43.5117V53.25H20.8926V44.6758L24.1895 42.1914L27.4902 44.6758V50.6641H35.0488V43.5117L30.1777 39.9609L35.0488 36.3555V26.668H27.4902Z" fill="#C06FF6"/><path d="M52.4394 41.8359H46.6543V33.7695H52.4394V41.8359Z" fill="#C06FF6"/></svg>585</div><div class="rlbl">XP Earned</div></div>
-
-        <div class="meta">
-          <span><span class="v">#5941</span><span class="k">Rank</span></span>
-          <span class="sep">·</span>
-          <span class="tag-state">Retired</span>
-          <span class="sep">·</span>
-          <span><span class="v">22 Jan 2021</span></span>
+        <div class="tiles">
+          <div class="tile">
+            <span class="ico"><svg class="xpicon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M68.623 51.082C69.5391 51.082 70.3316 51.4162 70.998 52.082C71.6644 52.7484 71.9977 53.5409 71.998 54.457C71.998 55.3737 71.6647 56.1654 70.998 56.832L56.834 71C56.1676 71.6663 55.3751 71.9997 54.459 72C53.5426 72 52.7505 71.6662 52.084 71L44.998 63.918C44.3872 63.2516 44.0843 62.4591 44.084 61.543C44.084 60.6263 44.4173 59.8346 45.084 59.168C45.7506 58.5013 46.5271 58.168 47.416 58.168C48.3049 58.168 49.0814 58.5013 49.748 59.168L54.498 63.918L66.248 52.082C66.9144 51.4157 67.7069 51.0823 68.623 51.082Z" fill="#C5F566"/><path fill-rule="evenodd" clip-rule="evenodd" d="M59.998 10C61.8314 10 63.4034 10.6515 64.709 11.957C66.0145 13.2626 66.666 14.8346 66.666 16.668V39.582C66.666 40.4709 66.4841 41.3194 66.123 42.125C65.762 42.9304 65.277 43.639 64.666 44.25L54.498 54.5L52.084 52.082C50.8062 50.8042 49.2342 50.168 47.373 50.168C47.1284 50.168 46.8888 50.1771 46.6543 50.1992V46.4531H59.998V29.1523H39.0957V55.7148L37.998 56.832C37.3314 57.4987 36.8314 58.2374 36.498 59.043C36.1651 59.848 35.998 60.6672 35.998 61.5C35.998 62.2778 36.1118 62.9861 36.334 63.625C36.5562 64.2637 36.8896 64.889 37.334 65.5C37.9999 66.4438 38.1248 67.43 37.709 68.457C37.2923 69.4848 36.5536 70 35.498 70H13.334C11.5007 70 9.9286 69.3485 8.62305 68.043C7.31749 66.7374 6.66602 65.1654 6.66602 63.332V16.668C6.66602 14.8346 7.31749 13.2626 8.62305 11.957C9.9286 10.6515 11.5007 10 13.334 10H59.998ZM27.4902 26.668V35.1914L24.1895 37.6758L20.8926 35.1914V29.2031H13.334V36.3555L18.2051 39.9609L13.334 43.5117V53.25H20.8926V44.6758L24.1895 42.1914L27.4902 44.6758V50.6641H35.0488V43.5117L30.1777 39.9609L35.0488 36.3555V26.668H27.4902Z" fill="#C06FF6"/><path d="M52.4394 41.8359H46.6543V33.7695H52.4394V41.8359Z" fill="#C06FF6"/></svg></span>
+            <div class="big xp">585</div><div class="l">XP Earned</div>
+          </div>
+          <div class="tile">
+            <span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span>
+            <div class="big rank">#5941</div><div class="l">Machine Rank</div>
+          </div>
         </div>
+
+        <div class="submeta">Solved while <span class="state retired">Retired</span><span class="sep">·</span>22 Jan 2021</div>
 
         <button class="btn" id="toShare"><span class="material-symbols-rounded">ios_share</span>Share your win</button>
       </div>
