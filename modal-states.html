@@ -12,7 +12,7 @@
     --surface-base:#0A0E17; --surface-panel:#141D2B; --surface-card:#1A2332; --surface-input:#111927; --surface-hover:#1E2A3A; --surface-active:#243044;
     --border-default:#1E2D40; --border-subtle:#162030; --border-hover:#2A3E58;
     --text-primary:#F4F4F4; --text-secondary:#8799B5; --text-muted:#6B7A94; --text-dim:#4A5568;
-    --warning:#F3CB5E; --blood:#F35E5E; --blood-deep:#C0392B;
+    --warning:#F3CB5E; --blood:#F35E5E; --blood-deep:#F35E5E;
     --radius-md:8px; --radius-lg:10px; --radius-xl:14px; --radius-full:100px;
     --elevation-3:0 4px 16px rgba(0,0,0,0.4); --glow-green:0 0 8px rgba(159,239,0,0.25);
     --ease-enter:cubic-bezier(0,0,0.2,1);
@@ -44,9 +44,10 @@
   .cong{color:var(--text-primary);font-size:16px;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;}
   .chip{display:inline-flex;align-items:center;gap:7px;border-radius:var(--radius-full);padding:3px 12px 3px 4px;font-size:16px;background:var(--surface-hover);color:var(--text-primary);border:1px solid var(--border-default);}
   .chip img{width:24px;height:24px;border-radius:var(--radius-full);object-fit:cover;}
+  .csub{margin-top:6px;color:var(--text-secondary);font-size:14px;line-height:1.5;}
 
   .tiles{margin-top:18px;display:flex;gap:10px;align-items:stretch;}
-  .tile{flex:1;min-width:0;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:16px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+  .tile{flex:1;min-width:0;background:var(--surface-card);border-radius:var(--radius-lg);padding:16px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
   .tile .ico{height:46px;display:flex;align-items:center;justify-content:center;}
   .xpicon{width:46px;height:46px;display:block;}
   .rankicon{font-size:42px;color:#C06FF6;}
@@ -56,12 +57,10 @@
   .big.xp{color:var(--brand-primary);text-shadow:0 0 22px rgba(197,245,102,.3);}
   .big.rank{color:var(--text-primary);}
   .tile .l{color:var(--text-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.3;}
-  .tile.fb{border-color:rgba(243,94,94,.4);background:linear-gradient(180deg,var(--surface-card),rgba(243,94,94,.07));}
-  .tile.fb.sys{border-color:rgba(192,57,43,.5);background:linear-gradient(180deg,var(--surface-card),rgba(192,57,43,.09));}
+  .tile.fb,.tile.fb.sys{background:#330A0A;}
   .fbt{margin-top:4px;display:flex;flex-direction:column;gap:4px;width:100%;}
   .fbt .row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;white-space:nowrap;}
-  .fbt .flag{color:var(--blood);letter-spacing:.02em;}
-  .fbt .row.sys .flag{color:var(--blood-deep);}
+  .fbt .flag,.fbt .row.sys .flag{color:var(--blood);letter-spacing:.02em;}
   .fbt .time{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-primary);letter-spacing:.02em;}
 
   .submeta{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--text-muted);}
@@ -115,6 +114,7 @@
     </div>
     <div class="m-body">
       <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+      <div class="csub">You've pwned the machine — here's what you earned.</div>
       <div class="tiles">
         <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
         <div class="tile"><span class="ico"><span class="material-symbols-rounded rankicon">social_leaderboard</span></span><div class="big rank">#5941</div><div class="l">Machine Rank</div></div>
@@ -136,6 +136,7 @@
     </div>
     <div class="m-body">
       <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+      <div class="csub">You've pwned the machine — here's what you earned.</div>
       <div class="tiles">
         <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
         <div class="tile fb">
@@ -161,6 +162,7 @@
     </div>
     <div class="m-body">
       <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+      <div class="csub">You've pwned the machine — here's what you earned.</div>
       <div class="tiles">
         <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
         <div class="tile fb sys">
@@ -186,10 +188,11 @@
     </div>
     <div class="m-body">
       <div class="cong">Congratulations <span class="chip"><img src="https://i.pravatar.cc/40?img=68" alt="">silo</span></div>
+      <div class="csub">You've pwned the machine — here's what you earned.</div>
       <div class="tiles">
         <div class="tile"><span class="ico"><svg class="xpicon"><use href="#xp"/></svg></span><div class="big xp">585</div><div class="l">XP Earned</div></div>
         <div class="tile fb sys">
-          <span class="ico"><span class="drops"><svg class="drop" style="width:24px;height:28px;color:var(--blood)"><use href="#drop"/></svg><svg class="drop" style="width:24px;height:28px;color:var(--blood-deep)"><use href="#drop"/></svg></span></span>
+          <span class="ico"><svg class="drop" style="color:var(--blood)"><use href="#drop"/></svg></span>
           <div class="big rank">#1</div><div class="l">Machine Rank</div>
           <div class="fbt">
             <div class="row"><span class="flag">User blood</span><span class="time">0H 21M 4S</span></div>
