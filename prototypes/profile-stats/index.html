@@ -151,4 +151,228 @@ var a=box.querySelector('.journey-cta');a.href=off?a.dataset.hrefOff:a.dataset.h
 var team=document.querySelector('[data-team="'+(off?'red':'blue')+'"]');if(team&&team.getAttribute('aria-pressed')!=='true')team.click();}
 box.querySelectorAll('[data-track-btn]').forEach(function(b){b.addEventListener('click',function(){set(b.dataset.trackBtn);});});})();
 </script>
+<style id="history-dialog">
+/* Solved-history dialog. Pattern follows library-search-dialog: 816px panel + 14px gutter + 300px peek, centred as one unit. */
+.hx-scrim,.hx{position:fixed;z-index:60}
+.hx-scrim{inset:0;background:#05080dcc;backdrop-filter:blur(2px)}
+.hx{top:6vh;left:calc(50% - 565px);width:816px;height:min(640px,88vh);display:grid;grid-template-rows:auto auto auto 1fr auto;background:var(--panel);border:1px solid var(--line-l2);border-radius:12px;box-shadow:var(--lift);overflow:hidden}
+.hx-peek{position:fixed;z-index:60;top:6vh;left:calc(50% - 565px + 830px);width:300px;height:min(640px,88vh);background:var(--panel);border:1px solid var(--line-l2);border-radius:12px;box-shadow:var(--lift);overflow:auto}
+.hx-scrim[hidden],.hx[hidden],.hx-peek[hidden]{display:none}
+@media(max-width:1161px){.hx{left:calc(50% - 408px)}.hx-peek{display:none!important}}
+@media(max-width:860px){.hx{top:0;left:0;width:100%;height:100%;border-radius:0;border:0}}
+.hx-head{display:flex;align-items:center;gap:12px;padding:18px 20px 12px}
+.hx-head .ico{width:22px;height:22px;color:var(--green)}
+.hx-head h2{margin:0;font-size:17px;font-weight:600;color:var(--text);letter-spacing:0;text-transform:none;font-family:var(--fd)}
+.hx-head p{margin:2px 0 0;font:10px var(--fm);letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2)}
+.hx-head .hx-out{margin-left:auto;font-size:12px;color:var(--green);text-decoration:none;white-space:nowrap}
+.hx-x{border:1px solid var(--line-2);background:var(--surface);color:var(--muted);border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:16px;flex:none}
+.hx-sum{display:flex;flex-wrap:wrap;gap:6px 18px;padding:0 20px 12px;font:11px var(--fm);color:var(--muted);border-bottom:1px solid var(--line-l1)}
+.hx-sum b{color:var(--text);font-weight:500}.hx-sum .r{color:var(--red)}
+.hx-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line-l1)}
+.hx-tools input{flex:1 1 180px;min-width:0;height:34px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--input);color:var(--text);font:13px var(--fd)}
+.hx-seg{display:inline-flex;padding:3px;border:1px solid var(--line-2);border-radius:8px;background:var(--input)}
+.hx-seg button{border:0;background:none;color:var(--muted);font:500 12px var(--fd);padding:6px 10px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.hx-seg button[aria-pressed=true]{background:var(--surface-2);color:var(--text)}
+.hx-tools select{height:34px;border:1px solid var(--line-2);border-radius:8px;background:var(--input);color:var(--muted);font:12px var(--fd);padding:0 8px}
+.hx-list{overflow:auto;padding:6px 8px;margin:0;list-style:none}
+.hx-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+.hx-row:hover{background:var(--surface)}
+.hx-row[aria-selected=true]{background:var(--surface);border-color:var(--line-2)}
+.hx-tile{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font:600 14px var(--fd);color:var(--text);background:var(--surface-2);border:1px solid var(--line-l2);position:relative}
+.hx-tile::after{content:'';position:absolute;left:6px;right:6px;bottom:-1px;height:2px;border-radius:2px;background:var(--dc)}
+.hx-name{min-width:0}.hx-name strong{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hx-name small{display:block;margin-top:2px;font-size:11px;color:var(--muted-2)}
+.hx-name .d{color:var(--dc)}
+.hx-new{font:500 9px var(--fm);letter-spacing:.08em;color:var(--green);background:#c5f5661a;padding:1px 6px;border-radius:999px}
+.hx-prog{display:flex;gap:6px;align-items:center;justify-content:flex-end}
+.hx-flag{display:inline-flex;align-items:center;gap:4px;font:10px var(--fm);letter-spacing:.04em;padding:3px 7px;border-radius:999px;border:1px solid var(--line-2);color:var(--muted-2);white-space:nowrap}
+.hx-flag.on{color:var(--green);border-color:#c5f56640;background:#c5f5660f}
+.hx-flag.blood{color:var(--red);border-color:#f35e5e40;background:#f35e5e12}
+.hx-flag .ico{width:11px;height:11px}
+.hx-meta{display:flex;gap:10px;align-items:center;min-width:150px;justify-content:flex-end}
+.hx-date{font:11px var(--fm);color:var(--muted);white-space:nowrap;min-width:78px;text-align:right}
+.hx-sig{display:inline-flex;gap:6px}
+.hx-sig span{width:22px;height:22px;display:grid;place-items:center;border-radius:6px;color:#3a475c}
+.hx-sig span.on{color:var(--gold)}.hx-sig span.on.rv{color:var(--blue)}.hx-sig span.on.rs{color:var(--green)}
+.hx-sig svg{width:14px;height:14px}
+.hx-sig .na{opacity:.35}
+.hx-empty{padding:48px 24px;text-align:center;color:var(--muted)}
+.hx-empty strong{display:block;color:var(--text);font-size:15px;margin-bottom:6px}
+.hx-empty .primary{display:inline-block;margin-top:14px}
+.hx-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;border-top:1px solid var(--line-l1);font:11px var(--fm);color:var(--muted-2)}
+.hx-foot kbd{font:10px var(--fm);border:1px solid var(--line-2);border-radius:4px;padding:1px 5px;margin-right:4px;color:var(--muted)}
+/* peek */
+.hx-peek .pk{padding:20px}
+.pk h3{margin:10px 0 2px;font-size:18px;color:var(--text);font-weight:600}
+.pk .sub{font-size:12px;color:var(--muted-2)}
+.pk-sec{margin-top:18px;padding-top:14px;border-top:1px solid var(--line-l1)}
+.pk-sec h4{margin:0 0 10px;font:10px var(--fm);letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);font-weight:400}
+.pk-steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pk-steps li{display:grid;grid-template-columns:16px 1fr auto;gap:8px;align-items:center;font-size:13px;color:var(--text)}
+.pk-steps li i{width:10px;height:10px;border-radius:50%;border:2px solid var(--line-2);justify-self:center}
+.pk-steps li.on i{border-color:var(--green);background:var(--green)}
+.pk-steps li.blood i{border-color:var(--red);background:var(--red)}
+.pk-steps li small{font:10px var(--fm);color:var(--muted-2)}
+.pk-bar{height:4px;border-radius:4px;background:var(--line-l2);margin-top:4px;overflow:hidden}.pk-bar b{display:block;height:100%;background:var(--green)}
+.pk-stars{color:var(--gold);letter-spacing:2px;font-size:15px}.pk-stars s{text-decoration:none;color:#3a475c}
+.pk-review{margin:8px 0 0;padding:10px 12px;border-left:2px solid var(--blue);background:var(--surface);border-radius:0 6px 6px 0;font-size:13px;line-height:1.5;color:var(--muted)}
+.pk-none{font-size:12px;color:var(--muted-2)}
+.pk-act{display:inline-block;margin-top:8px;font-size:12px;color:var(--green);text-decoration:none}
+.pk-creator{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--text)}
+.pk-resp{font:500 11px var(--fd);padding:5px 10px;border-radius:6px;border:1px solid var(--line-2);color:var(--muted)}
+.pk-resp.on{background:var(--green);color:var(--green-ink);border-color:var(--green)}
+.pk-open{display:block;margin-top:20px;text-align:center}
+/* mobile: no peek, row expands inline (answers library Q1 with an expanding row) */
+.hx-inline{display:none;grid-column:1/-1;padding:4px 0 6px 48px}
+@media(max-width:1161px){.hx-row[aria-selected=true] .hx-inline{display:block}}
+@media(max-width:860px){
+ .hx{grid-template-rows:auto auto auto 1fr auto}
+ .hx-row{grid-template-columns:36px minmax(0,1fr) auto}
+ .hx-meta{grid-column:2/-1;justify-content:flex-start;min-width:0}
+ .hx-date{text-align:left;min-width:0}
+ .hx-head .hx-out{display:none}
+ .hx-x{margin-left:auto}
+ .hx-foot .keys{display:none}
+ .hx-inline{padding-left:0}
+}
+.count-card{cursor:pointer}
+</style>
+
+<div class="hx-scrim" id="hxScrim" hidden></div>
+<section class="hx" id="hx" role="dialog" aria-modal="true" aria-labelledby="hxTitle" hidden>
+ <header class="hx-head"><svg class="ico" aria-hidden="true"><use id="hxIcon" href="#i-machines"/></svg><div><h2 id="hxTitle">Machines</h2><p id="hxSub"></p></div><a class="hx-out" id="hxOut" href="#">Open in Labs ↗</a><button class="hx-x" type="button" id="hxClose" aria-label="Close">✕</button></header>
+ <div class="hx-sum" id="hxSum"></div>
+ <div class="hx-tools"><input id="hxQ" type="search" placeholder="Filter by name" aria-label="Filter by name" aria-controls="hxList" autocomplete="off">
+  <div class="hx-seg" role="group" aria-label="Completion" id="hxSeg"><button type="button" data-s="all" aria-pressed="true">All</button><button type="button" data-s="full" aria-pressed="false">Fully solved</button><button type="button" data-s="part" aria-pressed="false">In progress</button></div>
+  <select id="hxSort" aria-label="Sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="rate">Your rating</option><option value="diff">Difficulty</option></select></div>
+ <ul class="hx-list" id="hxList" role="listbox" aria-label="Completed content"></ul>
+ <footer class="hx-foot"><span id="hxCount"></span><span class="keys"><kbd>↑</kbd><kbd>↓</kbd>move &nbsp; <kbd>↵</kbd>open &nbsp; <kbd>esc</kbd>close</span></footer>
+</section>
+<aside class="hx-peek" id="hxPeek" aria-live="polite" hidden></aside>
+
+<script>
+(function(){
+'use strict';
+var DC={Easy:'var(--teal)','Very Easy':'var(--teal)',Medium:'var(--gold)',Hard:'var(--red)',Insane:'var(--purple)',Fundamental:'var(--teal)'};
+var DORDER={'Very Easy':0,Easy:1,Fundamental:1,Medium:2,Hard:3,Insane:4};
+var CREATORS=['r00tsmith','kaliope','n3onwave','bitshade','ghostframe','lowtide','hexwren'];
+var REVIEWS={machines:['Great enumeration practice. The foothold made me slow down and actually read the scan.','Root path was creative. Took me two evenings but I learned a lot about service misconfigs.','Clean, realistic and fair. Would recommend after the starter modules.'],sherlocks:['Log analysis felt like a real incident. The timeline question was the best part.','Good intro to correlating auth.log with wtmp.','Clear questions, realistic artefacts.'],challenges:['Short and sharp. Good warm-up.','Fun twist once you see it.','Nice intro to the category.'],modules:['']};
+var NOW=new Date('2026-10-04T12:00:00');var LAST_VISIT=new Date('2026-09-03T00:00:00');
+function rnd(seed){return function(){seed=(seed*9301+49297)%233280;return seed/233280;};}
+function day(i,n,r){var span=(NOW-new Date('2021-03-14'))/864e5;var d=new Date(NOW-((i/n)*span+r()*20)*864e5);return d;}
+function build(type,names,opts){var r=rnd(type.length*97+names.length);return names.map(function(nm,i){
+ var o={id:type+i,name:nm[0],diff:nm[1],extra:nm[2]||'',date:day(i,names.length,r),creator:CREATORS[(i*3+type.length)%CREATORS.length]};
+ if(i<opts.newCount)o.date=new Date(NOW-(i*6+2)*864e5);
+ o.rating=r()<.62?(3+Math.round(r()*2)):null;
+ o.review=o.rating&&r()<.45?REVIEWS[type][i%REVIEWS[type].length]:null;
+ o.respected=opts.respect?r()<.7:null;
+ opts.shape(o,i,r);return o;});}
+var DATA={
+ machines:{label:'Machines',icon:'machines',out:'https://app.hackthebox.com/machines',outLabel:'Open in Labs ↗',verb:'solved',
+  items:build('machines',[['Cap','Easy','Linux'],['Blue','Easy','Windows'],['Jerry','Easy','Windows'],['Lame','Easy','Linux'],['Netmon','Easy','Windows'],['Devel','Easy','Windows'],['Optimum','Easy','Windows'],['Bashed','Easy','Linux'],['Nibbles','Easy','Linux'],['Shocker','Easy','Linux'],['Mirai','Easy','Linux'],['Sense','Easy','FreeBSD'],['Beep','Easy','Linux'],['Legacy','Easy','Windows'],['Forest','Medium','Windows'],['Active','Medium','Windows']],{newCount:3,respect:true,shape:function(o,i,r){
+   o.user=true;o.root=i<14;o.guided=[0,1,2,8].indexOf(i)>-1?{done:i===8?7:10,total:10}:null;
+   if(i===14){o.user=true;o.root=false;o.guided={done:4,total:12};}if(i===15){o.user=false;o.root=false;o.guided={done:2,total:11};}
+   o.blood=i===3?'root':i===7?'user':i===11?'root':null;
+   o.full=o.user&&o.root&&(!o.guided||o.guided.done===o.guided.total);
+   o.complete=o.user&&o.root;}})},
+ sherlocks:{label:'Sherlocks',icon:'sherlocks',out:'https://app.hackthebox.com/sherlocks',outLabel:'Open in Labs ↗',verb:'completed',
+  items:build('sherlocks',[['Brutus','Very Easy','DFIR'],['Unit42','Very Easy','DFIR'],['Meerkat','Easy','SOC'],['BFT','Very Easy','DFIR'],['Campfire-1','Very Easy','SOC'],['Noxious','Very Easy','SOC'],['Logjammer','Easy','DFIR'],['Origins','Very Easy','Threat Intelligence'],['Tracer','Easy','DFIR']],{newCount:1,respect:true,shape:function(o,i){
+   var t=[9,8,11,10,7,8,12,9,10][i];o.tasks={done:i===8?6:t,total:t};o.blood=i===2||i===6?'first':null;o.full=o.tasks.done===o.tasks.total;o.complete=o.full;}})},
+ challenges:{label:'Challenges',icon:'challenges',out:'https://app.hackthebox.com/challenges',outLabel:'Open in Labs ↗',verb:'pwned',
+  items:build('challenges',[['Flag Command','Very Easy','Web'],['Dynastic','Very Easy','Crypto'],['LootStash','Very Easy','Reversing'],['It\'s Oops PM','Very Easy','Hardware'],['Primary Knowledge','Very Easy','Crypto'],['Labyrinth Linguist','Easy','Web'],['Pursue The Tracks','Easy','Forensics'],['Urgent','Very Easy','Forensics'],['Character','Very Easy','Misc'],['Stop Drop and Roll','Very Easy','Misc'],['Delulu','Very Easy','Pwn'],['Writing on the Wall','Very Easy','Pwn'],['Behind the Scenes','Very Easy','Reversing'],['Iced Tea','Very Easy','Crypto'],['Fake Boost','Easy','Forensics'],['TimeKORP','Very Easy','Web'],['KORP Terminal','Very Easy','Web'],['Testimonial','Easy','Web'],['Russian Roulette','Very Easy','Blockchain'],['BoxCutter','Very Easy','Reversing'],['Maze','Easy','Misc'],['Rids','Easy','Hardware']],{newCount:4,respect:true,shape:function(o,i){
+   o.flag=true;o.blood=[1,5,9,17].indexOf(i)>-1?'first':null;o.full=true;o.complete=true;}})},
+ modules:{label:'Modules',icon:'modules',out:'https://academy.hackthebox.com/',outLabel:'Open in Academy ↗',verb:'completed',
+  items:build('modules',[['Linux Fundamentals','Fundamental'],['Windows Fundamentals','Fundamental'],['Introduction to Networking','Fundamental'],['Web Requests','Fundamental'],['Network Enumeration with Nmap','Easy'],['Footprinting','Medium'],['Information Gathering - Web Edition','Easy'],['Vulnerability Assessment','Easy'],['File Transfers','Medium'],['Shells & Payloads','Medium'],['Using the Metasploit Framework','Easy'],['Password Attacks','Medium'],['Attacking Common Services','Medium'],['Pivoting, Tunneling, and Port Forwarding','Medium'],['Active Directory Enumeration & Attacks','Medium'],['Using Web Proxies','Easy'],['Attacking Web Applications with Ffuf','Easy'],['Login Brute Forcing','Easy'],['SQL Injection Fundamentals','Medium'],['SQLMap Essentials','Easy'],['Cross-Site Scripting (XSS)','Easy'],['File Inclusion','Medium'],['File Upload Attacks','Medium'],['Command Injections','Medium'],['Web Attacks','Medium'],['Attacking Common Applications','Medium'],['Linux Privilege Escalation','Easy'],['Windows Privilege Escalation','Medium'],['Documentation & Reporting','Easy'],['Attacking Enterprise Networks','Medium'],['Introduction to Bash Scripting','Easy'],['Introduction to Python 3','Easy'],['Getting Started','Fundamental'],['Setting Up','Fundamental'],['Intro to Academy','Fundamental'],['Learning Process','Fundamental'],['Kerberos Attacks','Hard'],['Intro to Windows Command Line','Easy']],{newCount:2,respect:false,shape:function(o,i){
+   var t=6+(i*7)%14;o.sections={done:i>=36?Math.floor(t/3):t,total:t};o.full=o.sections.done===o.sections.total;o.complete=o.full;o.creator='HTB Academy';o.review=null;}})}
+};
+var TYPES=['machines','sherlocks','challenges','modules'];
+var S={type:null,q:'',seg:'all',sort:'new',sel:0,rows:[],opener:null};
+var $=function(id){return document.getElementById(id);};
+var ico=function(k){return '<svg class="ico" aria-hidden="true"><use href="#i-'+k+'"/></svg>';};
+var STAR='<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.8l2.5 5.3 5.8.7-4.3 4 1.1 5.7L10 14.7l-5.1 2.8 1.1-5.7-4.3-4 5.8-.7z"/></svg>';
+var BUBBLE='<svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 3h14a1 1 0 011 1v9a1 1 0 01-1 1H8l-4 3.5V14H3a1 1 0 01-1-1V4a1 1 0 011-1zm3 4v1.5h8V7H6zm0 3v1.5h5V10H6z"/></svg>';
+var RESPECT='<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5a8.5 8.5 0 110 17 8.5 8.5 0 010-17zm3.6 5.4L8.8 11.7 6.4 9.3 5.2 10.5l3.6 3.6 6-6z"/></svg>';
+function fmt(d){return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function rel(d){var n=Math.round((NOW-d)/864e5);if(n<1)return'today';if(n<31)return n+'d ago';if(n<365)return Math.round(n/30)+'mo ago';return Math.floor(n/365)+'y ago';}
+function filled(){return document.body.classList.contains('filled');}
+function items(){return filled()?DATA[S.type].items:[];}
+
+function progress(o){
+ if(S.type==='machines'){var h='<span class="hx-flag '+(o.user?(o.blood==='user'?'blood':'on'):'')+'" title="User flag">'+(o.blood==='user'?ico('blood'):'')+'User</span><span class="hx-flag '+(o.root?(o.blood==='root'?'blood':'on'):'')+'" title="Root flag">'+(o.blood==='root'?ico('blood'):'')+'Root</span>';
+  if(o.guided)h+='<span class="hx-flag '+(o.guided.done===o.guided.total?'on':'')+'" title="Guided Mode tasks">Tasks '+o.guided.done+'/'+o.guided.total+'</span>';return h;}
+ if(S.type==='sherlocks')return '<span class="hx-flag '+(o.blood?'blood':o.full?'on':'')+'" title="Tasks answered">'+(o.blood?ico('blood'):'')+'Tasks '+o.tasks.done+'/'+o.tasks.total+'</span>';
+ if(S.type==='challenges')return '<span class="hx-flag '+(o.blood?'blood':'on')+'" title="Flag">'+(o.blood?ico('blood'):'')+'Flag</span>';
+ return '<span class="hx-flag '+(o.full?'on':'')+'" title="Sections completed">Sections '+o.sections.done+'/'+o.sections.total+'</span>';
+}
+function signals(o){
+ return '<span class="hx-sig">'+
+  '<span class="'+(o.rating?'on':'')+'" title="'+(o.rating?'You rated '+o.rating+'/5':'Not rated')+'">'+STAR+'</span>'+
+  (S.type==='modules'?'':'<span class="rv '+(o.review?'on':'')+'" title="'+(o.review?'You reviewed this':'No review')+'">'+BUBBLE+'</span>')+
+  (o.respected===null?'':'<span class="rs '+(o.respected?'on':'')+'" title="'+(o.respected?'You respected '+o.creator:'Creator not respected')+'">'+RESPECT+'</span>')+
+ '</span>';
+}
+function detail(o){
+ var steps='';
+ if(S.type==='machines'){steps='<li class="'+(o.user?(o.blood==='user'?'blood':'on'):'')+'"><i></i>User flag<small>'+(o.user?fmt(o.date):'—')+(o.blood==='user'?' · blood':'')+'</small></li><li class="'+(o.root?(o.blood==='root'?'blood':'on'):'')+'"><i></i>Root flag<small>'+(o.root?fmt(o.date):'—')+(o.blood==='root'?' · blood':'')+'</small></li>';
+  if(o.guided)steps+='<li class="'+(o.guided.done===o.guided.total?'on':'')+'"><i></i>Guided Mode tasks<small>'+o.guided.done+' / '+o.guided.total+'</small></li>';}
+ else if(S.type==='sherlocks')steps='<li class="'+(o.blood?'blood':o.full?'on':'')+'"><i></i>Tasks answered<small>'+o.tasks.done+' / '+o.tasks.total+'</small></li>';
+ else if(S.type==='challenges')steps='<li class="'+(o.blood?'blood':'on')+'"><i></i>Flag captured<small>'+fmt(o.date)+(o.blood?' · blood':'')+'</small></li>';
+ else steps='<li class="'+(o.full?'on':'')+'"><i></i>Sections<small>'+o.sections.done+' / '+o.sections.total+'</small></li>';
+ var pct=S.type==='machines'?Math.round(((o.user?1:0)+(o.root?1:0)+(o.guided?o.guided.done/o.guided.total:0))/(o.guided?3:2)*100):S.type==='sherlocks'?Math.round(o.tasks.done/o.tasks.total*100):S.type==='modules'?Math.round(o.sections.done/o.sections.total*100):100;
+ var rate=o.rating?'<div class="pk-stars" aria-label="'+o.rating+' of 5">'+'★'.repeat(o.rating)+'<s>'+'★'.repeat(5-o.rating)+'</s></div>':'<span class="pk-none">Not rated yet.</span> <a class="pk-act" href="#">Rate it ↗</a>';
+ var rev=S.type==='modules'?'':'<div class="pk-sec"><h4>Your review</h4>'+(o.review?'<p class="pk-review">'+o.review+'</p>':'<span class="pk-none">No review written.</span> <a class="pk-act" href="#">Write a review ↗</a>')+'</div>';
+ var cr=o.respected===null?'':'<div class="pk-sec"><h4>Creator</h4><div class="pk-creator"><span>@'+o.creator+'</span><span class="pk-resp '+(o.respected?'on':'')+'">'+(o.respected?'✓ Respected':'Not respected')+'</span></div></div>';
+ return '<div class="pk-sec"><h4>Completion · '+pct+'%</h4><div class="pk-bar"><b style="width:'+pct+'%"></b></div><ul class="pk-steps" style="margin-top:12px">'+steps+'</ul></div><div class="pk-sec"><h4>Your rating</h4>'+rate+'</div>'+rev+cr;
+}
+function peek(o){
+ var p=$('hxPeek');if(!o||window.innerWidth<1162){p.hidden=true;return;}
+ p.hidden=false;
+ p.innerHTML='<div class="pk"><span class="hx-tile" style="--dc:'+DC[o.diff]+'">'+o.name[0]+'</span><h3>'+o.name+'</h3><div class="sub"><span style="color:'+DC[o.diff]+'">'+o.diff+'</span>'+(o.extra?' · '+o.extra:'')+' · '+(o.complete?S.type==='modules'?'completed ':'solved ':'started ')+fmt(o.date)+'</div>'+detail(o)+'<a class="primary pk-open" href="'+DATA[S.type].out+'">'+(o.full?'Open again':'Continue')+' ↗</a></div>';
+}
+function render(){
+ var d=DATA[S.type],all=items();
+ $('hxIcon').setAttribute('href','#i-'+d.icon);$('hxTitle').textContent=d.label;$('hxOut').href=d.out;$('hxOut').textContent=d.outLabel;
+ var done=all.filter(function(o){return o.complete;}).length,part=all.length-done;
+ $('hxSub').textContent=done+' '+d.verb+(part?' · '+part+' in progress':'');
+ var bl=all.filter(function(o){return o.blood;}).length,rt=all.filter(function(o){return o.rating;}).length,rv=all.filter(function(o){return o.review;}).length,rs=all.filter(function(o){return o.respected;}).length;
+ $('hxSum').innerHTML=all.length?(S.type==='modules'?'':'<span class="r">'+ico('blood').replace('class="ico"','class="ico" style="width:11px;height:11px;vertical-align:-1px"')+' <b class="r">'+bl+'</b> bloods</span>')+'<span><b>'+rt+'</b> rated</span>'+(S.type==='modules'?'':'<span><b>'+rv+'</b> reviewed</span><span><b>'+rs+'</b> creators respected</span>')+'<span>First on <b>'+fmt(all.reduce(function(a,o){return o.date<a?o.date:a;},NOW))+'</b></span>':'';
+ var q=S.q.toLowerCase();
+ var rows=all.filter(function(o){return(!q||o.name.toLowerCase().indexOf(q)>-1||o.extra.toLowerCase().indexOf(q)>-1)&&(S.seg==='all'||(S.seg==='full'?o.full:!o.full));});
+ rows.sort(function(a,b){return S.sort==='old'?a.date-b.date:S.sort==='rate'?(b.rating||0)-(a.rating||0)||b.date-a.date:S.sort==='diff'?DORDER[b.diff]-DORDER[a.diff]||b.date-a.date:b.date-a.date;});
+ S.rows=rows;if(S.sel>=rows.length)S.sel=0;
+ var list=$('hxList');
+ if(!all.length){list.innerHTML='<li class="hx-empty"><strong>Nothing '+d.verb+' yet.</strong>Everything you finish here shows up with its date, your rating and review.<br><a class="primary" href="'+d.out+'">'+d.outLabel.replace(' ↗','')+' ↗</a></li>';}
+ else if(!rows.length){list.innerHTML='<li class="hx-empty"><strong>Nothing matches.</strong>Try another name or switch back to All.</li>';}
+ else list.innerHTML=rows.map(function(o,i){
+  return '<li class="hx-row" role="option" id="hx-'+o.id+'" data-i="'+i+'" aria-selected="'+(i===S.sel)+'"><span class="hx-tile" style="--dc:'+DC[o.diff]+'">'+o.name[0]+'</span><span class="hx-name"><strong>'+o.name+(o.date>LAST_VISIT?' <span class="hx-new">NEW</span>':'')+'</strong><small><span class="d" style="--dc:'+DC[o.diff]+'">'+o.diff+'</span>'+(o.extra?' · '+o.extra:'')+'</small></span><span class="hx-prog">'+progress(o)+'</span><span class="hx-meta"><span class="hx-date" title="'+fmt(o.date)+'">'+fmt(o.date)+'</span>'+signals(o)+'</span><div class="hx-inline">'+detail(o)+'</div></li>';}).join('');
+ $('hxCount').textContent=all.length?(rows.length===all.length?all.length+' items':rows.length+' of '+all.length+' items'):'0 items';
+ select(S.sel,false);
+}
+function select(i,scroll){
+ S.sel=i;var opts=$('hxList').querySelectorAll('.hx-row');opts.forEach(function(r,j){r.setAttribute('aria-selected',String(j===i));});
+ var cur=opts[i];$('hxQ').setAttribute('aria-activedescendant',cur?cur.id:'');
+ if(cur&&scroll)cur.scrollIntoView({block:'nearest'});peek(S.rows[i]);
+}
+function open(type,opener){S.type=type;S.q='';S.seg='all';S.sort='new';S.sel=0;S.opener=opener;
+ $('hxQ').value='';$('hxSort').value='new';$('hxSeg').querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.s==='all'));});
+ $('hx').hidden=false;$('hxScrim').hidden=false;document.body.style.overflow='hidden';render();$('hxQ').focus();}
+function close(){$('hx').hidden=true;$('hxScrim').hidden=true;$('hxPeek').hidden=true;document.body.style.overflow='';if(S.opener)S.opener.focus();}
+document.querySelectorAll('.overview .count-card').forEach(function(card,i){
+ card.setAttribute('role','button');card.setAttribute('aria-haspopup','dialog');
+ card.addEventListener('click',function(e){e.preventDefault();open(TYPES[i],card);});});
+$('hxClose').addEventListener('click',close);$('hxScrim').addEventListener('click',close);
+$('hxQ').addEventListener('input',function(e){S.q=e.target.value;S.sel=0;render();});
+$('hxSort').addEventListener('change',function(e){S.sort=e.target.value;S.sel=0;render();});
+$('hxSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;S.seg=b.dataset.s;S.sel=0;$('hxSeg').querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});render();});
+$('hxList').addEventListener('click',function(e){var r=e.target.closest('.hx-row');if(r&&!e.target.closest('a'))select(+r.dataset.i,false);});
+document.addEventListener('keydown',function(e){if($('hx').hidden)return;
+ if(e.key==='Escape'){e.preventDefault();close();}
+ else if(e.key==='ArrowDown'){e.preventDefault();select(Math.min(S.sel+1,S.rows.length-1),true);}
+ else if(e.key==='ArrowUp'){e.preventDefault();select(Math.max(S.sel-1,0),true);}
+ else if(e.key==='Enter'&&S.rows[S.sel]&&document.activeElement===$('hxQ')){window.open(DATA[S.type].out,'_blank');}
+ else if(e.key==='Tab'){var f=[].slice.call($('hx').querySelectorAll('input,button,select,a[href]')).filter(function(n){return n.offsetParent;});var a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus();}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus();}}});
+window.addEventListener('resize',function(){if(!$('hx').hidden)peek(S.rows[S.sel]);});
+})();
+</script>
+
 </body></html>

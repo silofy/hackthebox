@@ -88,3 +88,66 @@ In the prototype, links carry `data-route-b2c` / `data-route-b2b` attributes as 
 | Q8 | Should the Stats page start on the direction chosen in onboarding instead of defaulting to Offensive? | Product / Eng |
 | Q9 | If the user skipped the first mission, does this card still show? (Recommendation: yes, it's the only way this page fills up) | Product |
 | Q7 | Progress email: separate project, reusing the journey recap data | Product |
+
+## 7. Solved-history dialog (opens from each overview card)
+
+Clicking Machines, Sherlocks, Challenges or Modules opens a dialog listing every item in that type. It follows the Content Library search-dialog pattern: an 816px panel with a 300px "peek" panel docked beside it, the pair centred as one unit, the peek shown from 1162px and up, full-screen sheet under 860px.
+
+**Behaviour change:** the cards used to be links to the product. They now open the dialog, and the dialog header carries "Open in Labs ↗ / Open in Academy ↗".
+
+### 7.1 Completion model per content type
+
+| Type | What "complete" means | Shown in the row | Partial state |
+|---|---|---|---|
+| Machines | User flag + Root flag | `User` `Root` pills; `Tasks n/N` when the machine has Guided Mode | Missing flag, or Guided Mode tasks unfinished |
+| Machines (Guided Mode) | Flags done; tasks are tracked separately | `Tasks n/N` pill | Flags owned but tasks n<N: counts as **solved**, not **fully solved** |
+| Sherlocks | All tasks answered (task-based only) | `Tasks n/N` | n<N |
+| Challenges | Single flag | `Flag` | None (binary) |
+| Modules | All sections | `Sections n/N` | n<N |
+
+Bloods use the red drop pill on the exact flag that was blooded (User or Root for machines, the flag for challenges, the Sherlock itself), matching F12.
+
+### 7.2 What each row shows
+
+| Element | Rule |
+|---|---|
+| Tile | First letter, with a difficulty-coloured underline (same colours as the Difficulty profile) |
+| Name + NEW | NEW when completed after the user's last visit (same timestamp as the P6 deltas) |
+| Difficulty · OS / category | OS for Machines, category for Sherlocks and Challenges |
+| Date | Solved date (completion of the last required step); "started" for partials |
+| Signals | ★ rated (gold) · 💬 reviewed (blue) · ✓ creator respected (green). Dim when not done. Modules show rating only (no review, no creator respect) |
+
+### 7.3 Header summary
+
+Count solved · in progress, then bloods · rated · reviewed · creators respected · date of first completion. Totals always match the card that opened the dialog.
+
+### 7.4 Controls
+
+| Control | Options |
+|---|---|
+| Filter | Name, plus OS / category text |
+| Completion | All · Fully solved · In progress |
+| Sort | Newest first (default) · Oldest first · Your rating · Difficulty |
+| Footer | "N items", or "N of M items" when narrowed (same rule as the library dialog) |
+| Keyboard | ↑↓ move, ↵ open in product, Esc close, Tab stays inside the dialog, focus returns to the card on close |
+
+### 7.5 Peek (desktop ≥1162px) and inline expand (below)
+
+Completion % with a bar, a step list with dates (User / Root / Guided tasks, Tasks, Flag, Sections), your rating (or "Rate it ↗"), your review (or "Write a review ↗"), creator + respect state, and Open again / Continue.
+
+Below 1162px the selected row **expands inline** with the same content. This answers the library doc's open question 1 for this surface, and it's worth re-using there.
+
+### 7.6 Empty state
+
+"Nothing solved yet", plus the product CTA. All four types use the same message pattern.
+
+### 7.7 Open questions
+
+| # | Question | Owner |
+|---|---|---|
+| Q10 | Solved date for machines: the root-flag date, or the later of user/root? (The prototype uses one date for both) | Product / Eng |
+| Q11 | Should Guided Mode tasks count toward "fully solved", or be a separate badge? | Product |
+| Q12 | Can users rate, review or respect from the dialog, or only deep-link to the product? (The prototype deep-links) | Product |
+| Q13 | B2B: do Enterprise users have ratings, reviews and respect at all? | Product |
+| Q14 | Pagination or virtualisation for heavy users (hundreds of challenges) | Eng |
+| Q15 | Should Fortresses, Pro Labs and Seasonal machines appear here, or stay in their own sections? | Product |
