@@ -36,7 +36,7 @@ Source of truth for updating the Confluence page. Prototype: `prototypes/profile
 
 | # | Component | State | Content | Goal |
 |---|---|---|---|---|
-| P1 | Journey card: onboarding | Empty | 3 steps (Starting Point → first Machine → Academy module), each saying which part of the page it fills. One primary CTA: Start with Starting Point | Clear starting point for new users |
+| P1 | Journey card: onboarding (v2, matches the Content Library "First mission") | Empty | Offensive / Defensive switch, then 01 Learn (Academy starter module) and 02 Practice (Meow for Offensive, Brutus for Defensive), with time, XP and what each fills on this page. CTA: Start Meow / Start Brutus. "+100 XP · promotes you to Apprentice". Choosing a direction also switches the Domain Graph to Red / Blue Team. | Clear start for both offensive and defensive new users, in the same language as onboarding |
 | P2 | Journey card: recap | Filled | Tenure ("since Mar 2021"), total completions, learning hours, change since last visit | Pride, reason to come back |
 | P3 | Strongest domain | Filled | Highest Domain Graph score | Pride |
 | P4 | Total bloods | Filled | Sum across content types | Pride |
@@ -70,7 +70,8 @@ Decision: link to a **filtered content list** (e.g. AD-tagged machines), because
 | Room to grow → other domains | Same pattern: content list filtered by the domain's tag | Enterprise equivalent | Need a tag map for each domain |
 | Overview cards (Machines / Sherlocks / Challenges) | `app.hackthebox.com/{type}` | Enterprise equivalent | B2B to confirm |
 | Academy links | Academy (B2C) | Academy for Business | B2B to confirm |
-| Starting Point CTA | `app.hackthebox.com/starting-point` | To decide: does B2B have Starting Point? | Open |
+| First-mission CTA, Offensive (Meow) | `app.hackthebox.com/starting-point` | To decide: does B2B have Starting Point? | Open |
+| First-mission CTA, Defensive (Brutus) | `app.hackthebox.com/sherlocks` (deep link to Brutus to confirm) | B2B equivalent | Open |
 
 In the prototype, links carry `data-route-b2c` / `data-route-b2b` attributes as placeholders. Engineering resolves which one to use from the account type.
 
@@ -84,4 +85,6 @@ In the prototype, links carry `data-route-b2c` / `data-route-b2b` attributes as 
 | Q4 | Store a last-visit timestamp per user (needed for the deltas) | Eng |
 | Q5 | "All time" velocity data (the prototype reuses the 12-month data) | Eng |
 | Q6 | Confirm `school` as the official Modules icon, or replace it with an HTB-drawn one | Design |
+| Q8 | Should the Stats page start on the direction chosen in onboarding instead of defaulting to Offensive? | Product / Eng |
+| Q9 | If the user skipped the first mission, does this card still show? (Recommendation: yes, it's the only way this page fills up) | Product |
 | Q7 | Progress email: separate project, reusing the journey recap data | Product |
