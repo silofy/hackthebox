@@ -29,6 +29,9 @@ Source of truth for updating the Confluence page. Prototype: `prototypes/profile
 | F9 | Motion | Some animations ignored the OS setting | Turned off under `prefers-reduced-motion` |
 | F10 | Demo toggle | Covered content | Added bottom padding; full-width bar on mobile (prototype only, remove before testing) |
 
+| F11 | Modules card | "Modules completed" row was shorter than the Bloods rows on the other cards | Matched the count size (15px/600) and set a 22px minimum row height |
+| F12 | Bloods styling | Counts were green, unlike HTB's design language for bloods | Red drop icon and red count, as on the HTB leaderboard |
+
 ## 3. Persona-driven additions
 
 | # | Component | State | Content | Goal |
@@ -52,7 +55,8 @@ Source of truth for updating the Confluence page. Prototype: `prototypes/profile
 | Pro Labs | `pro_labs` | Enterprise campaigns heading, Completed Pro Labs heading |
 | Starting Point | `directions_alt_filled` | Onboarding step 1, primary CTA |
 | Seasonal | `season` | In the sprite, not placed yet (no Seasonal section on this page) |
-| **Academy Modules** | **Missing** | **Need the icon** |
+| Modules (renamed from "Academy Modules") | Google Material Symbols `school` | Overview card |
+| Bloods | Material Symbols `water_drop`, in `--red` | Before every blood count (overview cards, Total bloods), matching the HTB leaderboard pattern |
 
 Icons live in one inline SVG sprite (`<symbol id="i-…">`), use `currentColor`, and are tinted with `--green`.
 
@@ -79,5 +83,5 @@ In the prototype, links carry `data-route-b2c` / `data-route-b2b` attributes as 
 | Q3 | Room to grow rule: lowest score, or exclude domains never started? | Product |
 | Q4 | Store a last-visit timestamp per user (needed for the deltas) | Eng |
 | Q5 | "All time" velocity data (the prototype reuses the 12-month data) | Eng |
-| Q6 | Academy Modules icon | Design |
+| Q6 | Confirm `school` as the official Modules icon, or replace it with an HTB-drawn one | Design |
 | Q7 | Progress email: separate project, reusing the journey recap data | Product |
