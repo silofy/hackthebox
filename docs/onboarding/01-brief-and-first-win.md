@@ -1,20 +1,10 @@
 # Onboarding 1. Brief → 2. First Win
 
-**Status:** PROPOSED (rework of "HTB Account Onboarding Journey", 2026-09-11) · **Date:** 2026-10-17
+**Status:** PROPOSED · **Replaces:** "HTB Account Onboarding Journey: Defining Content and Structure for Learner Success" (together with 0. Route) · **Date:** 2026-10-17
 **Builds on:** [0. Route](./00-route.md) · HTB First Mission: Starter Modules
 **Relates to:** Value Stream 1, "Unifying Onboarding and Activation into HTB Account & Profile"
 
 ---
-
-## 0. What changed from the previous version
-
-| Change | Why |
-|---|---|
-| Removed the three conflicting "Stage 0" sections | Routing now lives in its own doc: [0. Route](./00-route.md) |
-| **Fundamentals has one definition:** a bite-sized Academy ramp ending in a direction choice | The previous doc described it both as a "longer ramp" and as a "15-min primer" |
-| Brief and First Win are written as **one continuous mission**, with explicit handoff rules | The previous doc defined both stages but not the join between them |
-| Starting Point / Blue Tier 0 tracks moved to **Appendix: future work** | Keeps the in-scope ask small |
-| Added a **readiness gate** for the Defensive branch | The Brutus VM download is the biggest drop-off risk |
 
 ## 1. The mission in one line
 
@@ -78,23 +68,43 @@ Recap shown at handoff: `Failures → Success → Session → Persistence → Pr
 
 ## 4. The handoff (Brief → First Win)
 
-This is the part the previous doc was missing. The join has to feel like **turning a page, not changing apps**.
+The join has to feel like **turning a page, not changing apps**.
 
-| # | Requirement | Owner |
+### 4.1 Meow and Brutus stay where they are
+
+We do **not** pull Meow out of Starting Point or Brutus out of Sherlocks. Copying them would split owns, stats and walkthroughs across two versions, and it would break for anyone who finds the machine on their own.
+
+Instead, the mission is a **layer on the existing activity**. It switches on based on the account's state, not on how the user got there:
+
+> **Mission mode is on** when the user opens Meow or Brutus **and** their account has not completed a first mission yet.
+
+| How the user arrives | Mission mode | What they see |
 |---|---|---|
-| H1 | One CTA, "Start Meow" / "Start Brutus", deep-links straight into the activity, already signed in | Academy + Labs |
-| H2 | **Pre-warm the target:** start spawning Meow when the user opens the brief's Section 5, so the ~1:20 spawn time is hidden behind the recap | Labs |
-| H3 | The brief's recap stays available in the lab as a side panel or one-page reference | Labs |
-| H4 | Mission header in the lab: "Mission 1 of 1 · 100 XP · Apprentice", so the user knows this is the same journey | Labs |
-| H5 | Completion state returns to the Account Home | Account |
-| H6 | Skipped the brief? Show the same mission header plus a "Need a 2-min refresher?" link back | Labs |
-| H7 | Hints are available at three levels (nudge → concept → step) before the walkthrough. Hint use is tracked. | Labs |
+| Through onboarding → brief → CTA | On | Everything in 4.2 |
+| Skipped onboarding, found Meow in Starting Point | On | Everything in 4.2. The refresher link offers the brief they never saw. |
+| Opened Brutus from the Sherlocks list | On | Same |
+| Already finished one mission (e.g. Meow), now opens Brutus | Off | The normal lab. Brutus still counts toward that branch's progress. |
+| Existing user from before launch | Off | The normal lab (new sign-ups only for v1) |
+
+The first flag on Meow or Brutus completes onboarding **whatever the path**. Nobody has to go back and "do onboarding" to get credit.
+
+### 4.2 Requirements
+
+| # | Requirement | Applies to | Owner |
+|---|---|---|---|
+| H1 | One CTA, "Start Meow" / "Start Brutus", deep-links straight into the activity, already signed in | Users coming from the brief | Academy + Labs |
+| H2 | **Hot instance:** Meow runs from a pool of pre-provisioned instances, so when the user clicks **Spawn** themselves it's ready in seconds instead of ~1:20. The user still does the real action, so they learn how Labs works (Spawn → connect → Submit flag → Stop). | Everyone in mission mode | Labs |
+| H3 | A short coach mark on each Labs action the first time it's needed: Spawn, Connect (Pwnbox or VPN), Submit flag. Shown once per account. | Everyone in mission mode | Labs |
+| H4 | Mission header: "First mission · 100 XP · Apprentice", so the user knows this counts | Everyone in mission mode | Labs |
+| H5 | The brief's recap is available as a side panel or one-page reference | Everyone in mission mode (users who skipped see it as "Need a 2-min refresher?") | Labs + Academy |
+| H6 | Completion is reported to Account, and the First Win screen fires | Everyone in mission mode | Account |
+| H7 | Hints in three levels (nudge → concept → step) before the walkthrough. Hint use is tracked. | Everyone (useful beyond onboarding) | Labs |
 
 ## 5. Stage 2: First Win
 
 | Branch | The win | Known friction | Mitigation | Status |
 |---|---|---|---|---|
-| Offensive | Meow flag | 1:20 spawn time. VPN vs Pwnbox choice. | Pre-warm (H2). Pwnbox as default. | Ready, with fixes |
+| Offensive | Meow flag | 1:20 spawn time. VPN vs Pwnbox choice. | Hot instance (H2). Pwnbox as default. | Ready, with fixes |
 | Defensive | Brutus solved | Password-protected "may be malicious" archive, VM recommended | **Browser-hosted workspace** | ⚠️ **Gate:** don't route Q1 = ② users to Brutus until the browser workspace exists. Fallback: the Fundamentals ramp, then Brutus. |
 | Fundamentals | Ramp done + direction picked | No hands-on "aha" | Lesson 3 terminal + Lesson 5 practice flag give small wins | Needs content commissioning |
 
@@ -147,7 +157,7 @@ Test 5–8 people who have never used HTB per branch (15–24 total). Measure th
 
 ## 10. Open questions
 1. Is the browser workspace for Sherlocks on the Labs roadmap? This decides the Defensive gate.
-2. Can Meow pre-warming happen without wasting capacity on users who abandon? (Option: pre-warm only once Section 4 is complete.)
+2. How big a hot pool does Meow need? Size it from daily new sign-ups routed to Offensive, plus Starting Point traffic. Does Brutus need the same once it runs in the browser?
 3. Who commissions the Fundamentals ramp, and does it align with Julen's Academy "kindergarten" path?
 4. Should Lesson 5's practice flag be replaced later by the free Tier 0 exam (the "Simplify freemium" item) as the Fundamentals graduation milestone?
 
