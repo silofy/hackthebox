@@ -11,14 +11,14 @@
 | Change | Why |
 |---|---|
 | Removed the three conflicting "Stage 0" sections | Routing now lives in its own doc: [0. Route](./00-route.md) |
-| **General 101 has one definition:** a bite-sized Academy ramp ending in a direction choice | The previous doc described it both as a "longer ramp" and as a "15-min primer" |
+| **Fundamentals has one definition:** a bite-sized Academy ramp ending in a direction choice | The previous doc described it both as a "longer ramp" and as a "15-min primer" |
 | Brief and First Win are written as **one continuous mission**, with explicit handoff rules | The previous doc defined both stages but not the join between them |
 | Starting Point / Blue Tier 0 tracks moved to **Appendix: future work** | Keeps the in-scope ask small |
 | Added a **readiness gate** for the Defensive branch | The Brutus VM download is the biggest drop-off risk |
 
 ## 1. The mission in one line
 
-> Every new user gets **one mission**: an optional briefing (Academy) followed by **one first win** (a Labs flag, or for General 101 an Academy milestone). The win pays out **100 XP + Apprentice** and hands off to recommendations.
+> Every new user gets **one mission**: an optional briefing (Academy) followed by **one first win** (a Labs flag, or for Fundamentals an Academy milestone). The win pays out **100 XP + Apprentice** and hands off to recommendations.
 
 ```
 0. Route ──► 1. Brief (optional) ──► 2. First Win ──► 3. Continue
@@ -29,7 +29,7 @@
 
 | Branch | 1. Brief | Length | 2. First Win | Setup at that moment | Onboarding complete when |
 |---|---|---|---|---|---|
-| **General 101** | Cybersecurity Foundations Ramp (5 bite-sized lessons) | ~5 × 5 min, over multiple sessions is fine | Ramp milestone + direction choice | None (browser only) | Ramp completed **and** a direction picked |
+| **Fundamentals** | Fundamentals Ramp (5 bite-sized lessons) | ~5 × 5 min, over multiple sessions is fine | Ramp milestone + direction choice | None (browser only) | Ramp completed **and** a direction picked |
 | **Offensive** | First Foothold: Enumerate and Connect | 12 min | **Meow** (Starting Point T0, free) | Pwnbox by default, VPN as an option | Meow flag submitted |
 | **Defensive** | First Investigation: Trace an SSH Compromise | 14 min | **Brutus** (Very Easy Sherlock, free) | Browser workspace (see §5 gate) | Brutus solved |
 
@@ -40,15 +40,23 @@
 | Rule | Detail |
 |---|---|
 | Optional | Every brief has "Skip to the mission". Skipping never blocks completion. |
+| CTA emphasis follows Q1 | Q1 = ③ (hands-on before): "Go straight to the lab" is primary and the brief is secondary. Q1 = ②: "Start the briefing" is primary. |
 | Teaches only what the next step uses | Every term introduced appears in the paired activity |
 | No spoilers | Synthetic values only. Never the flag, credentials, attacker IP or username. |
 | Ends with a prediction | "What will you look for first?" |
 | Free, no prerequisites | Permanently accessible to free users |
 | Primary CTA | Continue to the mission. Secondary: switch direction. |
 
-### 3.2 General 101: Cybersecurity Foundations Ramp
+### 3.2 Fundamentals: Fundamentals Ramp
 
-For Persona A. Its job is to **remove vocabulary shock** before any lab.
+Two kinds of users arrive here, and they need different lengths:
+
+| Arrived via | Who | Path |
+|---|---|---|
+| Q1 = ① Brand new | Persona A | All 5 lessons |
+| Q2 = Not sure yet | Has IT basics, just undecided | **Lesson 1 only**, then the direction choice. Lessons 2–5 stay available as optional refreshers. |
+
+Its job is to **remove vocabulary shock** before any lab, without making undecided-but-capable users sit through basics they already know.
 
 | # | Lesson | Teaches | Tiny check | Unlocks the idea for… |
 |---|---|---|---|---|
@@ -58,7 +66,7 @@ For Persona A. Its job is to **remove vocabulary shock** before any lab.
 | 4 | Credentials and access | Usernames, weak/default credentials, logs of logins | Spot the weak login in a list | Meow, Brutus |
 | 5 | Flags and proof | What a flag is, how HTB records progress | Submit a practice flag | Every lab |
 
-**Ending:** "Break in or Investigate?" The choice sends the user to that branch's brief. Ramp lessons already covered are marked as done there, so nothing is repeated.
+**Ending:** Lesson 5's practice flag is the user's first win (they get the First Win screen, §5). Then: "Break in or Investigate?" The choice sends the user to that branch's brief. Ramp lessons already covered are marked as done there, so nothing is repeated.
 
 ### 3.3 Offensive: First Foothold (12 min)
 Content as specified in the Starter Modules brief. Sections: Your first target → IPs, ports and services → Ask the target with Nmap → Connect, then question trust → Mission handoff.
@@ -87,8 +95,8 @@ This is the part the previous doc was missing. The join has to feel like **turni
 | Branch | The win | Known friction | Mitigation | Status |
 |---|---|---|---|---|
 | Offensive | Meow flag | 1:20 spawn time. VPN vs Pwnbox choice. | Pre-warm (H2). Pwnbox as default. | Ready, with fixes |
-| Defensive | Brutus solved | Password-protected "may be malicious" archive, VM recommended | **Browser-hosted workspace** | ⚠️ **Gate:** don't route beginners (Q1 = ②) to Brutus until the browser workspace exists. Fallback: the General 101 ramp, then Brutus. |
-| General 101 | Ramp done + direction picked | No hands-on "aha" | Lesson 3 terminal + Lesson 5 practice flag give small wins | Needs content commissioning |
+| Defensive | Brutus solved | Password-protected "may be malicious" archive, VM recommended | **Browser-hosted workspace** | ⚠️ **Gate:** don't route Q1 = ② users to Brutus until the browser workspace exists. Fallback: the Fundamentals ramp, then Brutus. |
+| Fundamentals | Ramp done + direction picked | No hands-on "aha" | Lesson 3 terminal + Lesson 5 practice flag give small wins | Needs content commissioning |
 
 ### The First Win screen
 This is the most valuable screen in the whole journey. It needs to do four things:
@@ -117,7 +125,7 @@ Account stops driving here. Recommendations and email flows take over (this ties
 |---|---|---|---|
 | Own on Labs F7D | Offensive | 36% (July) | 39% |
 | Own a Sherlock F7D | Defensive | 1.8% (July) | 5% |
-| Ramp completion + direction picked, 14 days | General 101 | n/a | Set after the first cohort |
+| Ramp completion + direction picked, 14 days | Fundamentals | n/a | Set after the first cohort |
 | Brief start → mission start | Off / Def | n/a | ≥ 70% |
 | Skip-to-mission rate | Off / Def | n/a | Watch (high is fine for Persona D) |
 | Spawn/setup failure | Off / Def | n/a | < 5% |
@@ -140,8 +148,8 @@ Test 5–8 people who have never used HTB per branch (15–24 total). Measure th
 ## 10. Open questions
 1. Is the browser workspace for Sherlocks on the Labs roadmap? This decides the Defensive gate.
 2. Can Meow pre-warming happen without wasting capacity on users who abandon? (Option: pre-warm only once Section 4 is complete.)
-3. Who commissions the General 101 ramp, and does it align with Julen's Academy "kindergarten" path?
-4. Will the free Tier 0 exam (the "Simplify freemium" item) become the General 101 graduation milestone?
+3. Who commissions the Fundamentals ramp, and does it align with Julen's Academy "kindergarten" path?
+4. Should Lesson 5's practice flag be replaced later by the free Tier 0 exam (the "Simplify freemium" item) as the Fundamentals graduation milestone?
 
 ---
 
