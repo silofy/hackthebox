@@ -17,7 +17,7 @@ Questions that don't change the route (goals, job roles, topics of interest) are
 | Screens | Multi-step | 1–2 |
 | Taps (beginner) | Many | 1 |
 | Taps (everyone else) | Many | 2 |
-| Skip rate | **67%** | Target: < 30% |
+| Completion rate | 67.4% (32.6% skip) | ≥ 85% |
 | Data used for routing | Little | All of it |
 | Interest data for content team | Collected upfront, mostly skipped | Collected later, when the user has a reason to answer |
 
@@ -31,7 +31,7 @@ Questions that don't change the route (goals, job roles, topics of interest) are
 
 | Finding | Evidence | Implication |
 |---|---|---|
-| Users skip the flow | 67% skip rate across the whole flow (Tableau) | It's too long for the motivation users arrive with |
+| A third of users skip the flow, and the answers from the rest can't route anyone | 32.6% skipped (512K of 1.57M). Those who answer mostly give the same response. | Fewer questions, and every answer used |
 | The goal question doesn't separate users | Multi-select. 84.7% chose "Start learning cybersecurity", 61.8% "Train and improve" | You can't route on an answer that nearly everyone gives |
 | What really separates users is experience | A brand-new user and a CTF player both want to "learn" | Ask about experience first |
 | Team buyers sit in the learner funnel | 15% chose "team training solutions" | Give them a quiet exit to Enterprise |
@@ -116,7 +116,7 @@ The content team uses goals, job roles and topic interests to plan what to build
 
 | Metric | Baseline | Target |
 |---|---|---|
-| Route completion (Q1 answered) | 33% (67% skip) | ≥ 70% |
+| Route completion (Q1 answered) | 67.4% (current flow) | ≥ 85% |
 | Median time from sign-up to branch | n/a | < 20 s |
 | Branch distribution | Unknown | Measure. This sizes the personas for the first time. |
 | Branch switch within 7 days | n/a | Watch. A high rate means the copy is misrouting people. |
