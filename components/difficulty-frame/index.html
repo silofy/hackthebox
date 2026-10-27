@@ -5,53 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Difficulty Frames</title>
   <style>
-    body { margin: 0; padding: 48px 16px; background: #111927; color: #fff; font: 500 20px/1.2 system-ui, sans-serif; }
-    h2 { font-weight: 400; font-size: 22px; margin: 0 0 32px 80px; }
-    .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; margin-bottom: 64px; }
-    figure { margin: 0; display: grid; justify-items: center; gap: 24px; }
+    body { margin: 0; padding: 48px 16px; background: #111927; color: #fff; font: 500 18px/1.2 system-ui, sans-serif; }
+    h2 { font-weight: 400; font-size: 20px; margin: 0 auto 28px; max-width: 960px; }
+    p.note { max-width: 960px; margin: -16px auto 28px; color: #a4b1cd; font-size: 14px; font-weight: 400; }
+    .row { display: flex; flex-wrap: wrap; justify-content: center; align-items: end; gap: 24px; margin-bottom: 56px; }
+    figure { margin: 0; display: grid; justify-items: center; gap: 16px; }
+    figcaption { font-size: 15px; color: #cfd8ea; }
+    htb-difficulty-frame { cursor: pointer; }
   </style>
   <script src="difficulty-frame.js" defer></script>
 </head>
 <body>
-  <h2>4px - border</h2>
-  <div class="row">
-    <figure><htb-difficulty-frame difficulty="easy"   src="demo-art.png"></htb-difficulty-frame><figcaption>Easy</figcaption></figure>
-    <figure><htb-difficulty-frame difficulty="medium" src="demo-art.png"></htb-difficulty-frame><figcaption>Medium</figcaption></figure>
-    <figure><htb-difficulty-frame difficulty="hard"   src="demo-art.png"></htb-difficulty-frame><figcaption>Hard</figcaption></figure>
-    <figure><htb-difficulty-frame difficulty="insane" src="demo-art.png"></htb-difficulty-frame><figcaption>Insane</figcaption></figure>
+  <h2>Diamond · Circle · Shield — 200px / 4px</h2>
+  <p class="note">Hover any badge: gaps tighten and it glows. Click to toggle selected.</p>
+  <div id="large"></div>
+
+  <h2>Completed</h2>
+  <div class="row" id="completed"></div>
+
+  <h2>Size steps — 48 / 64 / 96 / 200</h2>
+  <p class="note">Below 80px, Insane swaps the red dash for whole red runs so it still reads.</p>
+  <div id="steps"></div>
+
+  <h2>Themed with CSS variables (--htb-frame-stroke: 6, --htb-frame-gap: 22)</h2>
+  <div class="row" style="--htb-frame-stroke: 6; --htb-frame-gap: 22; --htb-hard: #ff3e3e">
+    <htb-difficulty-frame difficulty="medium" shape="circle" src="demo-art.png" static></htb-difficulty-frame>
+    <htb-difficulty-frame difficulty="hard" shape="shield" src="demo-art.png" static></htb-difficulty-frame>
   </div>
-  <h2>Circle - 4px border</h2>
-  <div class="row">
-    <figure><htb-difficulty-frame shape="circle" difficulty="easy"   src="demo-art.png"></htb-difficulty-frame><figcaption>Easy</figcaption></figure>
-    <figure><htb-difficulty-frame shape="circle" difficulty="medium" src="demo-art.png"></htb-difficulty-frame><figcaption>Medium</figcaption></figure>
-    <figure><htb-difficulty-frame shape="circle" difficulty="hard"   src="demo-art.png"></htb-difficulty-frame><figcaption>Hard</figcaption></figure>
-    <figure><htb-difficulty-frame shape="circle" difficulty="insane" src="demo-art.png"></htb-difficulty-frame><figcaption>Insane</figcaption></figure>
-  </div>
-  <h2>Shield - 4px border</h2>
-  <div class="row">
-    <figure><htb-difficulty-frame shape="shield" difficulty="easy"   src="demo-art.png"></htb-difficulty-frame><figcaption>Easy</figcaption></figure>
-    <figure><htb-difficulty-frame shape="shield" difficulty="medium" src="demo-art.png"></htb-difficulty-frame><figcaption>Medium</figcaption></figure>
-    <figure><htb-difficulty-frame shape="shield" difficulty="hard"   src="demo-art.png"></htb-difficulty-frame><figcaption>Hard</figcaption></figure>
-    <figure><htb-difficulty-frame shape="shield" difficulty="insane" src="demo-art.png"></htb-difficulty-frame><figcaption>Insane</figcaption></figure>
-  </div>
-  <h2>Small sizes (64px / 2px)</h2>
-<div class="row">
-    <htb-difficulty-frame shape="diamond" difficulty="easy"   src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="diamond" difficulty="medium" src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="diamond" difficulty="hard"   src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="diamond" difficulty="insane" src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-  </div>
-<div class="row">
-    <htb-difficulty-frame shape="circle" difficulty="easy"   src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="circle" difficulty="medium" src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="circle" difficulty="hard"   src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="circle" difficulty="insane" src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-  </div>
-<div class="row">
-    <htb-difficulty-frame shape="shield" difficulty="easy"   src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="shield" difficulty="medium" src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="shield" difficulty="hard"   src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-    <htb-difficulty-frame shape="shield" difficulty="insane" src="demo-art.png" size="64" stroke="2"></htb-difficulty-frame>
-  </div>
+
+  <script>
+    const levels = ['easy', 'medium', 'hard', 'insane'];
+    const shapes = ['diamond', 'circle', 'shield'];
+    const badge = (attrs) => `<htb-difficulty-frame src="demo-art.png" ${attrs}></htb-difficulty-frame>`;
+
+    document.getElementById('large').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
+      `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
+
+    document.getElementById('completed').innerHTML = levels.map((l, i) =>
+      badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" completed`)).join('');
+
+    document.getElementById('steps').innerHTML = levels.map((l) => `<div class="row">${[48, 64, 96, 200].map((n) =>
+      badge(`shape="circle" difficulty="${l}" size="${n}"`)).join('')}${[48, 64, 96].map((n) =>
+      badge(`shape="shield" difficulty="${l}" size="${n}"`)).join('')}</div>`).join('');
+
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('htb-difficulty-frame');
+      if (el) el.toggleAttribute('selected');
+    });
+  </script>
 </body>
 </html>
