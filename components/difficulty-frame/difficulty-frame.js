@@ -12,7 +12,12 @@
  *   label       accessible name                     (default: "<Level> difficulty")
  *   selected    boolean — persistent highlight (same look as hover, stronger glow)
  *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
- *   static      boolean — skip the draw-in animation
+ *   static      boolean — skip the entrance animation
+ *   motion      entrance: trace | split | orbit | glitch   (default: trace)
+ *   hover       hover style: tighten | orbit | lift          (default: tighten)
+ *
+ * Methods
+ *   play(kind?)  replay the entrance (defaults to the `motion` attribute)
  *
  * Theming (CSS custom properties, set on the element or any ancestor)
  *   --htb-easy, --htb-medium, --htb-hard, --htb-insane, --htb-insane-accent
@@ -78,21 +83,29 @@
   const STYLE_ID = 'htb-difficulty-frame-style';
   const CSS = `
     htb-difficulty-frame { display: inline-block; line-height: 0; --glow: transparent; }
-    htb-difficulty-frame svg { overflow: visible; transition: filter .25s ease; filter: drop-shadow(0 0 0 var(--glow)); }
+    htb-difficulty-frame svg { overflow: visible; transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
+    /* Glow sits on the border only: on the whole badge the art glowed through the gaps. */
+    htb-difficulty-frame [data-border] { transition: filter .25s ease; filter: drop-shadow(0 0 0 transparent); }
     htb-difficulty-frame [data-line], htb-difficulty-frame [data-accent] {
       stroke-dasharray: var(--dash, none); stroke-dashoffset: var(--offset, 0);
       transition: stroke-dasharray .3s ease, stroke-dashoffset .3s ease;
     }
-    htb-difficulty-frame:hover [data-line], htb-difficulty-frame[selected] [data-line],
-    htb-difficulty-frame:hover [data-accent], htb-difficulty-frame[selected] [data-accent] {
+    htb-difficulty-frame:not([hover="lift"]):hover [data-line], htb-difficulty-frame[selected] [data-line],
+    htb-difficulty-frame:not([hover="lift"]):hover [data-accent], htb-difficulty-frame[selected] [data-accent] {
       stroke-dasharray: var(--dash-hover, var(--dash, none)); stroke-dashoffset: var(--offset-hover, var(--offset, 0));
     }
-    htb-difficulty-frame:hover svg { filter: drop-shadow(0 0 4px var(--glow)); }
-    htb-difficulty-frame[selected] svg { filter: drop-shadow(0 0 8px var(--glow)); }
-    htb-difficulty-frame [data-draw] { animation: htb-frame-draw .7s cubic-bezier(.4, 0, .2, 1) both; }
-    htb-difficulty-frame [data-art-in] { animation: htb-frame-fade .5s ease both; }
-    @keyframes htb-frame-draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
-    @keyframes htb-frame-fade { from { opacity: 0; } }
+    htb-difficulty-frame:hover [data-border] { filter: drop-shadow(0 0 var(--glow-r, 3px) var(--glow)); }
+    htb-difficulty-frame[selected] [data-border] { filter: drop-shadow(0 0 calc(var(--glow-r, 3px) * 2) var(--glow)); }
+    /* Hover: orbit — the breaks travel slowly round the outline. */
+    htb-difficulty-frame[hover="orbit"]:hover [data-line], htb-difficulty-frame[hover="orbit"]:hover [data-accent] {
+      animation: htb-frame-orbit 4s linear infinite;
+    }
+    @keyframes htb-frame-orbit {
+      from { stroke-dashoffset: var(--offset-hover, var(--offset, 0)); }
+      to { stroke-dashoffset: calc(var(--offset-hover, var(--offset, 0)) - var(--len, 0)); }
+    }
+    /* Hover: lift — the badge rises a touch; the frame keeps its exact pattern. */
+    htb-difficulty-frame[hover="lift"]:hover svg { transform: translateY(-3px) scale(1.03); }
     @media (prefers-reduced-motion: reduce) {
       htb-difficulty-frame *, htb-difficulty-frame svg { animation: none !important; transition: none !important; }
     }`;
@@ -176,12 +189,13 @@
   };
 
   class HtbDifficultyFrame extends HTMLElement {
-    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed'];
+    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'hover'];
 
     connectedCallback() { injectStyle(); this.render(); }
     attributeChangedCallback(name) {
       if (!this.isConnected) return;
       // Selected is pure CSS — no need to redraw.
+      if (name === 'hover') return;
       if (name === 'selected') {
         this.setAttribute('aria-pressed', this.hasAttribute('selected'));
         return;
@@ -216,6 +230,7 @@
       const med = { x: c, y: c + r + stroke / 2 - medR };
 
       this.style.setProperty('--glow', color);
+      this.style.setProperty('--glow-r', `${Math.max(stroke, 2)}px`);
       this.innerHTML = `
         <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${label}">
           <title>${label}</title>
@@ -230,20 +245,19 @@
             </mask>` : ''}
           </defs>
           <g ${completed ? `mask="url(#${id}-k)"` : ''}>
-          <g ${animate ? 'data-art-in' : ''}>
+          <g data-art>
             <path d="${shapePath(shape, c, artR)}" fill="var(--htb-frame-bg, #0b1e24)"/>
             ${src ? `<image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
                       preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})" alt=""/>` : ''}
           </g>
-          <g fill="none" stroke-width="${stroke}" stroke-linejoin="round" stroke-linecap="round"
-             ${animate ? `mask="url(#${id}-m)"` : ''}>
+          <g data-border data-mask-id="${id}-m" fill="none" stroke-width="${stroke}" stroke-linejoin="round" stroke-linecap="round">
             <path data-line d="${shapePath(shape, c, r)}" stroke="${color}"/>
             ${insane ? `<path data-accent d="${shapePath(shape, c, r)}" stroke="${ACCENT}"/>` : ''}
           </g>
           </g>
-          ${completed ? `<g data-check ${animate ? 'data-art-in' : ''}>
+          ${completed ? `<g data-check>
             <circle cx="${med.x}" cy="${med.y}" r="${medR}" fill="${color}"/>
-            <path d="M${med.x - medR * 0.42} ${med.y + medR * 0.02} L${med.x - medR * 0.12} ${med.y + medR * 0.32} L${med.x + medR * 0.44} ${med.y - medR * 0.3}"
+            <path pathLength="1" d="M${med.x - medR * 0.42} ${med.y + medR * 0.02} L${med.x - medR * 0.12} ${med.y + medR * 0.32} L${med.x + medR * 0.44} ${med.y - medR * 0.3}"
                   fill="none" stroke="var(--htb-frame-bg, #0b1e24)" stroke-width="${Math.max(medR * 0.24, 2)}"
                   stroke-linecap="round" stroke-linejoin="round"/>
           </g>` : ''}
@@ -252,14 +266,10 @@
       const line = this.querySelector('[data-line]');
       const total = line.getTotalLength();
 
-      if (animate) {
-        const mask = this.querySelector('[data-mask]');
-        mask.style.strokeDasharray = `${total} ${total}`;
-        mask.style.setProperty('--len', total);
-        mask.setAttribute('data-draw', '');
-        // Drop the mask afterwards so hover glows and transitions aren't clipped.
-        mask.addEventListener('animationend', () => line.parentNode.removeAttribute('mask'), { once: true });
-      }
+      this.fx = { line, total, stroke, centres: null };
+      line.style.setProperty('--len', total);
+      // Entrance plays after the dash pattern below is in place.
+      if (animate) queueMicrotask(() => this.play());
 
       const bearings = shape.breaks[level];
       if (!bearings) return; // easy: solid line
@@ -271,6 +281,8 @@
       }
       const centres = FRACTIONS.get(key).map((f) => f * total);
       const accent = this.querySelector('[data-accent]');
+      this.fx.centres = centres;
+      if (accent) accent.style.setProperty('--len', total);
 
       if (insane && step.compact) {
         // Small: same four breaks, alternate runs turn red.
@@ -283,6 +295,69 @@
         setDash(accent, dashesAt(centres, total, dash, stroke));
       } else {
         setDash(line, gapsAt(centres, total, gap, stroke), gapsAt(centres, total, gap * HOVER_GAP, stroke));
+      }
+    }
+
+    // Entrance concepts. All run on the Web Animations API, so they end exactly
+    // on the resting pattern the CSS already holds and leave nothing behind.
+    play(kind = this.getAttribute('motion') || 'trace') {
+      if (!this.fx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const { line, total, stroke, centres } = this.fx;
+      const accent = this.querySelector('[data-accent]');
+      const art = this.querySelector('[data-art]');
+      const check = this.querySelector('[data-check]');
+      const ease = 'cubic-bezier(.2, .8, .2, 1)';
+      const rest = (el) => ({
+        strokeDasharray: el.style.getPropertyValue('--dash') || 'none',
+        strokeDashoffset: el.style.getPropertyValue('--offset') || '0',
+      });
+      // Easy has no breaks to animate, so every concept falls back to the trace.
+      const mode = !centres && kind !== 'glitch' ? 'trace' : kind;
+
+      art.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease' });
+
+      if (mode === 'trace') {
+        // The line draws itself round the shape from the first break.
+        const group = this.querySelector('[data-border]');
+        const mask = this.querySelector('[data-mask]');
+        group.setAttribute('mask', `url(#${group.dataset.maskId})`);
+        mask.style.strokeDasharray = `${total} ${total}`;
+        mask.animate([{ strokeDashoffset: total }, { strokeDashoffset: 0 }], { duration: 750, easing: ease, fill: 'both' })
+          .finished.then(() => group.removeAttribute('mask'), () => {});
+      } else if (mode === 'split') {
+        // A closed outline cracks open at the breaks: the gaps grow from nothing.
+        const closed = gapsAt(centres, total, 0, stroke);
+        line.animate([{ strokeDasharray: closed.dash, strokeDashoffset: closed.offset }, rest(line)],
+          { duration: 650, delay: 150, easing: ease, fill: 'backwards' });
+        accent?.animate([{ opacity: 0 }, { opacity: 0, offset: 0.6 }, { opacity: 1 }], { duration: 800, easing: 'ease' });
+      } else if (mode === 'orbit') {
+        // The pattern spins a half turn and settles into place.
+        [line, accent].filter(Boolean).forEach((el) => {
+          const r = rest(el);
+          const from = parseFloat(r.strokeDashoffset) + total / 2;
+          el.animate([{ strokeDashoffset: from, opacity: 0 }, { opacity: 1, offset: 0.25 }, { strokeDashoffset: r.strokeDashoffset, opacity: 1 }],
+            { duration: 900, easing: ease });
+        });
+      } else if (mode === 'glitch') {
+        // A short signal-loss flicker with a sideways jolt — loudest on insane.
+        const frames = [1, 0, 1, 0.2, 1, 0.5, 1].map((o) => ({ opacity: o }));
+        [line, accent].filter(Boolean).forEach((el, i) => el.animate(frames, { duration: 520, delay: i * 60, easing: 'steps(1, end)' }));
+        this.querySelector('svg').animate(
+          [{ transform: 'translateX(0)' }, { transform: `translateX(${-stroke}px)` }, { transform: `translateX(${stroke}px)` }, { transform: 'translateX(0)' }],
+          { duration: 220, delay: 120, easing: 'steps(3, end)' },
+        );
+      }
+
+      if (check) {
+        // Medallion pops in after the frame, then the tick draws itself.
+        const disc = check.querySelector('circle');
+        const tick = check.querySelector('path');
+        disc.style.transformBox = 'fill-box';
+        disc.style.transformOrigin = 'center';
+        disc.animate([{ transform: 'scale(0)' }, { transform: 'scale(1.15)', offset: 0.7 }, { transform: 'scale(1)' }],
+          { duration: 420, delay: 450, easing: 'ease-out', fill: 'backwards' });
+        tick.style.strokeDasharray = '1';
+        tick.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 300, delay: 750, easing: ease, fill: 'backwards' });
       }
     }
   }

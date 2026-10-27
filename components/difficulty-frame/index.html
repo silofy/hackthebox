@@ -12,6 +12,17 @@
     figure { margin: 0; display: grid; justify-items: center; gap: 16px; }
     figcaption { font-size: 15px; color: #cfd8ea; }
     htb-difficulty-frame { cursor: pointer; }
+
+    .concept { max-width: 960px; margin: 0 auto 40px; display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; }
+    .concept-copy { display: grid; gap: 6px; justify-items: start; min-width: 0; }
+    .concept-copy strong { font-size: 17px; }
+    .concept-copy span { font-size: 14px; font-weight: 400; color: #a4b1cd; line-height: 1.45; }
+    .concept-copy button { margin-top: 6px; font: inherit; font-size: 13px; color: inherit; background: transparent;
+      border: 1px solid #3a4a66; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+    .concept-copy button:hover { border-color: #a4b1cd; }
+    .concept-copy button:focus-visible { outline: 2px solid #a4b1cd; outline-offset: 2px; }
+    .row.tight { margin: 0; justify-content: start; }
+    @media (max-width: 640px) { .concept { grid-template-columns: 1fr; } }
   </style>
   <script src="difficulty-frame.js" defer></script>
 </head>
@@ -19,6 +30,14 @@
   <h2>Diamond · Circle · Shield — 200px / 4px</h2>
   <p class="note">Hover any badge: gaps tighten and it glows. Click to toggle selected.</p>
   <div id="large"></div>
+
+  <h2>Motion concepts</h2>
+  <p class="note">Entrance animations play once when a badge appears. Use Replay to watch one again.</p>
+  <div id="motion"></div>
+
+  <h2>Hover concepts</h2>
+  <p class="note">Hover each row.</p>
+  <div id="hover"></div>
 
   <h2>Completed</h2>
   <p class="note">The difficulty pattern stays; a check medallion is knocked out of the frame at the bottom point.</p>
@@ -50,9 +69,38 @@
       badge(`shape="circle" difficulty="${l}" size="${n}"`)).join('')}${[48, 64, 96].map((n) =>
       badge(`shape="shield" difficulty="${l}" size="${n}"`)).join('')}</div>`).join('');
 
+    const MOTION = [
+      ['trace', 'Trace', 'The line draws itself round the shape. Calm, works for every level.'],
+      ['split', 'Split', 'A closed frame cracks open at its breaks. The level appears as the gaps form.'],
+      ['orbit', 'Orbit', 'The break pattern spins half a turn and settles into place.'],
+      ['glitch', 'Glitch', 'A short signal-loss flicker. Best saved for Insane or rare moments.'],
+    ];
+    document.getElementById('motion').innerHTML = MOTION.map(([k, t, d]) => `
+      <div class="concept">
+        <div class="concept-copy"><strong>${t}</strong><span>${d}</span>
+          <button type="button" data-replay="${k}">Replay</button></div>
+        <div class="row tight">${levels.map((l, i) => badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" motion="${k}"${i === 3 ? ' completed' : ''}`)).join('')}</div>
+      </div>`).join('');
+
+    const HOVER = [
+      ['tighten', 'Tighten', 'Gaps close to about half and the border glows.'],
+      ['orbit', 'Orbit', 'Breaks travel slowly round the outline while hovered.'],
+      ['lift', 'Lift', 'The badge rises slightly; the pattern stays exactly as it is.'],
+    ];
+    document.getElementById('hover').innerHTML = HOVER.map(([k, t, d]) => `
+      <div class="concept">
+        <div class="concept-copy"><strong>${t}</strong><span>${d}</span></div>
+        <div class="row tight">${levels.map((l, i) => badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" hover="${k}" static`)).join('')}</div>
+      </div>`).join('');
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-replay]');
+      if (btn) btn.closest('.concept').querySelectorAll('htb-difficulty-frame').forEach((el) => el.play(btn.dataset.replay));
+    });
+
     document.addEventListener('click', (e) => {
       const el = e.target.closest('htb-difficulty-frame');
-      if (el) el.toggleAttribute('selected');
+      if (el && !e.target.closest('[data-replay]')) el.toggleAttribute('selected');
     });
   </script>
 </body>
