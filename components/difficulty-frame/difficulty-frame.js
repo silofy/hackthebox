@@ -24,9 +24,12 @@
   };
 
   // Spacing, as a multiple of the stroke so a 2px badge keeps the same proportions as a 4px one.
-  const GAP = 2.5;             // medium / hard break
-  const INSANE_GAP = 0.075;    // share of the whole perimeter, per opening
-  const INSANE_ACCENT = 0.045; // share of the whole perimeter, per red sliver
+  // Each has a px floor so breaks stay readable on small badges.
+  const GAP = 4;               // medium / hard break (× stroke)
+  const MIN_GAP = 6;           // px
+  const INSANE_ACCENT = 0.045; // red sliver, as a share of the whole perimeter
+  const ACCENT_CLEAR = 2;      // dark space either side of the sliver (× stroke)
+  const MIN_CLEAR = 4;         // px
   const ART_INSET = 2;         // dark ring between line and art (× stroke)
 
   // Each outline is drawn in a -1..1 box and starts on its first break, so the
@@ -138,11 +141,13 @@
       const centres = bearings.map((b, i) => (i === 0 ? 0 : lengthAtBearing(line, c, b)));
 
       if (level === 'insane') {
-        applyDash(line, gapsAt(centres, total, total * INSANE_GAP));
+        const accent = total * INSANE_ACCENT;
+        const clear = Math.max(stroke * ACCENT_CLEAR, MIN_CLEAR);
+        applyDash(line, gapsAt(centres, total, accent + clear * 2));
         // Accent rides the same outline, so it sits exactly in line with the grey.
-        applyDash(this.querySelector('[data-accent]'), dashesAt(centres, total, total * INSANE_ACCENT));
+        applyDash(this.querySelector('[data-accent]'), dashesAt(centres, total, accent));
       } else {
-        applyDash(line, gapsAt(centres, total, stroke * GAP));
+        applyDash(line, gapsAt(centres, total, Math.max(stroke * GAP, MIN_GAP)));
       }
     }
   }
