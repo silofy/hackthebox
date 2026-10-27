@@ -28,14 +28,18 @@
 </head>
 <body>
   <h2>Diamond · Circle · Shield — 200px / 4px</h2>
-  <p class="note">Hover any badge: gaps tighten and it glows. Click to toggle selected.</p>
+  <p class="note">Hover any badge: gaps tighten and it glows. Click to select; selected badges orbit on hover.</p>
   <div id="large"></div>
 
-  <h2>Motion concepts</h2>
+  <h2>Recommended setup</h2>
+  <p class="note">The defaults now follow this pairing. Set context="detail" on a machine page and featured on a hero badge; nothing else is needed.</p>
+  <div id="recommended"></div>
+
+  <h2>Motion concepts (explored)</h2>
   <p class="note">Entrance animations play once when a badge appears. Use Replay to watch one again.</p>
   <div id="motion"></div>
 
-  <h2>Hover concepts</h2>
+  <h2>Hover concepts (explored)</h2>
   <p class="note">Hover each row.</p>
   <div id="hover"></div>
 
@@ -69,11 +73,23 @@
       badge(`shape="circle" difficulty="${l}" size="${n}"`)).join('')}${[48, 64, 96].map((n) =>
       badge(`shape="shield" difficulty="${l}" size="${n}"`)).join('')}</div>`).join('');
 
+    const REC = [
+      ['Detail page', 'Split entrance: the level appears as the gaps open. Tighten on hover.', 'context="detail" size="200"', [['hard', 'shield']], true],
+      ['List / grid', 'Trace entrance, quiet in bulk. Tighten on hover.', 'size="64"', levels.map((l) => [l, 'diamond']), true],
+      ['Featured or selected', 'Breaks travel slowly round the outline on hover.', 'featured size="120" static', [['insane', 'circle'], ['medium', 'diamond']], false],
+    ];
+    document.getElementById('recommended').innerHTML = REC.map(([t, d, attrs, items, replay]) => `
+      <div class="concept">
+        <div class="concept-copy"><strong>${t}</strong><span>${d}</span>
+          ${replay ? '<button type="button" data-replay>Replay</button>' : ''}</div>
+        <div class="row tight">${items.map(([l, s]) => badge(`shape="${s}" difficulty="${l}" ${attrs}`)).join('')}</div>
+      </div>`).join('');
+
     const MOTION = [
       ['trace', 'Trace', 'The line draws itself round the shape. Calm, works for every level.'],
       ['split', 'Split', 'A closed frame cracks open at its breaks. The level appears as the gaps form.'],
       ['orbit', 'Orbit', 'The break pattern spins half a turn and settles into place.'],
-      ['glitch', 'Glitch', 'A short signal-loss flicker. Best saved for Insane or rare moments.'],
+      ['glitch', 'Glitch', 'Signal corruption: colour channels split, the breaks scramble and the art tears, then it all locks in. Best saved for Insane.'],
     ];
     document.getElementById('motion').innerHTML = MOTION.map(([k, t, d]) => `
       <div class="concept">
@@ -95,7 +111,7 @@
 
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-replay]');
-      if (btn) btn.closest('.concept').querySelectorAll('htb-difficulty-frame').forEach((el) => el.play(btn.dataset.replay));
+      if (btn) btn.closest('.concept').querySelectorAll('htb-difficulty-frame').forEach((el) => el.play(btn.dataset.replay || undefined));
     });
 
     document.addEventListener('click', (e) => {

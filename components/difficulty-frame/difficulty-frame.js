@@ -13,8 +13,16 @@
  *   selected    boolean — persistent highlight (same look as hover, stronger glow)
  *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
  *   static      boolean — skip the entrance animation
- *   motion      entrance: trace | split | orbit | glitch   (default: trace)
- *   hover       hover style: tighten | orbit | lift          (default: tighten)
+ *   context     detail | list                  (default: list)
+ *   featured    boolean — a hero badge; gets the orbit hover
+ *
+ *   Recommended defaults, applied automatically:
+ *     detail page  → split entrance          list / grid → trace entrance
+ *     hover        → tighten                 featured or selected → orbit hover
+ *
+ *   Overrides (for one-offs):
+ *   motion      entrance: trace | split | orbit | glitch
+ *   hover       hover style: tighten | orbit | lift
  *
  * Methods
  *   play(kind?)  replay the entrance (defaults to the `motion` attribute)
@@ -97,7 +105,7 @@
     htb-difficulty-frame:hover [data-border] { filter: drop-shadow(0 0 var(--glow-r, 3px) var(--glow)); }
     htb-difficulty-frame[selected] [data-border] { filter: drop-shadow(0 0 calc(var(--glow-r, 3px) * 2) var(--glow)); }
     /* Hover: orbit — the breaks travel slowly round the outline. */
-    htb-difficulty-frame[hover="orbit"]:hover [data-line], htb-difficulty-frame[hover="orbit"]:hover [data-accent] {
+    htb-difficulty-frame:is([hover="orbit"], [featured]:not([hover]), [selected]:not([hover])):hover :is([data-line], [data-accent]) {
       animation: htb-frame-orbit 4s linear infinite;
     }
     @keyframes htb-frame-orbit {
@@ -245,7 +253,7 @@
             </mask>` : ''}
           </defs>
           <g ${completed ? `mask="url(#${id}-k)"` : ''}>
-          <g data-art>
+          <g data-art id="${id}-art">
             <path d="${shapePath(shape, c, artR)}" fill="var(--htb-frame-bg, #0b1e24)"/>
             ${src ? `<image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
                       preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})" alt=""/>` : ''}
@@ -298,9 +306,72 @@
       }
     }
 
+    // Glitch: a ~650ms burst of signal corruption that resolves into the clean badge.
+    //  1. Channel split — cyan and magenta copies of the frame tear sideways and snap back.
+    //  2. Scramble — the break pattern jumps to random positions before locking in.
+    //  3. Slice tear — two horizontal bands of the art shift out of line, then rejoin.
+    glitch() {
+      const svg = this.querySelector('svg');
+      const border = this.querySelector('[data-border]');
+      const line = this.querySelector('[data-line]');
+      const accent = this.querySelector('[data-accent]');
+      const art = this.querySelector('[data-art]');
+      const { total, stroke } = this.fx;
+      const size = svg.viewBox.baseVal.width;
+      const NS = 'http://www.w3.org/2000/svg';
+      const hold = (frames) => frames.map((f) => ({ ...f, easing: 'steps(1, end)' }));
+      const rand = (min, max) => min + Math.random() * (max - min);
+      const temp = [];
+      const DURATION = 650;
+
+      // 1. Channel split.
+      [['#00e5ff', -1], ['#ff2bd6', 1]].forEach(([tint, dir]) => {
+        const ghost = border.cloneNode(true);
+        ghost.removeAttribute('data-border');
+        ghost.querySelectorAll('path').forEach((p) => { p.setAttribute('stroke', tint); p.removeAttribute('data-line'); p.removeAttribute('data-accent'); });
+        ghost.style.mixBlendMode = 'screen';
+        border.before(ghost);
+        temp.push(ghost);
+        const jumps = [0, 3, 1.5, 4, 0.5, 2.5, 0].map((k) => ({ transform: `translate(${dir * k * stroke}px, ${rand(-0.6, 0.6) * stroke}px)`, opacity: k ? 0.9 : 0 }));
+        ghost.animate(hold(jumps), { duration: DURATION });
+      });
+
+      // 2. Scramble the breaks, then lock in.
+      [line, accent].filter(Boolean).forEach((el) => {
+        const restOffset = parseFloat(el.style.getPropertyValue('--offset') || 0);
+        const frames = [0.31, 0.72, 0.12, 0.55, 0.9].map((f) => ({ strokeDashoffset: restOffset - f * total, opacity: 0.85 }));
+        el.animate(hold([...frames, { strokeDashoffset: restOffset, opacity: 1 }]), { duration: DURATION * 0.8 });
+      });
+      border.animate(hold([{ opacity: 0 }, { opacity: 1 }, { opacity: 0.3 }, { opacity: 1 }]), { duration: DURATION * 0.4 });
+
+      // 3. Slice tear on the art.
+      const defs = svg.querySelector('defs');
+      [[0.28, 0.1, 1], [0.62, 0.07, -1]].forEach(([y, h, dir], i) => {
+        const clip = document.createElementNS(NS, 'clipPath');
+        clip.id = `${art.id}-slice${i}`;
+        const rect = document.createElementNS(NS, 'rect');
+        Object.entries({ x: 0, y: y * size, width: size, height: h * size }).forEach(([k, v]) => rect.setAttribute(k, v));
+        clip.append(rect);
+        defs.append(clip);
+        const slice = document.createElementNS(NS, 'use');
+        slice.setAttribute('href', `#${art.id}`);
+        slice.setAttribute('clip-path', `url(#${clip.id})`);
+        art.after(slice);
+        temp.push(clip, slice);
+        const shift = (k) => ({ transform: `translateX(${dir * k * size * 0.04}px)` });
+        slice.animate(hold([shift(0), shift(1), shift(-0.5), shift(1.4), shift(0.3), shift(0)]), { duration: DURATION * 0.7, delay: 80 });
+      });
+
+      // Whole badge: one hard jolt mid-burst.
+      svg.animate(hold([{ transform: 'none' }, { transform: `translateX(${-stroke}px) skewX(-4deg)`, offset: 0.35 },
+        { transform: 'none', offset: 0.45 }, { transform: 'none' }]), { duration: DURATION });
+
+      setTimeout(() => temp.forEach((n) => n.remove()), DURATION + 100);
+    }
+
     // Entrance concepts. All run on the Web Animations API, so they end exactly
     // on the resting pattern the CSS already holds and leave nothing behind.
-    play(kind = this.getAttribute('motion') || 'trace') {
+    play(kind = this.getAttribute('motion') || (this.getAttribute('context') === 'detail' ? 'split' : 'trace')) {
       if (!this.fx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const { line, total, stroke, centres } = this.fx;
       const accent = this.querySelector('[data-accent]');
@@ -339,13 +410,7 @@
             { duration: 900, easing: ease });
         });
       } else if (mode === 'glitch') {
-        // A short signal-loss flicker with a sideways jolt — loudest on insane.
-        const frames = [1, 0, 1, 0.2, 1, 0.5, 1].map((o) => ({ opacity: o }));
-        [line, accent].filter(Boolean).forEach((el, i) => el.animate(frames, { duration: 520, delay: i * 60, easing: 'steps(1, end)' }));
-        this.querySelector('svg').animate(
-          [{ transform: 'translateX(0)' }, { transform: `translateX(${-stroke}px)` }, { transform: `translateX(${stroke}px)` }, { transform: 'translateX(0)' }],
-          { duration: 220, delay: 120, easing: 'steps(3, end)' },
-        );
+        this.glitch();
       }
 
       if (check) {
