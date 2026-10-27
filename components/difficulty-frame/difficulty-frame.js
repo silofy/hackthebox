@@ -21,7 +21,7 @@
  *     hover        → tighten                 featured or selected → orbit hover
  *
  *   Overrides (for one-offs):
- *   motion      entrance: trace | split | orbit | glitch
+ *   motion      entrance: trace | split | orbit | glitch | edgerunner
  *   hover       hover style: tighten | orbit | lift
  *
  * Methods
@@ -369,6 +369,108 @@
       setTimeout(() => temp.forEach((n) => n.remove()), DURATION + 100);
     }
 
+    // Edgerunner: a HUD target-lock, ~1.2s.
+    //  1. Corner brackets fly in and lock on round the badge.
+    //  2. A neon scanline sweeps down, painting the art in behind it.
+    //  3. The frame boots in neon yellow, breaks stuttering into place, then cools to its level colour.
+    //  4. A readout types out under the badge, blinks, and the HUD clears.
+    edgerunner() {
+      const svg = this.querySelector('svg');
+      const line = this.querySelector('[data-line]');
+      const accent = this.querySelector('[data-accent]');
+      const art = this.querySelector('[data-art]');
+      const check = this.querySelector('[data-check]');
+      const { total, stroke, centres } = this.fx;
+      const size = svg.viewBox.baseVal.width;
+      const c = size / 2;
+      const NS = 'http://www.w3.org/2000/svg';
+      // Keyframes can't resolve var(), so read the tokens into real colours.
+      const token = (name, fallback) => getComputedStyle(this).getPropertyValue(name).trim() || fallback;
+      const NEON = token('--htb-neon', '#fcee0a');
+      const CYAN = token('--htb-neon-alt', '#00f0ff');
+      const hold = (frames) => frames.map((f) => ({ ...f, easing: 'steps(1, end)' }));
+      const el = (tag, attrs, parent = svg) => {
+        const n = document.createElementNS(NS, tag);
+        Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
+        parent.append(n);
+        temp.push(n);
+        return n;
+      };
+      const temp = [];
+      const pivot = (n) => { n.style.transformBox = 'view-box'; n.style.transformOrigin = `${c}px ${c}px`; };
+
+      // 1. Brackets.
+      const o = -stroke;
+      const arm = size * 0.14;
+      const e = size - o;
+      const brackets = el('path', {
+        d: `M${o} ${o + arm}V${o}H${o + arm} M${e - arm} ${o}H${e}V${o + arm} M${e} ${e - arm}V${e}H${e - arm} M${o + arm} ${e}H${o}V${e - arm}`,
+        fill: 'none', stroke: NEON, 'stroke-width': Math.max(stroke * 0.6, 1.5), 'stroke-linecap': 'square',
+      });
+      pivot(brackets);
+      brackets.animate([
+        { transform: 'scale(1.4) rotate(-8deg)', opacity: 0, easing: 'cubic-bezier(.2, .9, .3, 1.2)' },
+        { transform: 'scale(1)', opacity: 1, offset: 0.25 },
+        { opacity: 1, offset: 0.7 }, { opacity: 0, offset: 0.74 }, { opacity: 1, offset: 0.78 },
+        { opacity: 0, offset: 0.82 }, { opacity: 1, offset: 0.86 }, { transform: 'scale(1.06)', opacity: 0 },
+      ], { duration: 1200, fill: 'both' });
+
+      // 2. Scanline reveal.
+      const defs = svg.querySelector('defs');
+      const clip = el('clipPath', { id: `${art.id}-scan` }, defs);
+      const reveal = el('rect', { x: -size, y: 0, width: size * 3, height: size }, clip);
+      reveal.style.transformBox = 'view-box';
+      reveal.style.transformOrigin = '0 0';
+      art.setAttribute('clip-path', `url(#${clip.id})`);
+      const sweep = { duration: 520, delay: 180, easing: 'cubic-bezier(.5, 0, .3, 1)', fill: 'both' };
+      reveal.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], sweep);
+      const scan = el('g', {});
+      el('rect', { x: o, y: -stroke * 0.4, width: size - o * 2, height: Math.max(stroke * 0.8, 1.5), fill: NEON }, scan);
+      el('rect', { x: o + stroke, y: stroke * 0.6, width: size - o * 2, height: Math.max(stroke * 0.4, 1), fill: CYAN, opacity: 0.8 }, scan);
+      scan.style.filter = `drop-shadow(0 0 ${Math.max(stroke * 1.5, 3)}px ${NEON})`;
+      scan.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: `translateY(${size}px)`, opacity: 1, offset: 0.95 },
+        { transform: `translateY(${size}px)`, opacity: 0 }], sweep);
+
+      // 3. Neon boot of the frame.
+      const resolve = (v) => { const m = /var\(([^,]+),\s*([^)]+)\)/.exec(v); return m ? token(m[1], m[2]) : v; };
+      const color = resolve(line.getAttribute('stroke'));
+      [line, accent].filter(Boolean).forEach((p) => {
+        const final = resolve(p.getAttribute('stroke'));
+        p.animate([{ stroke: NEON, opacity: 0 }, { stroke: NEON, opacity: 1, offset: 0.15 }, { stroke: CYAN, offset: 0.3 },
+          { stroke: NEON, offset: 0.45 }, { stroke: NEON, offset: 0.6 }, { stroke: final }], { duration: 1000, delay: 200, fill: 'backwards' });
+        if (centres) {
+          const rest = parseFloat(p.style.getPropertyValue('--offset') || 0);
+          p.animate(hold([0.18, 0.09, 0.03, 0].map((f) => ({ strokeDashoffset: rest - f * total }))), { duration: 420, delay: 260 });
+        }
+      });
+      this.querySelector('[data-border]').animate(
+        [{ filter: `drop-shadow(0 0 ${stroke * 2}px ${NEON})` }, { filter: `drop-shadow(0 0 ${stroke * 2}px ${NEON})`, offset: 0.6 }, { filter: 'drop-shadow(0 0 0 transparent)' }],
+        { duration: 1100, delay: 200 });
+
+      // 4. Readout.
+      const level = this.getAttribute('difficulty') || 'easy';
+      const label = `// ${level.toUpperCase()}${this.hasAttribute('completed') ? ' · PWNED' : ' · LOCKED'}`;
+      const text = el('text', {
+        x: e, y: e + Math.max(size * 0.09, 11), 'text-anchor': 'end', fill: NEON,
+        'font-family': 'ui-monospace, "JetBrains Mono", Menlo, monospace', 'font-size': Math.max(size * 0.06, 9), 'letter-spacing': '0.08em',
+      });
+      text.animate([{ opacity: 1 }, { opacity: 1, offset: 0.75 }, { opacity: 0 }], { duration: 1000, delay: 650, fill: 'both' });
+      label.split('').forEach((_, i) => setTimeout(() => { text.textContent = label.slice(0, i + 1) + (i < label.length - 1 ? '▌' : ''); }, 650 + i * 22));
+
+      if (check) {
+        const disc = check.querySelector('circle');
+        const tick = check.querySelector('path');
+        disc.style.transformBox = 'fill-box';
+        disc.style.transformOrigin = 'center';
+        disc.animate([{ transform: 'scale(0)', fill: NEON }, { transform: 'scale(1.2)', fill: NEON, offset: 0.6 }, { transform: 'scale(1)', fill: color }],
+          { duration: 500, delay: 800, easing: 'ease-out', fill: 'backwards' });
+        tick.style.strokeDasharray = '1';
+        tick.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 260, delay: 1050, fill: 'backwards' });
+      }
+
+      setTimeout(() => { art.removeAttribute('clip-path'); temp.forEach((n) => n.remove()); }, 1900);
+    }
+
     // Entrance concepts. All run on the Web Animations API, so they end exactly
     // on the resting pattern the CSS already holds and leave nothing behind.
     play(kind = this.getAttribute('motion') || (this.getAttribute('context') === 'detail' ? 'split' : 'trace')) {
@@ -383,7 +485,7 @@
         strokeDashoffset: el.style.getPropertyValue('--offset') || '0',
       });
       // Easy has no breaks to animate, so every concept falls back to the trace.
-      const mode = !centres && kind !== 'glitch' ? 'trace' : kind;
+      const mode = !centres && !['glitch', 'edgerunner'].includes(kind) ? 'trace' : kind;
 
       art.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease' });
 
@@ -411,6 +513,9 @@
         });
       } else if (mode === 'glitch') {
         this.glitch();
+      } else if (mode === 'edgerunner') {
+        this.edgerunner();
+        return; // runs its own medallion timing
       }
 
       if (check) {
