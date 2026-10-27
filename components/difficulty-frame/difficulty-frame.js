@@ -11,7 +11,7 @@
  *   stroke      border thickness in px              (default: from the size step)
  *   label       accessible name                     (default: "<Level> difficulty")
  *   selected    boolean — persistent highlight (same look as hover, stronger glow)
- *   completed   boolean — gaps close up and a check sits in the top-right break
+ *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
  *   static      boolean — skip the draw-in animation
  *
  * Theming (CSS custom properties, set on the element or any ancestor)
@@ -106,6 +106,8 @@
 
   // Scale a -1..1 shape around centre c with radius r.
   const shapePath = (shape, c, r) => shape.path((x, y) => `${c + x * r} ${c + y * r}`, r);
+
+  const FRACTIONS = new Map();
 
   // Distance along `path` that points toward `bearing` from the centre.
   const lengthAtBearing = (path, c, bearing) => {
@@ -208,7 +210,10 @@
       const artR = r - stroke * ART_INSET * shape.ring;
       const color = COLOR[level];
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
-      const insane = level === 'insane' && !completed;
+      const insane = level === 'insane';
+      // Completed medallion: bottom edge lines up with the frame's bottom edge so it never spills out.
+      const medR = Math.max(size * 0.12, 8);
+      const med = { x: c, y: c + r + stroke / 2 - medR };
 
       this.style.setProperty('--glow', color);
       this.innerHTML = `
@@ -219,7 +224,12 @@
             <mask id="${id}-m" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <path data-mask d="${shapePath(shape, c, r)}" fill="none" stroke="#fff" stroke-width="${stroke * 4}"/>
             </mask>
+            ${completed ? `<mask id="${id}-k" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
+              <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
+              <circle cx="${med.x}" cy="${med.y}" r="${medR + Math.max(stroke * 1.25, 2)}" fill="#000"/>
+            </mask>` : ''}
           </defs>
+          <g ${completed ? `mask="url(#${id}-k)"` : ''}>
           <g ${animate ? 'data-art-in' : ''}>
             <path d="${shapePath(shape, c, artR)}" fill="var(--htb-frame-bg, #0b1e24)"/>
             ${src ? `<image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
@@ -230,7 +240,13 @@
             <path data-line d="${shapePath(shape, c, r)}" stroke="${color}"/>
             ${insane ? `<path data-accent d="${shapePath(shape, c, r)}" stroke="${ACCENT}"/>` : ''}
           </g>
-          <g data-check></g>
+          </g>
+          ${completed ? `<g data-check ${animate ? 'data-art-in' : ''}>
+            <circle cx="${med.x}" cy="${med.y}" r="${medR}" fill="${color}"/>
+            <path d="M${med.x - medR * 0.42} ${med.y + medR * 0.02} L${med.x - medR * 0.12} ${med.y + medR * 0.32} L${med.x + medR * 0.44} ${med.y - medR * 0.3}"
+                  fill="none" stroke="var(--htb-frame-bg, #0b1e24)" stroke-width="${Math.max(medR * 0.24, 2)}"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </g>` : ''}
         </svg>`;
 
       const line = this.querySelector('[data-line]');
@@ -245,22 +261,15 @@
         mask.addEventListener('animationend', () => line.parentNode.removeAttribute('mask'), { once: true });
       }
 
-      if (completed) {
-        // Gaps close; one opening stays at the first break to hold the check.
-        const checkR = Math.max(stroke * 2.5, 6);
-        setDash(line, gapsAt([0], total, checkR * 2 + stroke * 1.5, stroke));
-        const at = line.getPointAtLength(0);
-        this.querySelector('[data-check]').innerHTML = `
-          <circle cx="${at.x}" cy="${at.y}" r="${checkR}" fill="${color}"/>
-          <path d="M${at.x - checkR * 0.45} ${at.y + checkR * 0.02} l${checkR * 0.3} ${checkR * 0.3} l${checkR * 0.55} ${-checkR * 0.6}"
-                fill="none" stroke="var(--htb-frame-bg, #0b1e24)" stroke-width="${Math.max(checkR * 0.28, 1.5)}"
-                stroke-linecap="round" stroke-linejoin="round"/>`;
-        return;
-      }
-
       const bearings = shape.breaks[level];
       if (!bearings) return; // easy: solid line
-      const centres = bearings.map((b, i) => (i === 0 ? 0 : lengthAtBearing(line, c, b)));
+      // Break positions as a share of the outline don't change with size, so
+      // measure once per shape + level and reuse — measuring is the slow part.
+      const key = `${this.getAttribute('shape')}|${level}`;
+      if (!FRACTIONS.has(key)) {
+        FRACTIONS.set(key, bearings.map((b, i) => (i === 0 ? 0 : lengthAtBearing(line, c, b) / total)));
+      }
+      const centres = FRACTIONS.get(key).map((f) => f * total);
       const accent = this.querySelector('[data-accent]');
 
       if (insane && step.compact) {

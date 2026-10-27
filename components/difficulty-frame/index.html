@@ -21,7 +21,8 @@
   <div id="large"></div>
 
   <h2>Completed</h2>
-  <div class="row" id="completed"></div>
+  <p class="note">The difficulty pattern stays; a check medallion is knocked out of the frame at the bottom point.</p>
+  <div id="completed"></div>
 
   <h2>Size steps — 48 / 64 / 96 / 200</h2>
   <p class="note">Below 80px, Insane swaps the red dash for whole red runs so it still reads.</p>
@@ -41,8 +42,9 @@
     document.getElementById('large').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
-    document.getElementById('completed').innerHTML = levels.map((l, i) =>
-      badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" completed`)).join('');
+    document.getElementById('completed').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
+      badge(`shape="${s}" difficulty="${l}" size="120" completed`)).join('')}${levels.map((l) =>
+      badge(`shape="${s}" difficulty="${l}" size="64" completed`)).join('')}</div>`).join('');
 
     document.getElementById('steps').innerHTML = levels.map((l) => `<div class="row">${[48, 64, 96, 200].map((n) =>
       badge(`shape="circle" difficulty="${l}" size="${n}"`)).join('')}${[48, 64, 96].map((n) =>
