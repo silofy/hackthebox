@@ -27,7 +27,6 @@
   const GAP = 2.5;             // medium / hard break
   const INSANE_GAP = 0.075;    // share of the whole perimeter, per opening
   const INSANE_ACCENT = 0.045; // share of the whole perimeter, per red sliver
-  const ACCENT_INSET = 1.1;    // how far the red sliver sits inside the main line (× stroke)
   const ART_INSET = 2;         // dark ring between line and art (× stroke)
 
   // Each outline is drawn in a -1..1 box and starts on its first break, so the
@@ -113,7 +112,6 @@
       const c = size / 2;
       const r = c - stroke;
       const artR = r - stroke * ART_INSET;
-      const accentR = r - stroke * ACCENT_INSET;
       const color = COLOR[level] || COLOR.easy;
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -126,8 +124,8 @@
                     preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>` : ''}
           <g fill="none" stroke-width="${stroke}" stroke-linejoin="round" stroke-linecap="butt">
             <path data-line d="${shapePath(shape, c, r)}" stroke="${color}"/>
-            ${level === 'insane' ? `<path data-accent d="${shapePath(shape, c, accentR)}"
-                stroke="var(--htb-insane-accent, #d41818)" stroke-width="${stroke * 0.75}"/>` : ''}
+            ${level === 'insane' ? `<path data-accent d="${shapePath(shape, c, r)}"
+                stroke="var(--htb-insane-accent, #d41818)"/>` : ''}
           </g>
         </svg>`;
 
@@ -141,10 +139,8 @@
 
       if (level === 'insane') {
         applyDash(line, gapsAt(centres, total, total * INSANE_GAP));
-        const accent = this.querySelector('[data-accent]');
-        const aTotal = accent.getTotalLength();
-        const aCentres = bearings.map((b, i) => (i === 0 ? 0 : lengthAtBearing(accent, c, b)));
-        applyDash(accent, dashesAt(aCentres, aTotal, aTotal * INSANE_ACCENT));
+        // Accent rides the same outline, so it sits exactly in line with the grey.
+        applyDash(this.querySelector('[data-accent]'), dashesAt(centres, total, total * INSANE_ACCENT));
       } else {
         applyDash(line, gapsAt(centres, total, stroke * GAP));
       }
