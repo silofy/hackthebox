@@ -108,8 +108,6 @@
       maxLen: { 0: 0.6, 1: 0.55, 3: 0.55, 2: 0.95 },
       // Insane spikes on the upper runs sit on the shoulder corners, pointing straight up.
       shoulders: { x: 0.84, y: -0.86 },
-      // and the lower ones on the corners where the sides meet the facets, pointing down.
-      hips: { x: 0.84, y: 0.45 },
     },
   };
 
@@ -505,32 +503,44 @@
       // A keystone slant trims each inner line by its inset at both ends; add that
       // back so the visible length stays true to the tier.
       const slantTrim = lean > 0 ? 2 * lean * blockOffset : 0;
-      const lens = opened.map((p) => {
+      const lenFor = (p) => {
         const want = shape.points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST);
         const cap = shape.maxLen?.[p.side];
         return (cap ? Math.min(want, (aTotal / 4) * cap) : want) + slantTrim;
-      });
+      };
+      const lens = opened.map(lenFor);
+      // Spans are cached per layout, so the key names which anchors are open.
+      const spanKey = (list) => `${form}|${level}|${(accentR / r).toFixed(3)}|${list.map((p) => p.side).join('')}`;
       const glowPath = this.querySelector('[data-accent-glow]');
       let pieceLens = lens;
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
       else { accentPath.remove(); glowPath.remove(); this.querySelector('[data-accent-back]').remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
 
-      const spans = railSpans(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, opened.map((p) => p.at), lens, total, aTotal)
+      const spans = railSpans(spanKey(opened), railPath, accentPath, opened.map((p) => p.at), lens, total, aTotal)
         .sort((x, y) => x[0] - y[0]);
       const cuts = spans.map(([m]) => m);
 
-      // Insane: a spike off each steel run of the rail. It sits mid-way along the run's
-      // longest straight stretch and points square off that edge, so it never sits on a
-      // corner; on a curve (circle) it points straight out from the centre.
+      // Insane: a spike in the middle of each steel run of the rail. Runs are taken
+      // from the full layout (all four openings, even when the medallion replaces the
+      // bottom one), so a completed badge keeps the same spikes. Each spike sits at the
+      // middle of its run's longest straight stretch and points square off it; on a
+      // curve (circle) it points straight out from the centre. The shield's upper two
+      // become horns on the shoulder corners.
       if (level === 'insane' && spans.length) {
         const h = stroke * (compact ? 1.25 : SPIKE_HEIGHT);
         const half = stroke * (compact ? 1 : SPIKE_BASE) / 2;
-        const tris = cuts.map((m, i) => {
-          const next = cuts[(i + 1) % cuts.length] + (i === cuts.length - 1 ? total : 0);
-          const { at, dir } = spikeSpot(railPath, c, m, next, total);
-          let pt = railPath.getPointAtLength(at);
-          let [dx, dy] = dir;
+        const full = order(placed).filter((p) => tier.open.includes(p.side));
+        const fullSpans = railSpans(spanKey(full), railPath, accentPath, full.map((p) => p.at), full.map(lenFor), total, aTotal)
+          .sort((x, y) => x[0] - y[0]);
+        const tris = fullSpans.map(([m, l], i) => {
+          const [m2, l2] = fullSpans[(i + 1) % fullSpans.length];
+          const from = m + l / 2;
+          let to = m2 - l2 / 2;
+          if (to <= from) to += total;
+          const { at, dir } = spikeSpot(railPath, c, from, to, total);
+          const pt = railPath.getPointAtLength(at);
+          const [dx, dy] = dir;
           if (shape.shoulders && pt.y < c) {
             // A horn: its outer side carries the shield's side edge straight up, and it
             // slopes back down onto the top edge, so the corner itself rises to a point.
@@ -538,22 +548,6 @@
             const xo = c + side * (shape.shoulders.x * r + stroke / 2); // outer edge of the side
             const yo = c + shape.shoulders.y * r - stroke / 2 + 0.5; // just inside the top's outer edge
             return { points: `${xo},${yo} ${xo},${yo - h} ${xo - side * half * 2},${yo}`, origin: [xo, yo] };
-          }
-          if (shape.hips && pt.y > c) {
-            // The same horn at the hip: the side edge carries on straight down, and the
-            // horn slopes back up onto the facet.
-            const side = Math.sign(pt.x - c);
-            const hx = c + side * shape.hips.x * r;
-            const hy = c + shape.hips.y * r;
-            const xo = hx + side * stroke / 2;
-            // Facet direction (towards the bottom point) and its outward normal.
-            const fx = -side * shape.hips.x; const fy = 1 - shape.hips.y;
-            const fl = Math.hypot(fx, fy);
-            const [ux, uy] = [fx / fl, fy / fl];
-            const [nx, ny] = [-uy * -side, ux * -side];
-            const off = stroke / 2 - 0.5;
-            const tip = [hx + ux * half * 2 + nx * off, hy + uy * half * 2 + ny * off];
-            return { points: `${xo},${hy} ${xo},${hy + h} ${tip[0]},${tip[1]}`, origin: [xo, hy] };
           }
           // Base sits just inside the rail's outer edge so the spike grows out of it.
           const bx = pt.x + dx * (stroke / 2 - 0.5);
