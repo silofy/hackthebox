@@ -99,6 +99,7 @@
         + `L${p(-1, -0.62)} Q${p(-1, -0.86)} ${p(-0.76, -0.86)} Z`; },
       sides: [0, 107, 180, 253],
       points: [2], // the bottom point carries a chevron
+      boost: { 0: 1.4 }, // the top line runs a little shorter so the shoulders stay clear
     },
   };
 
@@ -425,7 +426,7 @@
       // A keystone slant trims each inner line by its inset at both ends; add that
       // back so the visible length stays true to the tier.
       const slantTrim = lean > 0 ? 2 * lean * (stroke / 2 + space + accentW / 2) : 0;
-      const lens = opened.map((p) => (shape.points.includes(p.side) ? aLen : aLen * STRAIGHT_BOOST) + slantTrim);
+      const lens = opened.map((p) => (shape.points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST)) + slantTrim);
       const glowPath = this.querySelector('[data-accent-glow]');
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, cap));
       else { accentPath.remove(); glowPath.remove(); } // a tier with no open sides is a closed outline
