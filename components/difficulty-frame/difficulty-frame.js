@@ -123,6 +123,9 @@
     htb-difficulty-frame:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
     htb-difficulty-frame [data-accent-back] { stroke-width: calc(var(--thick) + 2px); transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1); }
     htb-difficulty-frame:is(:hover, [selected]) [data-accent-back] { stroke-width: var(--thin); }
+    /* Split pieces (hard, insane) move in layers: each waits its --delay. */
+    htb-difficulty-frame [data-accents][data-split],
+    htb-difficulty-frame [data-accents][data-split] :is([data-accent], [data-accent-glow], [data-accent-back]) { transition-delay: var(--delay, 0s); }
     htb-difficulty-frame [data-accents] {
       transform-box: view-box; transform-origin: var(--c) var(--c);
       transition: transform .3s cubic-bezier(.3, 1.4, .5, 1);
@@ -455,6 +458,7 @@
       const slantTrim = lean > 0 ? 2 * lean * blockOffset : 0;
       const lens = opened.map((p) => (shape.points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST)) + slantTrim);
       const glowPath = this.querySelector('[data-accent-glow]');
+      let pieceLens = lens;
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
       else { accentPath.remove(); glowPath.remove(); this.querySelector('[data-accent-back]').remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
@@ -475,7 +479,8 @@
           <mask id="${id}-cut" maskUnits="userSpaceOnUse" ${box}><rect ${box} fill="#fff"/>${quads.map((q) => poly(q, '#000')).join('')}</mask>
           <mask id="${id}-keep" maskUnits="userSpaceOnUse" ${box}><rect ${box} fill="#000"/>${quads.map((q) => poly(q, '#fff')).join('')}</mask>`);
         // The inner line runs a little long; the shared slant trims both ends.
-        setDash(accentPath, dashesAt(aCentres.map((p) => p.at), aTotal, lens.map((l) => l + depth * 2), 0));
+        pieceLens = lens.map((l) => l + depth * 2);
+        setDash(accentPath, dashesAt(aCentres.map((p) => p.at), aTotal, pieceLens, 0));
         railPath.style.setProperty('--dash', 'none');
       } else {
         // Compact draws the coloured segments over an unbroken rail.
@@ -485,6 +490,29 @@
       const backPath = this.querySelector('[data-accent-back]');
       if (compact) backPath?.remove(); // segments sit on the rail; no outline needed
       ['--dash', '--offset', '--len'].forEach((k) => [glowPath, backPath].filter((el) => el?.isConnected).forEach((el) => el.style.setProperty(k, accentPath.style.getPropertyValue(k))));
+      accentPath.centres = aCentres.map((p) => p.at);
+
+      // Hard and insane: each piece gets its own group, so on hover the top goes
+      // first, then the sides, then the bottom: the frame closes in layers.
+      if (LEVELS.indexOf(level) >= 2 && !compact && aCentres.length) {
+        const STAGGER = { 0: 0, 1: 90, 3: 90, 2: 180 }; // ms by anchor: top, sides, bottom
+        this.querySelectorAll('[data-accents]').forEach((group) => {
+          aCentres.forEach((p, i) => {
+            const piece = group.cloneNode(true);
+            piece.setAttribute('data-split', '');
+            piece.style.setProperty('--delay', `${STAGGER[p.side] ?? 0}ms`);
+            const one = dashesAt([p.at], aTotal, [pieceLens[i]], 0);
+            piece.querySelectorAll('path').forEach((el) => {
+              setDash(el, one);
+              el.style.setProperty('--len', aTotal);
+              el.centres = [p.at];
+            });
+            group.before(piece);
+          });
+          group.remove();
+        });
+      }
+
       this.fx = { railPath, accentPath, total, aTotal, aCentres: aCentres.map((p) => p.at), aLen, cuts: angled ? [] : cuts, stroke, accentW, cap, level };
       if (animate) queueMicrotask(() => this.play());
     }
@@ -503,7 +531,7 @@
       const ease = 'cubic-bezier(.2, .8, .2, 1)';
       const snap = 'cubic-bezier(.3, 1.5, .5, 1)';
       const art = this.querySelector('[data-art]');
-      const accents = [...this.querySelectorAll('[data-accents]')];
+      const accents = [...this.querySelectorAll('[data-accents]')]; // re-read: hard/insane split into pieces
       const check = this.querySelector('[data-check]');
       const rest = (el) => ({
         strokeDasharray: el.style.getPropertyValue('--dash') || 'none',
@@ -537,18 +565,20 @@
       // Accents grow from each side's centre (insane: sweeping in from a quarter turn back).
       let lockAt = accentDelay + 380; // no inner lines: once the outline has traced in
       if (lines) {
-        const settled = rest(accentPath);
-        const seed = dashesAt(aCentres, aTotal, 1, 0);
         const grow = 320 + weight * 80;
         const sweep = weight === 3;
-        const frames = sweep
-          ? [{ strokeDasharray: seed.dash, strokeDashoffset: seed.offset + aTotal / 4, opacity: 0 },
-            { opacity: 1, offset: 0.15 },
-            { strokeDasharray: seed.dash, strokeDashoffset: seed.offset, offset: 0.55 },
-            { ...settled, opacity: 1 }]
-          : [{ strokeDasharray: seed.dash, strokeDashoffset: seed.offset, opacity: 0 }, { opacity: 1, offset: 0.2 }, { ...settled, opacity: 1 }];
         const growFor = sweep ? grow + 300 : grow;
-        accentPath.animate(frames, { duration: growFor, delay: accentDelay, easing: ease, fill: 'backwards' });
+        this.querySelectorAll('[data-accent]').forEach((el) => {
+          const settled = rest(el);
+          const seed = dashesAt(el.centres || aCentres, aTotal, 1, 0);
+          const frames = sweep
+            ? [{ strokeDasharray: seed.dash, strokeDashoffset: seed.offset + aTotal / 4, opacity: 0 },
+              { opacity: 1, offset: 0.15 },
+              { strokeDasharray: seed.dash, strokeDashoffset: seed.offset, offset: 0.55 },
+              { ...settled, opacity: 1 }]
+            : [{ strokeDasharray: seed.dash, strokeDashoffset: seed.offset, opacity: 0 }, { opacity: 1, offset: 0.2 }, { ...settled, opacity: 1 }];
+          el.animate(frames, { duration: growFor, delay: accentDelay, easing: ease, fill: 'backwards' });
+        });
 
         // Lock: accents press out onto the rail and settle (hard once, insane twice).
         lockAt = accentDelay + growFor;
@@ -559,7 +589,8 @@
           const lock = sweep
             ? [calm, { ...hit, offset: 0.2 }, { ...calm, offset: 0.45 }, { ...hit, offset: 0.65 }, calm]
             : [calm, { ...hit, offset: 0.35 }, calm];
-          accents.forEach((g) => g.animate(lock, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' }));
+          // Split pieces lock in the same layered order as their hover.
+          accents.forEach((g) => g.animate(lock, { duration: sweep ? 720 : 440, delay: lockAt + (parseFloat(g.style.getPropertyValue('--delay')) || 0), easing: 'ease-out' }));
           // The bloom flashes with each lock.
           const flash = lock.map((f) => ({ opacity: f.transform === 'scale(1)' ? 0 : 1, offset: f.offset }));
           this.querySelector('[data-glow]').animate(flash, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' });
