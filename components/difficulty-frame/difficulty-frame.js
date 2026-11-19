@@ -101,6 +101,9 @@
       sides: [0, 77, 180, 283],
       points: [2], // the bottom point carries a chevron
       boost: { 0: 1.4 }, // the top line runs a little shorter so the shoulders stay clear
+      // Longest line each anchor can carry (share of a quarter of the outline) before it
+      // would wrap a corner: the top and sides are short straight edges.
+      maxLen: { 0: 0.6, 1: 0.55, 3: 0.55, 2: 0.95 },
     },
   };
 
@@ -456,7 +459,11 @@
       // A keystone slant trims each inner line by its inset at both ends; add that
       // back so the visible length stays true to the tier.
       const slantTrim = lean > 0 ? 2 * lean * blockOffset : 0;
-      const lens = opened.map((p) => (shape.points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST)) + slantTrim);
+      const lens = opened.map((p) => {
+        const want = shape.points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST);
+        const cap = shape.maxLen?.[p.side];
+        return (cap ? Math.min(want, (aTotal / 4) * cap) : want) + slantTrim;
+      });
       const glowPath = this.querySelector('[data-accent-glow]');
       let pieceLens = lens;
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
