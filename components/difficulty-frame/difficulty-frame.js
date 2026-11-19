@@ -24,6 +24,8 @@
  *   selected    boolean — holds the hover state
  *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
  *   static      boolean — skip the entrance animation
+ *   corners     round | square                   (default: round) — square gives flat line ends,
+ *               sharp joins and a shield with sharp shoulders
  *
  * Methods
  *   play()      replay the entrance
@@ -79,6 +81,12 @@
       // Drawn slimmer than its box (x × 0.84) so it reads as a shield, not a badge.
       // Its "sides" sit mid-way along each half of the top and low on each flank, mirrored.
       ring: 1 / 0.84,
+      // Insane accents are shortened here: the top edge is short and two full-length
+      // accents nearly meet across it.
+      length: { insane: 0.3 },
+      square: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(1, -0.86)} L${p(1, -0.05)} `
+        + `C${p(1, 0.48)} ${p(0.58, 0.8)} ${p(0, 1)} C${p(-0.58, 0.8)} ${p(-1, 0.48)} ${p(-1, -0.05)} `
+        + `L${p(-1, -0.86)} Z`; },
       path: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(0.76, -0.86)} Q${p(1, -0.86)} ${p(1, -0.62)} L${p(1, -0.05)} `
         + `C${p(1, 0.48)} ${p(0.58, 0.8)} ${p(0, 1)} C${p(-0.58, 0.8)} ${p(-1, 0.48)} ${p(-1, -0.05)} `
         + `L${p(-1, -0.62)} Q${p(-1, -0.86)} ${p(-0.76, -0.86)} Z`; },
@@ -130,7 +138,7 @@
   };
 
   // Scale a -1..1 shape around centre c with radius r.
-  const shapePath = (shape, c, r) => shape.path((x, y) => `${c + x * r} ${c + y * r}`, r);
+  const shapePath = (shape, c, r, square) => (square && shape.square ? shape.square : shape.path)((x, y) => `${c + x * r} ${c + y * r}`, r);
 
   // Distance along `path` that points toward `bearing` from the centre.
   const lengthAtBearing = (path, c, bearing) => {
@@ -190,21 +198,21 @@
   // Each returns { dash, offset } for a stroke-dasharray / stroke-dashoffset pair.
 
   // A visible `gap` centred on every point in `centres` (sorted ascending).
-  // A rail stub shorter than 2.5 line widths left between two cuts reads as a
-  // stray dot, so it is folded into the cuts around it.
-  const gapsAt = (centres, total, gap, cap) => {
+  // A rail stub shorter than `minRun` (2.5 line widths) left between two cuts reads
+  // as a stray dot, so it is folded into the cuts around it.
+  const gapsAt = (centres, total, gap, cap, minRun = cap * 2.5) => {
     if (!centres.length) return { dash: 'none', offset: 0 };
     const pts = [...centres, centres[0] + total];
     const runs = centres.map((p, i) => pts[i + 1] - p - gap - cap);
     const array = [];
     let pending = gap + cap;
     // Start on the first run that survives, so the list begins with a dash.
-    const first = runs.findIndex((r) => r >= cap * 2.5);
+    const first = runs.findIndex((r) => r >= minRun);
     if (first < 0) return { dash: 'none', offset: 0 };
     for (let k = 1; k <= runs.length; k += 1) {
       const i = (first + k) % runs.length;
       if (k === 1) array.push(runs[first]);
-      if (runs[i] >= cap * 2.5 || k === runs.length) {
+      if (runs[i] >= minRun || k === runs.length) {
         array.push(pending);
         if (k < runs.length) array.push(runs[i]);
         pending = gap + cap;
@@ -240,7 +248,7 @@
   };
 
   class HtbDifficultyFrame extends HTMLElement {
-    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed'];
+    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'corners'];
 
     connectedCallback() { injectStyle(); this.render(); }
     attributeChangedCallback(name) {
@@ -265,6 +273,10 @@
       const stroke = Number(this.getAttribute('stroke')) || cssNumber(this, '--htb-frame-stroke') || step.stroke;
       const gap = step.gap * (stroke / step.stroke);
       const accentW = stroke; // both lines share one weight
+      const square = this.getAttribute('corners') === 'square';
+      // Round caps reach stroke/2 past each dash end; flat caps don't, so there's nothing to allow for.
+      const cap = square ? 0 : stroke;
+      const form = `${shapeName}${square ? '-sq' : ''}`;
       const completed = this.hasAttribute('completed');
       const src = this.getAttribute('src') || '';
       const name = `${level[0].toUpperCase()}${level.slice(1)} difficulty`;
@@ -291,9 +303,9 @@
         <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${label}">
           <title>${label}</title>
           <defs>
-            <clipPath id="${id}"><path d="${shapePath(shape, c, artR)}"/></clipPath>
+            <clipPath id="${id}"><path d="${shapePath(shape, c, artR, square)}"/></clipPath>
             <mask id="${id}-m" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
-              <path data-mask d="${shapePath(shape, c, r)}" fill="none" stroke="#fff" stroke-width="${stroke * 3}"/>
+              <path data-mask d="${shapePath(shape, c, r, square)}" fill="none" stroke="#fff" stroke-width="${stroke * 3}"/>
             </mask>
             ${completed ? `<mask id="${id}-k" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
@@ -302,14 +314,14 @@
           </defs>
           <g ${completed ? `mask="url(#${id}-k)"` : ''}>
             <g data-art>
-              <path d="${shapePath(shape, c, artR)}" fill="var(--htb-frame-bg, #16262c)"/>
+              <path d="${shapePath(shape, c, artR, square)}" fill="var(--htb-frame-bg, #16262c)"/>
               ${src ? `<image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
                         preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>` : ''}
             </g>
-            <g fill="none" stroke-linejoin="round" stroke-linecap="round">
-              <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
+            <g fill="none" stroke-linejoin="${square ? 'miter' : 'round'}" stroke-miterlimit="10" stroke-linecap="${square ? 'butt' : 'round'}">
+              <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r, square)}" stroke="${rail}" stroke-width="${stroke}"/>
               <g data-accents>
-                <path data-accent d="${shapePath(shape, c, accentR)}" stroke="${accent}" stroke-width="${accentW}"/>
+                <path data-accent d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
               </g>
             </g>
           </g>
@@ -325,12 +337,12 @@
       const accentPath = this.querySelector('[data-accent]');
       const total = railPath.getTotalLength();
       const aTotal = accentPath.getTotalLength();
-      const sides = sideFractions(`${shapeName}|rail`, railPath, c, shape.sides).map((f) => f * total);
-      const aSides = sideFractions(`${shapeName}|accent`, accentPath, c, shape.sides).map((f) => f * aTotal);
+      const sides = sideFractions(`${form}|rail`, railPath, c, shape.sides).map((f) => f * total);
+      const aSides = sideFractions(`${form}|accent`, accentPath, c, shape.sides).map((f) => f * aTotal);
 
       // Accent: one bright line centred on each side, its length set by the tier.
-      const aLen = (aTotal / 4) * tier.length;
-      setDash(accentPath, dashesAt(aSides, aTotal, aLen, accentW));
+      const aLen = (aTotal / 4) * (shape.length?.[level] ?? tier.length);
+      setDash(accentPath, dashesAt(aSides, aTotal, aLen, cap));
       accentPath.style.setProperty('--len', aTotal);
 
       // Rail cuts always sit at the ends of an accent, so each cut frees an accent
@@ -338,15 +350,15 @@
       // symmetric pairs: medium 2, hard 4, insane all 8.
       // Each accent end is projected straight across onto the rail (its closest
       // point); the cut starts exactly there and runs away from the accent.
-      const ends = railEnds(`${shapeName}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, aSides, aLen, total, aTotal);
+      const ends = railEnds(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, aSides, aLen, total, aTotal);
       const cutsFor = (g) => CUT_ORDER.slice(0, tier.cuts)
         .map(([side, end]) => (ends[side][end] + (end ? g / 2 : -g / 2) + total) % total)
         .sort((x, y) => x - y);
       const cutGap = gap * 0.75;
       const cuts = cutsFor(cutGap);
-      setDash(railPath, gapsAt(cuts, total, cutGap, stroke), gapsAt(cutsFor(cutGap * 0.5), total, cutGap * 0.5, stroke));
+      setDash(railPath, gapsAt(cuts, total, cutGap, cap, stroke * 2.5), gapsAt(cutsFor(cutGap * 0.5), total, cutGap * 0.5, cap, stroke * 2.5));
 
-      this.fx = { railPath, accentPath, total, aTotal, aSides, aLen, cuts, stroke, accentW, level };
+      this.fx = { railPath, accentPath, total, aTotal, aSides, aLen, cuts, stroke, accentW, cap, level };
       if (animate) queueMicrotask(() => this.play());
     }
 
@@ -359,7 +371,7 @@
     //             and the lock lands twice                                       ~1.8s
     play() {
       if (!this.fx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const { railPath, accentPath, total, aTotal, aSides, cuts, stroke, accentW, level } = this.fx;
+      const { railPath, accentPath, total, aTotal, aSides, cuts, stroke, accentW, cap, level } = this.fx;
       const weight = LEVELS.indexOf(level); // 0 easy … 3 insane
       const ease = 'cubic-bezier(.2, .8, .2, 1)';
       const snap = 'cubic-bezier(.3, 1.5, .5, 1)';
@@ -395,7 +407,7 @@
 
       // Accents grow from each side's centre (insane: sweeping in from a quarter turn back).
       const settled = rest(accentPath);
-      const seed = dashesAt(aSides, aTotal, accentW, accentW);
+      const seed = dashesAt(aSides, aTotal, Math.max(cap, 1), cap);
       const grow = 320 + weight * 80;
       const sweep = weight === 3;
       const frames = sweep
