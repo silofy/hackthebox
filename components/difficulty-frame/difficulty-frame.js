@@ -68,6 +68,8 @@
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
+  const SPIKE_HEIGHT = 1.75;   // insane spikes: height beyond the rail (× stroke)
+  const SPIKE_BASE = 2.25;     // and base width (× stroke)
   const BLOCK_WEIGHT = 1.5;    // thickness of a resting inner block (× stroke)
 
   // Each outline is drawn in a -1..1 box. `sides` are the compass bearings (0 = up,
@@ -126,6 +128,9 @@
     htb-difficulty-frame:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
     htb-difficulty-frame [data-accent-back] { stroke-width: calc(var(--thick) + 2px); transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1); }
     htb-difficulty-frame:is(:hover, [selected]) [data-accent-back] { stroke-width: var(--thin); }
+    /* Insane spikes extend a little on hover. */
+    htb-difficulty-frame [data-spikes] polygon { transform-box: fill-box; transform-origin: center; transition: transform .3s cubic-bezier(.3, 1.4, .5, 1); }
+    htb-difficulty-frame:is(:hover, [selected]) [data-spikes] polygon { transform: scale(1.25); }
     /* Split pieces (hard, insane) move in layers: each waits its --delay. */
     htb-difficulty-frame [data-accents][data-split],
     htb-difficulty-frame [data-accents][data-split] :is([data-accent], [data-accent-glow], [data-accent-back]) { transition-delay: var(--delay, 0s); }
@@ -413,6 +418,7 @@
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
+              <g data-spikes fill="${rail}" stroke="none"></g>
               <!-- Slot masks sit outside the moving groups, so a piece pushed out on hover
                    slides into its fixed slot instead of carrying the slot with it. -->
               <g data-glow filter="url(#${id}-glow)">
@@ -475,6 +481,24 @@
       const spans = railSpans(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, opened.map((p) => p.at), lens, total, aTotal)
         .sort((x, y) => x[0] - y[0]);
       const cuts = spans.map(([m]) => m);
+
+      // Insane: a spike off the middle of each steel run of the rail, pointing straight
+      // out from the centre (so on a corner it leaves along the diagonal).
+      if (level === 'insane' && spans.length) {
+        const h = stroke * (compact ? 1.25 : SPIKE_HEIGHT);
+        const half = stroke * (compact ? 1 : SPIKE_BASE) / 2;
+        const tris = cuts.map((m, i) => {
+          const next = cuts[(i + 1) % cuts.length] + (i === cuts.length - 1 ? total : 0);
+          const pt = railPath.getPointAtLength(((m + next) / 2) % total);
+          const len = Math.hypot(pt.x - c, pt.y - c) || 1;
+          const [dx, dy] = [(pt.x - c) / len, (pt.y - c) / len];
+          // Base sits just inside the rail's outer edge so the spike grows out of it.
+          const bx = pt.x + dx * (stroke / 2 - 0.5);
+          const by = pt.y + dy * (stroke / 2 - 0.5);
+          return `${bx - dy * half},${by + dx * half} ${bx + dx * h},${by + dy * h} ${bx + dy * half},${by - dx * half}`;
+        });
+        this.querySelector('[data-spikes]').innerHTML = tris.map((t) => `<polygon points="${t}"/>`).join('');
+      }
       const widths = spans.map(([, l]) => l);
       if (angled && spans.length) {
         // Angled cuts: the rail stays whole and is masked; each opening is a slanted
