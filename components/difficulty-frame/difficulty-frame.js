@@ -9,10 +9,10 @@
  *           inset from it; they exist only where the rail opens
  *
  *   tier     inner lines / openings                      entrance / hover weight
- *   easy     2 short, on opposite sides                  light
- *   medium   2 longer, on opposite sides                 ↓
- *   hard     4, one per side                             ↓
- *   insane   6, pairs on two opposite sides              heaviest
+ *   easy     2 short, top and bottom                     light
+ *   medium   2 longer, top and bottom                    ↓
+ *   hard     4, one per anchor                           ↓
+ *   insane   4, longest                                  heaviest
  *
  * Attributes
  *   difficulty  easy | medium | hard | insane      (default: easy)
@@ -39,12 +39,12 @@
 (() => {
   // Accent = the bright line; rail = the muted outline in the same family.
   const TIERS = {
-    // open: sides that carry inner lines · pairs: of those, sides with two instead of one ·
+    // open: anchors (0 top, 1 right, 2 bottom, 3 left) that carry an inner line ·
     // length: each inner line, as a share of a side
-    easy: { accent: ['--htb-easy', '#22ff66'], rail: ['--htb-easy-rail', '#5f8f7c'], open: [0, 2], pairs: [], length: 0.16 },
-    medium: { accent: ['--htb-medium', '#ff9f2e'], rail: ['--htb-medium-rail', '#a8906f'], open: [0, 2], pairs: [], length: 0.24 },
-    hard: { accent: ['--htb-hard', '#ff4a3d'], rail: ['--htb-hard-rail', '#9e2229'], open: [0, 1, 2, 3], pairs: [], length: 0.32 },
-    insane: { accent: ['--htb-insane', '#cf3a2f'], rail: ['--htb-insane-rail', '#8393b0'], open: [0, 1, 2, 3], pairs: [0, 2], length: 0.17 },
+    easy: { accent: ['--htb-easy', '#22ff66'], rail: ['--htb-easy-rail', '#5f8f7c'], open: [0, 2], length: 0.16 },
+    medium: { accent: ['--htb-medium', '#ff9f2e'], rail: ['--htb-medium-rail', '#a8906f'], open: [0, 2], length: 0.26 },
+    hard: { accent: ['--htb-hard', '#ff4a3d'], rail: ['--htb-hard-rail', '#9e2229'], open: [0, 1, 2, 3], length: 0.26 },
+    insane: { accent: ['--htb-insane', '#cf3a2f'], rail: ['--htb-insane-rail', '#8393b0'], open: [0, 1, 2, 3], length: 0.4 },
   };
   const LEVELS = Object.keys(TIERS);
   const cssColor = ([name, fallback]) => `var(${name}, ${fallback})`;
@@ -57,51 +57,41 @@
     { min: 160, stroke: 4 },
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
-  const PAIR_SPREAD = 0.2;     // insane: distance of each of a side's two inner lines from its centre (share of a side)
   const ART_CLEAR = 1;         // dark ring between accent and art (× stroke)
 
-  // Each outline is drawn in a -1..1 box and starts on its first side midpoint,
-  // so the path seam hides inside a cut. `sides` are compass bearings (0 = up,
-  // clockwise) of the four side midpoints; the matching spot on any outline is
-  // found by measuring. `ring` converts an inward offset to a radius change, so a
+  // Each outline is drawn in a -1..1 box. `sides` are the compass bearings (0 = up,
+  // clockwise) of its four anchors: top, right, bottom, left. The matching spot on
+  // any outline is found by measuring. `ring` converts an inward offset to a radius change, so a
   // line inset by d px sits d px in on every edge: slanted or slimmed edges need more.
   const SHAPES = {
     diamond: {
       ring: Math.SQRT2,
       path: (p) => `M${p(0.5, -0.5)} L${p(1, 0)} L${p(0, 1)} L${p(-1, 0)} L${p(0, -1)} Z`,
-      // Anchored on the four points (top, right, bottom, left), so each inner line is a
-      // chevron wrapping round a point. Insane's pairs sit either side of the left and
-      // right points, one line on each edge, leaving the tip itself intact.
+      // Anchored on its four points, so each inner line is a chevron wrapping round a point.
       sides: [0, 90, 180, 270],
-      pairs: { insane: [1, 3] },
     },
     circle: {
       ring: 1,
       path: (p, r) => `M${p(Math.SQRT1_2, -Math.SQRT1_2)} A${r} ${r} 0 1 1 ${p(-Math.SQRT1_2, Math.SQRT1_2)} `
         + `A${r} ${r} 0 1 1 ${p(Math.SQRT1_2, -Math.SQRT1_2)} Z`,
-      sides: [45, 135, 225, 315],
+      sides: [0, 90, 180, 270],
     },
     shield: {
       // Heater shield: flat top, rounded shoulders, even taper to the point.
       // Drawn slimmer than its box (x × 0.84) so it reads as a shield, not a badge.
-      // Its "sides" sit mid-way along each half of the top and low on each flank, mirrored.
+      // Anchors: top centre, low on each flank, and the bottom point (a chevron).
       ring: 1 / 0.84,
-      // Insane inner lines are shortened here: the top edge is short and full-length
-      // pairs nearly meet across it.
-      length: { insane: 0.13 },
-      // The top edge is short, so insane's pairs go on the flanks (sides 1 and 2) and
-      // the top carries one line per half: a single pair across it.
-      pairs: { insane: [1, 2] },
       // Square version: sharp shoulders and a faceted bottom. The facets meet the sides
       // at y 0.45, an angle that puts them as far from the centre as the sides, so
-      // the inner line keeps the same spacing all round. Its lower accents sit mid-facet.
+      // the inner line keeps the same spacing all round. Its flank anchors sit mid-way up the
+      // straight sides.
       square: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(1, -0.86)} L${p(1, 0.45)} `
         + `L${p(0, 1)} L${p(-1, 0.45)} L${p(-1, -0.86)} Z`; },
-      squareSides: [26, 150, 210, 334],
+      squareSides: [0, 77, 180, 283],
       path: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(0.76, -0.86)} Q${p(1, -0.86)} ${p(1, -0.62)} L${p(1, -0.05)} `
         + `C${p(1, 0.48)} ${p(0.58, 0.8)} ${p(0, 1)} C${p(-0.58, 0.8)} ${p(-1, 0.48)} ${p(-1, -0.05)} `
         + `L${p(-1, -0.62)} Q${p(-1, -0.86)} ${p(-0.76, -0.86)} Z`; },
-      sides: [26, 107, 253, 334],
+      sides: [0, 107, 180, 253],
     },
   };
 
@@ -353,11 +343,9 @@
       const bearings = (square && shape.squareSides) || shape.sides;
       const aSides = sideFractions(`${form}|accent`, accentPath, c, bearings).map((f) => f * aTotal);
 
-      // Inner lines: one centred on a side, or a pair either side of its centre.
-      const aLen = (aTotal / 4) * (shape.length?.[level] ?? tier.length);
-      const spread = (aTotal / 4) * PAIR_SPREAD;
-      const placed = aSides.flatMap((a, side) => ((shape.pairs?.[level] ?? tier.pairs).includes(side) ? [a - spread, a + spread] : [a])
-        .map((p) => ({ at: (p + aTotal) % aTotal, side })));
+      // Inner lines: one centred on each open anchor.
+      const aLen = (aTotal / 4) * tier.length;
+      const placed = aSides.map((a, side) => ({ at: a, side }));
       const order = (list) => [...list].sort((x, y) => x.at - y.at);
       // Inner lines exist only where the rail opens: on the tier's open sides the rail
       // is cut away behind each one, so it sits in the opening, inset by `space`.
