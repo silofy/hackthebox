@@ -108,6 +108,8 @@
       maxLen: { 0: 0.6, 1: 0.55, 3: 0.55, 2: 0.95 },
       // Insane spikes on the upper runs sit on the shoulder corners, pointing straight up.
       shoulders: { x: 0.84, y: -0.86 },
+      // and the lower ones on the corners where the sides meet the facets, pointing down.
+      hips: { x: 0.84, y: 0.45 },
     },
   };
 
@@ -536,6 +538,22 @@
             const xo = c + side * (shape.shoulders.x * r + stroke / 2); // outer edge of the side
             const yo = c + shape.shoulders.y * r - stroke / 2 + 0.5; // just inside the top's outer edge
             return `${xo},${yo} ${xo},${yo - h} ${xo - side * half * 2},${yo}`;
+          }
+          if (shape.hips && pt.y > c) {
+            // The same horn at the hip: the side edge carries on straight down, and the
+            // horn slopes back up onto the facet.
+            const side = Math.sign(pt.x - c);
+            const hx = c + side * shape.hips.x * r;
+            const hy = c + shape.hips.y * r;
+            const xo = hx + side * stroke / 2;
+            // Facet direction (towards the bottom point) and its outward normal.
+            const fx = -side * shape.hips.x; const fy = 1 - shape.hips.y;
+            const fl = Math.hypot(fx, fy);
+            const [ux, uy] = [fx / fl, fy / fl];
+            const [nx, ny] = [-uy * -side, ux * -side];
+            const off = stroke / 2 - 0.5;
+            const tip = [hx + ux * half * 2 + nx * off, hy + uy * half * 2 + ny * off];
+            return `${xo},${hy} ${xo},${hy + h} ${tip[0]},${tip[1]}`;
           }
           // Base sits just inside the rail's outer edge so the spike grows out of it.
           const bx = pt.x + dx * (stroke / 2 - 0.5);
