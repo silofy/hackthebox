@@ -343,15 +343,15 @@
 
       const c = size / 2;
       const r = c - stroke;
-      // At rest each inner piece is a solid block filling its whole opening: from the
-      // rail's outer edge, across the space, to the inner edge of where a line would
-      // sit. On hover it thins to the rail's own width and position, closing the frame.
+      // At rest each inner piece is a thick block sitting one level down: it starts
+      // `space` below the rail's inner edge, so the indent reads. On hover it thins to
+      // the rail's own width and slides up into the opening, closing the frame.
       // The art clears the block by one stroke.
       const space = Math.max(stroke * SPACING, 1.5);
       const blockW = stroke + space + accentW;
-      const blockOffset = (space + accentW) / 2; // block centreline, inward from the rail's
+      const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
       const accentR = r - blockOffset * shape.ring;
-      const artR = r - (stroke / 2 + space + accentW + stroke * ART_CLEAR) * shape.ring;
+      const artR = r - (stroke / 2 + space + blockW + stroke * ART_CLEAR) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
@@ -451,7 +451,7 @@
       if (angled && spans.length) {
         // Angled cuts: the rail stays whole and is masked; each opening is a slanted
         // quad whose two ends run at 45° through the rail and the inner line alike.
-        const depth = stroke / 2 + space + accentW + 1; // reaches past the inner line
+        const depth = stroke / 2 + space + blockW + 1; // reaches past the block
         // Outward reach clears the overshoot of a sharp corner's mitre.
         const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, depth, stroke * 1.5 + 1, lean));
         const poly = (q, fill) => `<polygon points="${q.map(([x, y]) => `${x},${y}`).join(' ')}" fill="${fill}"/>`;
