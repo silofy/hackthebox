@@ -55,7 +55,6 @@
   // Which accent ends get cut, as [side, end] with end 0 = before the side's
   // centre and 1 = after it. Pairs stay point-symmetric as they're added.
   const CUT_ORDER = [[0, 1], [2, 1], [1, 0], [3, 0], [0, 0], [2, 0], [1, 1], [3, 1]];
-  const ACCENT_WIDTH = 0.75;   // accent thickness (× stroke), never under 2px
   const ART_CLEAR = 1;         // dark ring between accent and art (× stroke)
 
   // Each outline is drawn in a -1..1 box and starts on its first side midpoint,
@@ -159,19 +158,62 @@
     return FRACTIONS.get(key);
   };
 
+  // Rail length at the point closest to `pt`, searched within ±window of `around`.
+  const nearestLength = (path, pt, around, window, total) => {
+    let best = around;
+    let bestD = Infinity;
+    for (let i = -60; i <= 60; i += 1) {
+      const len = (around + (window * i) / 60 + total) % total;
+      const q = path.getPointAtLength(len);
+      const d = (q.x - pt.x) ** 2 + (q.y - pt.y) ** 2;
+      if (d < bestD) { bestD = d; best = len; }
+    }
+    return best;
+  };
+
+  // For each side, the rail positions [before, after] that sit square to the accent's
+  // two ends. Shares of the outline, cached per shape + tier + inset like the sides.
+  const ENDS = new Map();
+  const railEnds = (key, rail, accent, aSides, aLen, total, aTotal) => {
+    if (!ENDS.has(key)) {
+      const centre = aSides.map((a) => nearestLength(rail, accent.getPointAtLength(a), (a / aTotal) * total, total / 8, total));
+      ENDS.set(key, aSides.map((a, i) => [-1, 1].map((dir) => {
+        const tip = accent.getPointAtLength((a + (dir * aLen) / 2 + aTotal) % aTotal);
+        return nearestLength(rail, tip, centre[i] + (dir * aLen) / 2, aLen / 2, total) / total;
+      })));
+    }
+    return ENDS.get(key).map((pair) => pair.map((f) => f * total));
+  };
+
   // Round caps reach stroke/2 past each dash end, so every pattern below allows
   // for `cap` (= stroke width) to keep visible gaps and dashes at their exact size.
   // Each returns { dash, offset } for a stroke-dasharray / stroke-dashoffset pair.
 
   // A visible `gap` centred on every point in `centres` (sorted ascending).
+  // A rail stub shorter than 2.5 line widths left between two cuts reads as a
+  // stray dot, so it is folded into the cuts around it.
   const gapsAt = (centres, total, gap, cap) => {
     if (!centres.length) return { dash: 'none', offset: 0 };
     const pts = [...centres, centres[0] + total];
+    const runs = centres.map((p, i) => pts[i + 1] - p - gap - cap);
     const array = [];
-    // Start on the run after the first cut. The list stays even-length: an odd one
-    // repeats with dashes and gaps swapped, which shows up as cuts in the wrong place.
-    for (let i = 0; i < centres.length; i += 1) array.push(Math.max(pts[i + 1] - pts[i] - gap - cap, 0.01), gap + cap);
-    return { dash: array.join(' '), offset: -(centres[0] + (gap + cap) / 2) };
+    let pending = gap + cap;
+    // Start on the first run that survives, so the list begins with a dash.
+    const first = runs.findIndex((r) => r >= cap * 2.5);
+    if (first < 0) return { dash: 'none', offset: 0 };
+    for (let k = 1; k <= runs.length; k += 1) {
+      const i = (first + k) % runs.length;
+      if (k === 1) array.push(runs[first]);
+      if (runs[i] >= cap * 2.5 || k === runs.length) {
+        array.push(pending);
+        if (k < runs.length) array.push(runs[i]);
+        pending = gap + cap;
+      } else {
+        pending += runs[i] + gap + cap;
+      }
+    }
+    // Even-length list: an odd one repeats with dashes and gaps swapped.
+    return { dash: array.join(' '), offset: -(centres[first] + (gap + cap) / 2) };
   };
 
   // A visible `dash` centred on every point in `centres`.
@@ -222,7 +264,7 @@
       const step = [...STEPS].reverse().find((s) => size >= s.min);
       const stroke = Number(this.getAttribute('stroke')) || cssNumber(this, '--htb-frame-stroke') || step.stroke;
       const gap = step.gap * (stroke / step.stroke);
-      const accentW = Math.max(stroke * ACCENT_WIDTH, 2);
+      const accentW = stroke; // both lines share one weight
       const completed = this.hasAttribute('completed');
       const src = this.getAttribute('src') || '';
       const name = `${level[0].toUpperCase()}${level.slice(1)} difficulty`;
@@ -294,12 +336,15 @@
       // Rail cuts always sit at the ends of an accent, so each cut frees an accent
       // end from the rail. Difficulty sets how many ends are cut, opening in
       // symmetric pairs: medium 2, hard 4, insane all 8.
-      const half = (aLen * total) / aTotal / 2;
+      // Each accent end is projected straight across onto the rail (its closest
+      // point); the cut starts exactly there and runs away from the accent.
+      const ends = railEnds(`${shapeName}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, aSides, aLen, total, aTotal);
+      const cutsFor = (g) => CUT_ORDER.slice(0, tier.cuts)
+        .map(([side, end]) => (ends[side][end] + (end ? g / 2 : -g / 2) + total) % total)
+        .sort((x, y) => x - y);
       const cutGap = gap * 0.75;
-      const cuts = CUT_ORDER.slice(0, tier.cuts)
-        .map(([side, end]) => (sides[side] + (end ? half : -half) + total) % total)
-        .sort((a, b) => a - b);
-      setDash(railPath, gapsAt(cuts, total, cutGap, stroke), gapsAt(cuts, total, cutGap * 0.5, stroke));
+      const cuts = cutsFor(cutGap);
+      setDash(railPath, gapsAt(cuts, total, cutGap, stroke), gapsAt(cutsFor(cutGap * 0.5), total, cutGap * 0.5, stroke));
 
       this.fx = { railPath, accentPath, total, aTotal, aSides, aLen, cuts, stroke, accentW, level };
       if (animate) queueMicrotask(() => this.play());
