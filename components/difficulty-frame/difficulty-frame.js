@@ -84,9 +84,12 @@
       // Insane accents are shortened here: the top edge is short and two full-length
       // accents nearly meet across it.
       length: { insane: 0.3 },
-      square: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(1, -0.86)} L${p(1, -0.05)} `
-        + `C${p(1, 0.48)} ${p(0.58, 0.8)} ${p(0, 1)} C${p(-0.58, 0.8)} ${p(-1, 0.48)} ${p(-1, -0.05)} `
-        + `L${p(-1, -0.86)} Z`; },
+      // Square version: sharp shoulders and a faceted bottom. The facets meet the sides
+      // at y 0.45, an angle that puts them as far from the centre as the sides, so
+      // the inner line keeps the same spacing all round. Its lower accents sit mid-facet.
+      square: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(1, -0.86)} L${p(1, 0.45)} `
+        + `L${p(0, 1)} L${p(-1, 0.45)} L${p(-1, -0.86)} Z`; },
+      squareSides: [26, 150, 210, 334],
       path: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(0.76, -0.86)} Q${p(1, -0.86)} ${p(1, -0.62)} L${p(1, -0.05)} `
         + `C${p(1, 0.48)} ${p(0.58, 0.8)} ${p(0, 1)} C${p(-0.58, 0.8)} ${p(-1, 0.48)} ${p(-1, -0.05)} `
         + `L${p(-1, -0.62)} Q${p(-1, -0.86)} ${p(-0.76, -0.86)} Z`; },
@@ -337,8 +340,9 @@
       const accentPath = this.querySelector('[data-accent]');
       const total = railPath.getTotalLength();
       const aTotal = accentPath.getTotalLength();
-      const sides = sideFractions(`${form}|rail`, railPath, c, shape.sides).map((f) => f * total);
-      const aSides = sideFractions(`${form}|accent`, accentPath, c, shape.sides).map((f) => f * aTotal);
+      const bearings = (square && shape.squareSides) || shape.sides;
+      const sides = sideFractions(`${form}|rail`, railPath, c, bearings).map((f) => f * total);
+      const aSides = sideFractions(`${form}|accent`, accentPath, c, bearings).map((f) => f * aTotal);
 
       // Accent: one bright line centred on each side, its length set by the tier.
       const aLen = (aTotal / 4) * (shape.length?.[level] ?? tier.length);
