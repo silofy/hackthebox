@@ -56,10 +56,13 @@
   //   space  gap between rail and block, px · block  block thickness (× stroke) ·
   //   lean   keystone slant (tan of its angle: 1 = 45°, 0.58 = 30°) ·
   //   reach  inner line length multiplier, so small notches still read ·
-  //   medal  completed medallion radius (× size) · ring  its knockout gap, px
+  //   medal  completed medallion radius (× size) · ring  its knockout gap, px ·
+  //   compact  the simplified small style: no recess or slant, the inner pieces are
+  //            bright segments of the rail itself, and the completed check sits in the
+  //            badge's bottom-right corner instead of cutting into the frame
   const STEPS = [
-    { min: 0, stroke: 2, space: 2, block: 1.25, lean: 0.58, reach: 1.45, medal: 0.13, ring: 1.5 },
-    { min: 64, stroke: 2, space: 2, block: 1.25, lean: 0.58, reach: 1.3, medal: 0.13, ring: 1.5 },
+    { min: 0, stroke: 2, space: 2, block: 1, lean: 0, reach: 1.45, medal: 0.16, ring: 0, compact: true },
+    { min: 64, stroke: 2, space: 2, block: 1, lean: 0, reach: 1.3, medal: 0.15, ring: 0, compact: true },
     { min: 80, stroke: 3, space: 2, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 3 },
     { min: 160, stroke: 4, space: 3, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 5 },
   ];
@@ -328,7 +331,8 @@
       // Slanted cut ends: lean > 0 narrows the opening going inward (keystone: the inner
       // line is the cut-out piece pushed straight in), < 0 widens it (splayed).
       const LEANS = { angled: -1, keystone: 1, 'keystone-soft': Math.tan(Math.PI / 6) };
-      const lean = this.getAttribute('cuts') === 'square' ? 0 : LEANS[this.getAttribute('cuts')] ?? step.lean;
+      const compact = !!step.compact;
+      const lean = compact || this.getAttribute('cuts') === 'square' ? 0 : LEANS[this.getAttribute('cuts')] ?? step.lean;
       const angled = lean !== 0;
       const cap = 0; // flat line ends: dashes and gaps need no allowance
       const form = shapeName;
@@ -348,7 +352,8 @@
       const custom = stroke !== step.stroke; // an explicit stroke scales the step's tuning
       const space = custom ? Math.max(Math.round(stroke * SPACING), 2) : step.space;
       const blockW = stroke * (custom ? BLOCK_WEIGHT : step.block);
-      const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
+      // Compact: the block is the rail itself, recoloured.
+      const blockOffset = compact ? 0 : stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
       const accentR = r - blockOffset * shape.ring;
       // The art runs right up to the gap inside the rail, under the recessed blocks.
       const artR = r - (stroke / 2 + space) * shape.ring;
@@ -356,7 +361,9 @@
       const rail = cssColor(tier.rail);
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
       const medR = size * step.medal;
-      const med = { x: c, y: c + r + stroke / 2 - medR };
+      const med = compact
+        ? { x: size - medR, y: size - medR } // corner of the box, clear of the frame
+        : { x: c, y: c + r + stroke / 2 - medR };
 
       // Completed medallion: a sharp-pointed diamond, scaled up a touch so it carries
       // the weight of a disc of radius `rad`.
@@ -390,7 +397,7 @@
               ${medallion(med, medR + step.ring, '#000')}
             </mask>` : ''}
           </defs>
-          <g ${completed ? `mask="url(#${id}-k)"` : ''}>
+          <g ${completed && !compact ? `mask="url(#${id}-k)"` : ''}>
             <g data-art>
               <path d="${shapePath(shape, c, artR)}" fill="var(--htb-frame-bg, #16262c)"/>
               ${src ? `<image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
@@ -471,11 +478,13 @@
         setDash(accentPath, dashesAt(aCentres.map((p) => p.at), aTotal, lens.map((l) => l + depth * 2), 0));
         railPath.style.setProperty('--dash', 'none');
       } else {
-        setDash(railPath, gapsAt(cuts, total, widths, cap, stroke * 2.5));
+        // Compact draws the coloured segments over an unbroken rail.
+        setDash(railPath, compact ? { dash: 'none', offset: 0 } : gapsAt(cuts, total, widths, cap, stroke * 2.5));
       }
 
       const backPath = this.querySelector('[data-accent-back]');
-      ['--dash', '--offset', '--len'].forEach((k) => [glowPath, backPath].forEach((el) => el?.style.setProperty(k, accentPath.style.getPropertyValue(k))));
+      if (compact) backPath?.remove(); // segments sit on the rail; no outline needed
+      ['--dash', '--offset', '--len'].forEach((k) => [glowPath, backPath].filter((el) => el?.isConnected).forEach((el) => el.style.setProperty(k, accentPath.style.getPropertyValue(k))));
       this.fx = { railPath, accentPath, total, aTotal, aCentres: aCentres.map((p) => p.at), aLen, cuts: angled ? [] : cuts, stroke, accentW, cap, level };
       if (animate) queueMicrotask(() => this.play());
     }
