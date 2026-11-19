@@ -69,7 +69,11 @@
     diamond: {
       ring: Math.SQRT2,
       path: (p) => `M${p(0.5, -0.5)} L${p(1, 0)} L${p(0, 1)} L${p(-1, 0)} L${p(0, -1)} Z`,
-      sides: [45, 135, 225, 315],
+      // Anchored on the four points (top, right, bottom, left), so each inner line is a
+      // chevron wrapping round a point. Insane's pairs sit either side of the left and
+      // right points, one line on each edge, leaving the tip itself intact.
+      sides: [0, 90, 180, 270],
+      pairs: { insane: [1, 3] },
     },
     circle: {
       ring: 1,
@@ -165,7 +169,7 @@
   const sideFractions = (key, path, c, bearings) => {
     if (!FRACTIONS.has(key)) {
       const total = path.getTotalLength();
-      FRACTIONS.set(key, bearings.map((b, i) => (i === 0 ? 0 : lengthAtBearing(path, c, b) / total)));
+      FRACTIONS.set(key, bearings.map((b) => lengthAtBearing(path, c, b) / total));
     }
     return FRACTIONS.get(key);
   };
