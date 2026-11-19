@@ -90,6 +90,9 @@
         + `A${r} ${r} 0 1 1 ${p(Math.SQRT1_2, -Math.SQRT1_2)} Z`,
       sides: [0, 90, 180, 270],
       points: [],
+      // Insane's arcs would leave only slivers of grey between them; cap them so each
+      // grey run is long enough to carry its spike.
+      maxLen: { 0: 0.5, 1: 0.5, 2: 0.5, 3: 0.5 },
     },
     shield: {
       // Shield: flat top, sharp shoulders, straight sides and a faceted bottom.
@@ -539,6 +542,10 @@
           let to = m2 - l2 / 2;
           if (to <= from) to += total;
           const { at, dir } = spikeSpot(railPath, c, from, to, total);
+          // A spike never takes up more than half its grey run, so it reads as part of
+          // the line rather than an arrowhead sitting on a stub.
+          const runHalf = Math.min(half, (to - from) * 0.25);
+          const height = h * (runHalf / half);
           const pt = railPath.getPointAtLength(at);
           const [dx, dy] = dir;
           if (shape.shoulders && pt.y < c) {
@@ -552,7 +559,7 @@
           // Base sits just inside the rail's outer edge so the spike grows out of it.
           const bx = pt.x + dx * (stroke / 2 - 0.5);
           const by = pt.y + dy * (stroke / 2 - 0.5);
-          return { points: `${bx - dy * half},${by + dx * half} ${bx + dx * h},${by + dy * h} ${bx + dy * half},${by - dx * half}` };
+          return { points: `${bx - dy * runHalf},${by + dx * runHalf} ${bx + dx * height},${by + dy * height} ${bx + dy * runHalf},${by - dx * runHalf}` };
         });
         // Horns grow from their outer corner, so on hover they extend along the shield's
         // edge and inwards, never out past its side.
