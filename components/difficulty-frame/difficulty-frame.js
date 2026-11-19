@@ -39,24 +39,25 @@
 (() => {
   // Accent = the bright line; rail = the muted outline in the same family.
   const TIERS = {
-    easy: { accent: ['--htb-easy', '#22ff66'], rail: ['--htb-easy-rail', '#5f8f7c'], cuts: 0, length: 0.16 },
-    medium: { accent: ['--htb-medium', '#ff9f2e'], rail: ['--htb-medium-rail', '#a8906f'], cuts: 2, length: 0.24 },
-    hard: { accent: ['--htb-hard', '#ff4a3d'], rail: ['--htb-hard-rail', '#9e2229'], cuts: 4, length: 0.32 },
-    insane: { accent: ['--htb-insane', '#cf3a2f'], rail: ['--htb-insane-rail', '#8393b0'], cuts: 8, length: 0.4 },
+    // perSide: inner lines on each side · length: each one, as a share of a side ·
+    // open: sides whose inner lines sit in an opening in the rail
+    easy: { accent: ['--htb-easy', '#22ff66'], rail: ['--htb-easy-rail', '#5f8f7c'], perSide: 1, length: 0.16, open: [] },
+    medium: { accent: ['--htb-medium', '#ff9f2e'], rail: ['--htb-medium-rail', '#a8906f'], perSide: 1, length: 0.24, open: [0, 2] },
+    hard: { accent: ['--htb-hard', '#ff4a3d'], rail: ['--htb-hard-rail', '#9e2229'], perSide: 1, length: 0.32, open: [0, 1, 2, 3] },
+    insane: { accent: ['--htb-insane', '#cf3a2f'], rail: ['--htb-insane-rail', '#8393b0'], perSide: 2, length: 0.17, open: [0, 1, 2, 3] },
   };
   const LEVELS = Object.keys(TIERS);
   const cssColor = ([name, fallback]) => `var(${name}, ${fallback})`;
 
   // Hand-tuned size steps, like an icon set. A badge uses the largest step that fits its size.
   const STEPS = [
-    { min: 0, stroke: 2, gap: 6 },
-    { min: 64, stroke: 2, gap: 7 },
-    { min: 80, stroke: 3, gap: 10 },
-    { min: 160, stroke: 4, gap: 13 },
+    { min: 0, stroke: 2 },
+    { min: 64, stroke: 2 },
+    { min: 80, stroke: 3 },
+    { min: 160, stroke: 4 },
   ];
-  // Which accent ends get cut, as [side, end] with end 0 = before the side's
-  // centre and 1 = after it. Pairs stay point-symmetric as they're added.
-  const CUT_ORDER = [[0, 1], [2, 1], [1, 0], [3, 0], [0, 0], [2, 0], [1, 1], [3, 1]];
+  const SPACING = 1;           // px between the rail's inner edge and the inner line
+  const PAIR_SPREAD = 0.2;     // insane: distance of each of a side's two inner lines from its centre (share of a side)
   const ART_CLEAR = 1;         // dark ring between accent and art (× stroke)
 
   // Each outline is drawn in a -1..1 box and starts on its first side midpoint,
@@ -81,9 +82,9 @@
       // Drawn slimmer than its box (x × 0.84) so it reads as a shield, not a badge.
       // Its "sides" sit mid-way along each half of the top and low on each flank, mirrored.
       ring: 1 / 0.84,
-      // Insane accents are shortened here: the top edge is short and two full-length
-      // accents nearly meet across it.
-      length: { insane: 0.3 },
+      // Insane inner lines are shortened here: the top edge is short and full-length
+      // pairs nearly meet across it.
+      length: { insane: 0.13 },
       // Square version: sharp shoulders and a faceted bottom. The facets meet the sides
       // at y 0.45, an angle that puts them as far from the centre as the sides, so
       // the inner line keeps the same spacing all round. Its lower accents sit mid-facet.
@@ -100,7 +101,7 @@
   // Hover weight escalates with difficulty:
   //   easy    accents glow
   //   medium  + accents press out onto the rail
-  //   hard    + rail cuts tighten, stronger glow
+  //   hard    + stronger glow
   //   insane  + accents travel round the outline
   const STYLE_ID = 'htb-difficulty-frame-style';
   const CSS = `
@@ -116,9 +117,6 @@
     }
     htb-difficulty-frame:is(:hover, [selected]) [data-accents] { filter: drop-shadow(0 0 var(--glow-r) var(--glow)); }
     htb-difficulty-frame:not([difficulty="easy"]):is(:hover, [selected]) [data-accents] { transform: scale(var(--press)); }
-    htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected]) [data-rail] {
-      stroke-dasharray: var(--dash-hover, var(--dash, none)); stroke-dashoffset: var(--offset-hover, var(--offset, 0));
-    }
     htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected]) [data-accents] {
       filter: drop-shadow(0 0 calc(var(--glow-r) * 1.8) var(--glow));
     }
@@ -182,49 +180,54 @@
     return best;
   };
 
-  // For each side, the rail positions [before, after] that sit square to the accent's
-  // two ends. Shares of the outline, cached per shape + tier + inset like the sides.
-  const ENDS = new Map();
-  const railEnds = (key, rail, accent, aSides, aLen, total, aTotal) => {
-    if (!ENDS.has(key)) {
-      const centre = aSides.map((a) => nearestLength(rail, accent.getPointAtLength(a), (a / aTotal) * total, total / 8, total));
-      ENDS.set(key, aSides.map((a, i) => [-1, 1].map((dir) => {
-        const tip = accent.getPointAtLength((a + (dir * aLen) / 2 + aTotal) % aTotal);
-        return nearestLength(rail, tip, centre[i] + (dir * aLen) / 2, aLen / 2, total) / total;
-      })));
+  // Rail openings behind inner lines: each inner line's two ends are projected
+  // straight across onto the rail (its closest point), so the opening matches the
+  // line exactly. Returned as [centre, length] pairs; cached as shares of the outline.
+  const SPANS = new Map();
+  const railSpans = (key, rail, accent, aCentres, aLen, total, aTotal) => {
+    if (!SPANS.has(key)) {
+      SPANS.set(key, aCentres.map((a) => {
+        const mid = nearestLength(rail, accent.getPointAtLength(a), (a / aTotal) * total, total / 8, total);
+        const [s, e] = [-1, 1].map((dir) => nearestLength(rail,
+          accent.getPointAtLength((a + (dir * aLen) / 2 + aTotal) % aTotal), mid + (dir * aLen) / 2, aLen / 2, total));
+        const len = (e - s + total) % total;
+        return [((s + len / 2) % total) / total, len / total];
+      }));
     }
-    return ENDS.get(key).map((pair) => pair.map((f) => f * total));
+    return SPANS.get(key).map(([m, l]) => [m * total, l * total]);
   };
 
   // Round caps reach stroke/2 past each dash end, so every pattern below allows
   // for `cap` (= stroke width) to keep visible gaps and dashes at their exact size.
   // Each returns { dash, offset } for a stroke-dasharray / stroke-dashoffset pair.
 
-  // A visible `gap` centred on every point in `centres` (sorted ascending).
-  // A rail stub shorter than `minRun` (2.5 line widths) left between two cuts reads
-  // as a stray dot, so it is folded into the cuts around it.
+  // A visible gap centred on every point in `centres` (sorted ascending); `gap` is
+  // one length for all, or a list with one per centre.
+  // A rail stub shorter than `minRun` (2.5 line widths) left between two gaps reads
+  // as a stray dot, so it is folded into the gaps around it.
   const gapsAt = (centres, total, gap, cap, minRun = cap * 2.5) => {
     if (!centres.length) return { dash: 'none', offset: 0 };
+    const g = (i) => (Array.isArray(gap) ? gap[i % centres.length] : gap);
     const pts = [...centres, centres[0] + total];
-    const runs = centres.map((p, i) => pts[i + 1] - p - gap - cap);
+    const runs = centres.map((p, i) => pts[i + 1] - p - (g(i) + g(i + 1)) / 2 - cap);
     const array = [];
-    let pending = gap + cap;
     // Start on the first run that survives, so the list begins with a dash.
     const first = runs.findIndex((r) => r >= minRun);
     if (first < 0) return { dash: 'none', offset: 0 };
+    let pending = g(first + 1) + cap;
     for (let k = 1; k <= runs.length; k += 1) {
       const i = (first + k) % runs.length;
       if (k === 1) array.push(runs[first]);
       if (runs[i] >= minRun || k === runs.length) {
         array.push(pending);
         if (k < runs.length) array.push(runs[i]);
-        pending = gap + cap;
+        pending = g(i + 1) + cap;
       } else {
-        pending += runs[i] + gap + cap;
+        pending += runs[i] + g(i + 1) + cap;
       }
     }
     // Even-length list: an odd one repeats with dashes and gaps swapped.
-    return { dash: array.join(' '), offset: -(centres[first] + (gap + cap) / 2) };
+    return { dash: array.join(' '), offset: -(centres[first] + (g(first) + cap) / 2) };
   };
 
   // A visible `dash` centred on every point in `centres`.
@@ -274,7 +277,6 @@
       const size = Number(this.getAttribute('size')) || 200;
       const step = [...STEPS].reverse().find((s) => size >= s.min);
       const stroke = Number(this.getAttribute('stroke')) || cssNumber(this, '--htb-frame-stroke') || step.stroke;
-      const gap = step.gap * (stroke / step.stroke);
       const accentW = stroke; // both lines share one weight
       const square = this.getAttribute('corners') === 'square';
       // Round caps reach stroke/2 past each dash end; flat caps don't, so there's nothing to allow for.
@@ -290,8 +292,8 @@
       const c = size / 2;
       const r = c - stroke;
       // The accent touches the rail's inner edge; the art clears the accent by one stroke.
-      const accentR = r - (stroke / 2 + accentW / 2) * shape.ring;
-      const artR = r - (stroke / 2 + accentW + stroke * ART_CLEAR) * shape.ring;
+      const accentR = r - (stroke / 2 + SPACING + accentW / 2) * shape.ring;
+      const artR = r - (stroke / 2 + SPACING + accentW + stroke * ART_CLEAR) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
@@ -341,28 +343,28 @@
       const total = railPath.getTotalLength();
       const aTotal = accentPath.getTotalLength();
       const bearings = (square && shape.squareSides) || shape.sides;
-      const sides = sideFractions(`${form}|rail`, railPath, c, bearings).map((f) => f * total);
       const aSides = sideFractions(`${form}|accent`, accentPath, c, bearings).map((f) => f * aTotal);
 
-      // Accent: one bright line centred on each side, its length set by the tier.
+      // Inner lines: one centred on each side, or a pair either side of centre (insane).
       const aLen = (aTotal / 4) * (shape.length?.[level] ?? tier.length);
-      setDash(accentPath, dashesAt(aSides, aTotal, aLen, cap));
+      const spread = (aTotal / 4) * PAIR_SPREAD;
+      const placed = aSides.flatMap((a, side) => (tier.perSide === 2 ? [a - spread, a + spread] : [a])
+        .map((p) => ({ at: (p + aTotal) % aTotal, side })));
+      const order = (list) => [...list].sort((x, y) => x.at - y.at);
+      const aCentres = order(placed);
+      setDash(accentPath, dashesAt(aCentres.map((p) => p.at), aTotal, aLen, cap));
       accentPath.style.setProperty('--len', aTotal);
 
-      // Rail cuts always sit at the ends of an accent, so each cut frees an accent
-      // end from the rail. Difficulty sets how many ends are cut, opening in
-      // symmetric pairs: medium 2, hard 4, insane all 8.
-      // Each accent end is projected straight across onto the rail (its closest
-      // point); the cut starts exactly there and runs away from the accent.
-      const ends = railEnds(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, aSides, aLen, total, aTotal);
-      const cutsFor = (g) => CUT_ORDER.slice(0, tier.cuts)
-        .map(([side, end]) => (ends[side][end] + (end ? g / 2 : -g / 2) + total) % total)
-        .sort((x, y) => x - y);
-      const cutGap = gap * 0.75;
-      const cuts = cutsFor(cutGap);
-      setDash(railPath, gapsAt(cuts, total, cutGap, cap, stroke * 2.5), gapsAt(cutsFor(cutGap * 0.5), total, cutGap * 0.5, cap, stroke * 2.5));
+      // Openings: on the tier's open sides the rail is cut away behind each inner line,
+      // so the inner line sits in the opening, 1px inset.
+      const opened = aCentres.filter((p) => tier.open.includes(p.side));
+      const spans = railSpans(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, opened.map((p) => p.at), aLen, total, aTotal)
+        .sort((x, y) => x[0] - y[0]);
+      const cuts = spans.map(([m]) => m);
+      const widths = spans.map(([, l]) => l);
+      setDash(railPath, gapsAt(cuts, total, widths, cap, stroke * 2.5));
 
-      this.fx = { railPath, accentPath, total, aTotal, aSides, aLen, cuts, stroke, accentW, cap, level };
+      this.fx = { railPath, accentPath, total, aTotal, aCentres: aCentres.map((p) => p.at), aLen, cuts, stroke, accentW, cap, level };
       if (animate) queueMicrotask(() => this.play());
     }
 
@@ -375,7 +377,7 @@
     //             and the lock lands twice                                       ~1.8s
     play() {
       if (!this.fx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const { railPath, accentPath, total, aTotal, aSides, cuts, stroke, accentW, cap, level } = this.fx;
+      const { railPath, accentPath, total, aTotal, aCentres, cuts, stroke, accentW, cap, level } = this.fx;
       const weight = LEVELS.indexOf(level); // 0 easy … 3 insane
       const ease = 'cubic-bezier(.2, .8, .2, 1)';
       const snap = 'cubic-bezier(.3, 1.5, .5, 1)';
@@ -401,7 +403,7 @@
         accentDelay = trace * 0.6;
         if (weight >= 2) {
           // Closed first, then the cuts crack open as the trace finishes.
-          const closed = gapsAt(cuts, total, 0, 0);
+          const closed = gapsAt(cuts, total, 0, 0, 0);
           railPath.animate([{ strokeDasharray: closed.dash, strokeDashoffset: closed.offset },
             { strokeDasharray: closed.dash, strokeDashoffset: closed.offset, offset: 0.6 }, rest(railPath)],
           { duration: trace + 320, easing: snap });
@@ -411,7 +413,7 @@
 
       // Accents grow from each side's centre (insane: sweeping in from a quarter turn back).
       const settled = rest(accentPath);
-      const seed = dashesAt(aSides, aTotal, Math.max(cap, 1), cap);
+      const seed = dashesAt(aCentres, aTotal, Math.max(cap, 1), cap);
       const grow = 320 + weight * 80;
       const sweep = weight === 3;
       const frames = sweep
