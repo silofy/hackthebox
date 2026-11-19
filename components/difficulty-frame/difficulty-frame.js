@@ -332,16 +332,16 @@
       this.drawn = true;
 
       const c = size / 2;
-      // At rest each piece is a thick block sitting one level out: it starts `space`
-      // beyond the rail's outer edge. On hover it thins to the rail's own width and
-      // slides in to fill its opening, closing the frame.
+      const r = c - stroke;
+      // At rest each inner piece is a thick block sitting one level down: it starts
+      // `space` below the rail's inner edge, so the indent reads. On hover it thins to
+      // the rail's own width and slides up into the opening, closing the frame.
+      // The art keeps its full size and the blocks overlap its edge.
       const space = Math.max(stroke * SPACING, 1.5);
       const blockW = stroke * BLOCK_WEIGHT;
-      const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, outward from the rail's
-      // The rail sits far enough in for the outer blocks to fit inside the box.
-      const r = c - (stroke / 2 + space + blockW) * shape.ring - 1;
-      const accentR = r + blockOffset * shape.ring;
-      // The art runs right up to the gap inside the rail.
+      const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
+      const accentR = r - blockOffset * shape.ring;
+      // The art runs right up to the gap inside the rail, under the recessed blocks.
       const artR = r - (stroke / 2 + space) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
@@ -448,9 +448,9 @@
       if (angled && spans.length) {
         // Angled cuts: the rail stays whole and is masked; each opening is a slanted
         // quad whose two ends run at 45° through the rail and the inner line alike.
-        const depth = stroke / 2 + space + blockW + 1; // reaches out past the block
+        const depth = stroke / 2 + space + blockW + 1; // reaches past the block
         // Outward reach clears the overshoot of a sharp corner's mitre.
-        const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, stroke * 1.5 + 1, depth, -lean));
+        const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, depth, stroke * 1.5 + 1, lean));
         const poly = (q, fill) => `<polygon points="${q.map(([x, y]) => `${x},${y}`).join(' ')}" fill="${fill}"/>`;
         const box = `x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}"`;
         this.querySelector('defs').insertAdjacentHTML('beforeend', `
