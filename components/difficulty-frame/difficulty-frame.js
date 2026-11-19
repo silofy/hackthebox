@@ -61,7 +61,7 @@
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
-  const BLOCK_WEIGHT = 1.75;   // thickness of a resting inner block (× stroke)
+  const BLOCK_WEIGHT = 1.5;    // thickness of a resting inner block (× stroke)
   const ART_CLEAR = 1;         // dark ring between accent and art (× stroke)
 
   // Each outline is drawn in a -1..1 box. `sides` are the compass bearings (0 = up,
