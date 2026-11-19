@@ -537,7 +537,7 @@
             const side = Math.sign(pt.x - c);
             const xo = c + side * (shape.shoulders.x * r + stroke / 2); // outer edge of the side
             const yo = c + shape.shoulders.y * r - stroke / 2 + 0.5; // just inside the top's outer edge
-            return `${xo},${yo} ${xo},${yo - h} ${xo - side * half * 2},${yo}`;
+            return { points: `${xo},${yo} ${xo},${yo - h} ${xo - side * half * 2},${yo}`, origin: [xo, yo] };
           }
           if (shape.hips && pt.y > c) {
             // The same horn at the hip: the side edge carries on straight down, and the
@@ -553,14 +553,18 @@
             const [nx, ny] = [-uy * -side, ux * -side];
             const off = stroke / 2 - 0.5;
             const tip = [hx + ux * half * 2 + nx * off, hy + uy * half * 2 + ny * off];
-            return `${xo},${hy} ${xo},${hy + h} ${tip[0]},${tip[1]}`;
+            return { points: `${xo},${hy} ${xo},${hy + h} ${tip[0]},${tip[1]}`, origin: [xo, hy] };
           }
           // Base sits just inside the rail's outer edge so the spike grows out of it.
           const bx = pt.x + dx * (stroke / 2 - 0.5);
           const by = pt.y + dy * (stroke / 2 - 0.5);
-          return `${bx - dy * half},${by + dx * half} ${bx + dx * h},${by + dy * h} ${bx + dy * half},${by - dx * half}`;
+          return { points: `${bx - dy * half},${by + dx * half} ${bx + dx * h},${by + dy * h} ${bx + dy * half},${by - dx * half}` };
         });
-        this.querySelector('[data-spikes]').innerHTML = tris.map((t) => `<polygon points="${t}"/>`).join('');
+        // Horns grow from their outer corner, so on hover they extend along the shield's
+        // edge and inwards, never out past its side.
+        this.querySelector('[data-spikes]').innerHTML = tris.map((t) => (t.origin
+          ? `<polygon points="${t.points}" style="transform-box: view-box; transform-origin: ${t.origin[0]}px ${t.origin[1]}px"/>`
+          : `<polygon points="${t.points}"/>`)).join('');
       }
       const widths = spans.map(([, l]) => l);
       if (angled && spans.length) {
