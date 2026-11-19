@@ -106,6 +106,8 @@
       // Longest line each anchor can carry (share of a quarter of the outline) before it
       // would wrap a corner: the top and sides are short straight edges.
       maxLen: { 0: 0.6, 1: 0.55, 3: 0.55, 2: 0.95 },
+      // Insane spikes on the upper runs sit on the shoulder corners, pointing straight up.
+      shoulders: { x: 0.84, y: -0.86 },
     },
   };
 
@@ -525,8 +527,12 @@
         const tris = cuts.map((m, i) => {
           const next = cuts[(i + 1) % cuts.length] + (i === cuts.length - 1 ? total : 0);
           const { at, dir } = spikeSpot(railPath, c, m, next, total);
-          const pt = railPath.getPointAtLength(at);
-          const [dx, dy] = dir;
+          let pt = railPath.getPointAtLength(at);
+          let [dx, dy] = dir;
+          if (shape.shoulders && pt.y < c) {
+            pt = { x: c + Math.sign(pt.x - c) * shape.shoulders.x * r, y: c + shape.shoulders.y * r };
+            [dx, dy] = [0, -1];
+          }
           // Base sits just inside the rail's outer edge so the spike grows out of it.
           const bx = pt.x + dx * (stroke / 2 - 0.5);
           const by = pt.y + dy * (stroke / 2 - 0.5);
