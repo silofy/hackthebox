@@ -495,7 +495,7 @@
       // Hard and insane: each piece gets its own group, so on hover the top goes
       // first, then the sides, then the bottom: the frame closes in layers.
       if (LEVELS.indexOf(level) >= 2 && !compact && aCentres.length) {
-        const STAGGER = { 0: 0, 1: 90, 3: 90, 2: 180 }; // ms by anchor: top, sides, bottom
+        const STAGGER = { 0: 0, 1: 120, 3: 120, 2: 240 }; // ms by anchor: top, sides, bottom
         this.querySelectorAll('[data-accents]').forEach((group) => {
           aCentres.forEach((p, i) => {
             const piece = group.cloneNode(true);
