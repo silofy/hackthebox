@@ -57,12 +57,12 @@
   //   lean   keystone slant (tan of its angle: 1 = 45°, 0.58 = 30°) ·
   //   reach  inner line length multiplier, so small notches still read ·
   //   medal  completed medallion radius (× size) · ring  its knockout gap, px ·
-  //   compact  the simplified small style: no recess or slant, the inner pieces are
+  //   compact  the simplified style for the smallest step only: no recess or slant, the inner pieces are
   //            bright segments of the rail itself, and the completed check sits in the
   //            badge's bottom-right corner instead of cutting into the frame
   const STEPS = [
     { min: 0, stroke: 2, space: 2, block: 1, lean: 0, reach: 1.45, medal: 0.16, ring: 0, compact: true },
-    { min: 64, stroke: 2, space: 2, block: 1, lean: 0, reach: 1.3, medal: 0.15, ring: 0, compact: true },
+    { min: 64, stroke: 2, space: 2, block: 1.25, lean: 0.58, reach: 1.3, medal: 0.13, ring: 1.5 },
     { min: 80, stroke: 3, space: 2, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 3 },
     { min: 160, stroke: 4, space: 3, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 5 },
   ];
