@@ -9,10 +9,10 @@
  *           inset from it; they exist only where the rail opens
  *
  *   tier     inner lines / openings                      entrance / hover weight
- *   easy     2 short, top and bottom                     light
- *   medium   2 longer, top and bottom                    ↓
- *   hard     4, one per anchor                           ↓
- *   insane   4, longest                                  heaviest
+ *   easy     2, top and bottom                           light
+ *   medium   2, left and right                           ↓
+ *   hard     4, all anchors                              ↓
+ *   insane   4, all anchors, longest                     heaviest
  *
  * Attributes
  *   difficulty  easy | medium | hard | insane      (default: easy)
@@ -44,8 +44,8 @@
   const TIERS = {
     // open: anchors (0 top, 1 right, 2 bottom, 3 left) that carry an inner line ·
     // length: each inner line, as a share of a side
-    easy: { accent: ['--htb-easy', '#22ff66'], rail: ['--htb-easy-rail', '#5f8f7c'], open: [0, 2], length: 0.16 },
-    medium: { accent: ['--htb-medium', '#ff9f2e'], rail: ['--htb-medium-rail', '#a8906f'], open: [0, 2], length: 0.26 },
+    easy: { accent: ['--htb-easy', '#22ff66'], rail: ['--htb-easy-rail', '#5f8f7c'], open: [0, 2], length: 0.26 },
+    medium: { accent: ['--htb-medium', '#ff9f2e'], rail: ['--htb-medium-rail', '#a8906f'], open: [1, 3], length: 0.26 },
     hard: { accent: ['--htb-hard', '#ff4a3d'], rail: ['--htb-hard-rail', '#9e2229'], open: [0, 1, 2, 3], length: 0.26 },
     insane: { accent: ['--htb-insane', '#cf3a2f'], rail: ['--htb-insane-rail', '#8393b0'], open: [0, 1, 2, 3], length: 0.4 },
   };
@@ -359,6 +359,14 @@
       const medR = Math.max(size * 0.12, 8);
       const med = { x: c, y: c + r + stroke / 2 - medR };
 
+      // Completed medallion: a diamond with sharp points to match square corners,
+      // a disc for round ones. The square diamond is scaled up a touch so it reads as
+      // the same visual size as the disc.
+      const medallion = ({ x, y }, rad, fill) => {
+        if (!square) return `<circle data-disc cx="${x}" cy="${y}" r="${rad}" fill="${fill}"/>`;
+        const d = rad * 1.18;
+        return `<polygon data-disc points="${x},${y - d} ${x + d},${y} ${x},${y + d} ${x - d},${y}" fill="${fill}"/>`;
+      };
       this.style.setProperty('--glow', accent);
       this.style.setProperty('--glow-r', `${Math.max(stroke, 2)}px`);
       this.style.setProperty('--c', `${c}px`);
@@ -382,7 +390,7 @@
             </filter>
             ${completed ? `<mask id="${id}-k" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
-              <circle cx="${med.x}" cy="${med.y}" r="${medR + Math.max(stroke * 1.25, 2)}" fill="#000"/>
+              ${medallion(med, medR + Math.max(stroke * 1.25, 2), '#000')}
             </mask>` : ''}
           </defs>
           <g ${completed ? `mask="url(#${id}-k)"` : ''}>
@@ -412,10 +420,10 @@
             </g>
           </g>
           ${completed ? `<g data-check>
-            <circle cx="${med.x}" cy="${med.y}" r="${medR}" fill="${accent}"/>
+            ${medallion(med, medR, accent)}
             <path pathLength="1" d="M${med.x - medR * 0.42} ${med.y + medR * 0.02} L${med.x - medR * 0.12} ${med.y + medR * 0.32} L${med.x + medR * 0.44} ${med.y - medR * 0.3}"
                   fill="none" stroke="var(--htb-frame-bg, #16262c)" stroke-width="${Math.max(medR * 0.24, 2)}"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+                  stroke-linecap="${square ? 'square' : 'round'}" stroke-linejoin="${square ? 'miter' : 'round'}"/>
           </g>` : ''}
         </svg>`;
 
@@ -551,7 +559,7 @@
 
       if (check) {
         // Medallion pops in once the frame has settled, then the tick draws itself.
-        const disc = check.querySelector('circle');
+        const disc = check.querySelector('[data-disc]');
         const tick = check.querySelector('path');
         const at = lockAt + (weight >= 2 ? 220 : 0);
         disc.style.transformBox = 'fill-box';

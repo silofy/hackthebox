@@ -28,17 +28,13 @@
   <h2>Difficulty system</h2>
   <p class="note">Two lines per frame: a muted rail and a bright accent against its inner edge. Each tier adds rail cuts, a longer accent and a heavier animation. Hover a badge, click to hold it selected.</p>
   <div class="legend">
-    <div><strong>Easy</strong><span>2 short inner lines, top and bottom · lines grow in · glow on hover</span></div>
-    <div><strong>Medium</strong><span>2 longer inner lines, top and bottom · outer line traces in · lines press out on hover</span></div>
+    <div><strong>Easy</strong><span>2 inner lines, top and bottom · lines grow in · glow on hover</span></div>
+    <div><strong>Medium</strong><span>2 inner lines, left and right · outer line traces in · lines press out on hover</span></div>
     <div><strong>Hard</strong><span>4 inner lines in openings · outer line cracks open, lines lock once · stronger glow</span></div>
     <div><strong>Insane</strong><span>4 longest inner lines · sweep in, lock twice · lines travel on hover</span></div>
   </div>
   <div id="large"></div>
   <p class="actions"><button type="button" data-replay-all>Replay all</button></p>
-
-  <h2>Rounded corners</h2>
-  <p class="note">corners="round": rounded line ends and joins, curved shield shoulders and bottom.</p>
-  <div id="square"></div>
 
   <h2>Completed</h2>
   <p class="note">The tier pattern stays; a check medallion is knocked out of the frame at the bottom point.</p>
@@ -55,9 +51,6 @@
     document.getElementById('large').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
-    document.getElementById('square').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
-      `<figure>${badge(`shape="${s}" difficulty="${l}" corners="round"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
-
     document.getElementById('completed').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       badge(`shape="${s}" difficulty="${l}" size="120" completed static`)).join('')}${levels.map((l) =>
       badge(`shape="${s}" difficulty="${l}" size="64" completed static`)).join('')}</div>`).join('');
@@ -68,7 +61,7 @@
 
     document.addEventListener('click', (e) => {
       if (e.target.closest('[data-replay-all]')) {
-        document.querySelectorAll('#large htb-difficulty-frame, #square htb-difficulty-frame').forEach((el) => el.play());
+        document.querySelectorAll('#large htb-difficulty-frame').forEach((el) => el.play());
         return;
       }
       const el = e.target.closest('htb-difficulty-frame');
