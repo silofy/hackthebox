@@ -24,7 +24,7 @@
  *   selected    boolean — holds the hover state
  *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
  *   static      boolean — skip the entrance animation
- *   cuts        square | keystone | keystone-soft | angled   (default: square) — slanted ends shared
+ *   cuts        keystone | keystone-soft | angled | square   (default: keystone) — slanted ends shared
  *               by the rail and the inner line: keystone 45° (the inner line is the cut-out piece
  *               pushed straight in), keystone-soft 30°, angled 45° splayed the other way
  *   corners     round | square                   (default: round) — square gives flat line ends,
@@ -60,6 +60,7 @@
     { min: 160, stroke: 4 },
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
+  const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
   const ART_CLEAR = 1;         // dark ring between accent and art (× stroke)
 
   // Each outline is drawn in a -1..1 box. `sides` are the compass bearings (0 = up,
@@ -72,12 +73,14 @@
       path: (p) => `M${p(0.5, -0.5)} L${p(1, 0)} L${p(0, 1)} L${p(-1, 0)} L${p(0, -1)} Z`,
       // Anchored on its four points, so each inner line is a chevron wrapping round a point.
       sides: [0, 90, 180, 270],
+      points: [0, 1, 2, 3],
     },
     circle: {
       ring: 1,
       path: (p, r) => `M${p(Math.SQRT1_2, -Math.SQRT1_2)} A${r} ${r} 0 1 1 ${p(-Math.SQRT1_2, Math.SQRT1_2)} `
         + `A${r} ${r} 0 1 1 ${p(Math.SQRT1_2, -Math.SQRT1_2)} Z`,
       sides: [0, 90, 180, 270],
+      points: [],
     },
     shield: {
       // Heater shield: flat top, rounded shoulders, even taper to the point.
@@ -95,6 +98,7 @@
         + `C${p(1, 0.48)} ${p(0.58, 0.8)} ${p(0, 1)} C${p(-0.58, 0.8)} ${p(-1, 0.48)} ${p(-1, -0.05)} `
         + `L${p(-1, -0.62)} Q${p(-1, -0.86)} ${p(-0.76, -0.86)} Z`; },
       sides: [0, 107, 180, 253],
+      points: [2], // the bottom point carries a chevron
     },
   };
 
@@ -187,10 +191,11 @@
   const SPANS = new Map();
   const railSpans = (key, rail, accent, aCentres, aLen, total, aTotal) => {
     if (!SPANS.has(key)) {
-      SPANS.set(key, aCentres.map((a) => {
+      SPANS.set(key, aCentres.map((a, i) => {
+        const len0 = Array.isArray(aLen) ? aLen[i] : aLen;
         const mid = nearestLength(rail, accent.getPointAtLength(a), (a / aTotal) * total, total / 8, total);
         const [s, e] = [-1, 1].map((dir) => nearestLength(rail,
-          accent.getPointAtLength((a + (dir * aLen) / 2 + aTotal) % aTotal), mid + (dir * aLen) / 2, aLen / 2, total));
+          accent.getPointAtLength((a + (dir * len0) / 2 + aTotal) % aTotal), mid + (dir * len0) / 2, len0 / 2, total));
         const len = (e - s + total) % total;
         return [((s + len / 2) % total) / total, len / total];
       }));
@@ -267,12 +272,13 @@
   };
 
   // A visible `dash` centred on every point in `centres`.
+  // `dash` is one length for all, or a list with one per centre.
   const dashesAt = (centres, total, dash, cap) => {
+    const d = (i) => Math.max((Array.isArray(dash) ? dash[i % centres.length] : dash) - cap, 0.01);
     const pts = [...centres, centres[0] + total];
     const array = [];
-    const d = Math.max(dash - cap, 0.01);
-    for (let i = 0; i < centres.length; i += 1) array.push(d, pts[i + 1] - pts[i] - d);
-    return { dash: array.join(' '), offset: -(centres[0] - d / 2) };
+    for (let i = 0; i < centres.length; i += 1) array.push(d(i), pts[i + 1] - pts[i] - d(i) / 2 - d(i + 1) / 2);
+    return { dash: array.join(' '), offset: -(centres[0] - d(0) / 2) };
   };
 
   const setDash = (path, rest, hover) => {
@@ -318,7 +324,7 @@
       // Slanted cut ends: lean > 0 narrows the opening going inward (keystone: the inner
       // line is the cut-out piece pushed straight in), < 0 widens it (splayed).
       const LEANS = { angled: -1, keystone: 1, 'keystone-soft': Math.tan(Math.PI / 6) };
-      const lean = LEANS[this.getAttribute('cuts')] ?? 0;
+      const lean = this.getAttribute('cuts') === 'square' ? 0 : LEANS[this.getAttribute('cuts')] ?? LEANS.keystone;
       const angled = lean !== 0;
       // Round caps reach stroke/2 past each dash end; flat caps don't, so there's nothing to allow for.
       const cap = square ? 0 : stroke;
@@ -375,13 +381,17 @@
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r, square)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
-              <g data-accents>
-                <g data-glow filter="url(#${id}-glow)">
-                  <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
+              <!-- Slot masks sit outside the moving groups, so a piece pushed out on hover
+                   slides into its fixed slot instead of carrying the slot with it. -->
+              <g data-glow filter="url(#${id}-glow)">
+                <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
+                  <g data-accents>
                     <path data-accent-glow d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
                   </g>
                 </g>
-                <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
+              </g>
+              <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
+                <g data-accents>
                   <path data-accent d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
                 </g>
               </g>
@@ -410,12 +420,18 @@
       // is cut away behind each one, so it sits in the opening, inset by `space`.
       const opened = order(placed).filter((p) => tier.open.includes(p.side));
       const aCentres = opened;
+      // Chevrons on points stay at the tier length; lines on straight or curved
+      // stretches run longer, so they carry as much weight as a chevron.
+      // A keystone slant trims each inner line by its inset at both ends; add that
+      // back so the visible length stays true to the tier.
+      const slantTrim = lean > 0 ? 2 * lean * (stroke / 2 + space + accentW / 2) : 0;
+      const lens = opened.map((p) => (shape.points.includes(p.side) ? aLen : aLen * STRAIGHT_BOOST) + slantTrim);
       const glowPath = this.querySelector('[data-accent-glow]');
-      if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, aLen, cap));
+      if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, cap));
       else { accentPath.remove(); glowPath.remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
 
-      const spans = railSpans(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, opened.map((p) => p.at), aLen, total, aTotal)
+      const spans = railSpans(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, opened.map((p) => p.at), lens, total, aTotal)
         .sort((x, y) => x[0] - y[0]);
       const cuts = spans.map(([m]) => m);
       const widths = spans.map(([, l]) => l);
@@ -431,7 +447,7 @@
           <mask id="${id}-cut" maskUnits="userSpaceOnUse" ${box}><rect ${box} fill="#fff"/>${quads.map((q) => poly(q, '#000')).join('')}</mask>
           <mask id="${id}-keep" maskUnits="userSpaceOnUse" ${box}><rect ${box} fill="#000"/>${quads.map((q) => poly(q, '#fff')).join('')}</mask>`);
         // The inner line runs a little long; the shared slant trims both ends.
-        setDash(accentPath, dashesAt(aCentres.map((p) => p.at), aTotal, aLen + depth * 2, 0));
+        setDash(accentPath, dashesAt(aCentres.map((p) => p.at), aTotal, lens.map((l) => l + depth * 2), 0));
         railPath.style.setProperty('--dash', 'none');
       } else {
         setDash(railPath, gapsAt(cuts, total, widths, cap, stroke * 2.5));
@@ -456,7 +472,7 @@
       const ease = 'cubic-bezier(.2, .8, .2, 1)';
       const snap = 'cubic-bezier(.3, 1.5, .5, 1)';
       const art = this.querySelector('[data-art]');
-      const accents = this.querySelector('[data-accents]');
+      const accents = [...this.querySelectorAll('[data-accents]')];
       const check = this.querySelector('[data-check]');
       const rest = (el) => ({
         strokeDasharray: el.style.getPropertyValue('--dash') || 'none',
@@ -512,7 +528,7 @@
           const lock = sweep
             ? [calm, { ...hit, offset: 0.2 }, { ...calm, offset: 0.45 }, { ...hit, offset: 0.65 }, calm]
             : [calm, { ...hit, offset: 0.35 }, calm];
-          accents.animate(lock, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' });
+          accents.forEach((g) => g.animate(lock, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' }));
           // The bloom flashes with each lock.
           const flash = lock.map((f) => ({ opacity: f.transform === 'scale(1)' ? 0 : 1, offset: f.offset }));
           this.querySelector('[data-glow]').animate(flash, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' });

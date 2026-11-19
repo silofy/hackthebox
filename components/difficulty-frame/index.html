@@ -36,12 +36,8 @@
   <div id="large"></div>
   <p class="actions"><button type="button" data-replay-all>Replay all</button></p>
 
-  <h2>Cut styles</h2>
-  <p class="note">Pick one. Square, keystone 45° (the inner line is the cut-out piece pushed straight in), keystone 30° (softer), and splayed 45° (the previous try). Square corners, Hard tier.</p>
-  <div id="cutstyles"></div>
-
   <h2>Square corners</h2>
-  <p class="note">corners="square": flat line ends, sharp joins, sharp shield shoulders. Same tiers and motion.</p>
+  <p class="note">corners="square": flat line ends, sharp joins, sharp shield shoulders. All frames use keystone 45° cuts by default.</p>
   <div id="square"></div>
 
   <h2>Completed</h2>
@@ -59,10 +55,6 @@
     document.getElementById('large').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
-    const CUTS = [['square', 'Square'], ['keystone', 'Keystone 45°'], ['keystone-soft', 'Keystone 30°'], ['angled', 'Splayed 45°']];
-    document.getElementById('cutstyles').innerHTML = shapes.map((s) => `<div class="row">${CUTS.map(([k, t]) =>
-      `<figure>${badge(`shape="${s}" difficulty="hard" corners="square" cuts="${k}"`)}<figcaption>${t}</figcaption></figure>`).join('')}</div>`).join('');
-
     document.getElementById('square').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       `<figure>${badge(`shape="${s}" difficulty="${l}" corners="square"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
@@ -76,7 +68,7 @@
 
     document.addEventListener('click', (e) => {
       if (e.target.closest('[data-replay-all]')) {
-        document.querySelectorAll('#large htb-difficulty-frame, #square htb-difficulty-frame, #cutstyles htb-difficulty-frame').forEach((el) => el.play());
+        document.querySelectorAll('#large htb-difficulty-frame, #square htb-difficulty-frame').forEach((el) => el.play());
         return;
       }
       const el = e.target.closest('htb-difficulty-frame');
