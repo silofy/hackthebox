@@ -54,12 +54,14 @@
   // Small steps get whole-pixel gaps, lighter blocks and a gentler slant, so the
   // notches stay crisp instead of blurring into the art.
   //   space  gap between rail and block, px · block  block thickness (× stroke) ·
-  //   lean   keystone slant (tan of its angle: 1 = 45°, 0.58 = 30°)
+  //   lean   keystone slant (tan of its angle: 1 = 45°, 0.58 = 30°) ·
+  //   reach  inner line length multiplier, so small notches still read ·
+  //   medal  completed medallion radius (× size) · ring  its knockout gap, px
   const STEPS = [
-    { min: 0, stroke: 2, space: 2, block: 1.25, lean: 0.58 },
-    { min: 64, stroke: 2, space: 2, block: 1.25, lean: 0.58 },
-    { min: 80, stroke: 3, space: 2, block: 1.5, lean: 1 },
-    { min: 160, stroke: 4, space: 3, block: 1.5, lean: 1 },
+    { min: 0, stroke: 2, space: 2, block: 1.25, lean: 0.58, reach: 1.45, medal: 0.13, ring: 1.5 },
+    { min: 64, stroke: 2, space: 2, block: 1.25, lean: 0.58, reach: 1.3, medal: 0.13, ring: 1.5 },
+    { min: 80, stroke: 3, space: 2, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 3 },
+    { min: 160, stroke: 4, space: 3, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 5 },
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
@@ -353,7 +355,7 @@
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
-      const medR = Math.max(size * 0.12, 8);
+      const medR = size * step.medal;
       const med = { x: c, y: c + r + stroke / 2 - medR };
 
       // Completed medallion: a sharp-pointed diamond, scaled up a touch so it carries
@@ -385,7 +387,7 @@
             </filter>
             ${completed ? `<mask id="${id}-k" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
-              ${medallion(med, medR + Math.max(stroke * 1.25, 2), '#000')}
+              ${medallion(med, medR + step.ring, '#000')}
             </mask>` : ''}
           </defs>
           <g ${completed ? `mask="url(#${id}-k)"` : ''}>
@@ -432,7 +434,7 @@
       const aSides = sideFractions(`${form}|accent`, accentPath, c, bearings).map((f) => f * aTotal);
 
       // Inner lines: one centred on each open anchor.
-      const aLen = (aTotal / 4) * tier.length;
+      const aLen = (aTotal / 4) * tier.length * step.reach;
       const placed = aSides.map((a, side) => ({ at: a, side }));
       const order = (list) => [...list].sort((x, y) => x.at - y.at);
       // Inner lines exist only where the rail opens: on the tier's open sides the rail
