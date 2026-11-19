@@ -103,11 +103,10 @@
     },
   };
 
-  // Hover weight escalates with difficulty:
-  //   easy    accents glow
-  //   medium  + accents press out onto the rail
-  //   hard    + stronger glow
-  //   insane  + accents travel round the outline
+  // Hover: on every tier each inner block thins to the rail's width and slides out into
+  // its opening, closing the frame, and a bloom fades in. Weight escalates on top:
+  //   hard    + full-strength bloom
+  //   insane  + the inner lines travel round the outline
   const STYLE_ID = 'htb-difficulty-frame-style';
   const CSS = `
     htb-difficulty-frame { display: inline-block; line-height: 0; }
@@ -116,6 +115,11 @@
       stroke-dasharray: var(--dash, none); stroke-dashoffset: var(--offset, 0);
       transition: stroke-dasharray .35s cubic-bezier(.3, .8, .3, 1), stroke-dashoffset .35s cubic-bezier(.3, .8, .3, 1);
     }
+    htb-difficulty-frame :is([data-accent], [data-accent-glow]) {
+      stroke-width: var(--thick);
+      transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1), stroke-dasharray .35s cubic-bezier(.3, .8, .3, 1), stroke-dashoffset .35s cubic-bezier(.3, .8, .3, 1);
+    }
+    htb-difficulty-frame:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
     htb-difficulty-frame [data-accents] {
       transform-box: view-box; transform-origin: var(--c) var(--c);
       transition: transform .3s cubic-bezier(.3, 1.4, .5, 1);
@@ -125,7 +129,7 @@
     htb-difficulty-frame [data-glow] { opacity: 0; transition: opacity .35s ease; }
     htb-difficulty-frame:is(:hover, [selected]) [data-glow] { opacity: .6; }
     htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected]) [data-glow] { opacity: 1; }
-    htb-difficulty-frame:not([difficulty="easy"]):is(:hover, [selected]) [data-accents] { transform: scale(var(--press)); }
+    htb-difficulty-frame:is(:hover, [selected]) [data-accents] { transform: scale(var(--press)); }
     htb-difficulty-frame[difficulty="insane"]:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) {
       animation: htb-frame-orbit 3.2s cubic-bezier(.6, 0, .4, 1) .35s infinite;
     }
@@ -339,9 +343,14 @@
 
       const c = size / 2;
       const r = c - stroke;
-      // The accent touches the rail's inner edge; the art clears the accent by one stroke.
+      // At rest each inner piece is a solid block filling its whole opening: from the
+      // rail's outer edge, across the space, to the inner edge of where a line would
+      // sit. On hover it thins to the rail's own width and position, closing the frame.
+      // The art clears the block by one stroke.
       const space = Math.max(stroke * SPACING, 1.5);
-      const accentR = r - (stroke / 2 + space + accentW / 2) * shape.ring;
+      const blockW = stroke + space + accentW;
+      const blockOffset = (space + accentW) / 2; // block centreline, inward from the rail's
+      const accentR = r - blockOffset * shape.ring;
       const artR = r - (stroke / 2 + space + accentW + stroke * ART_CLEAR) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
@@ -353,6 +362,9 @@
       this.style.setProperty('--glow-r', `${Math.max(stroke, 2)}px`);
       this.style.setProperty('--c', `${c}px`);
       this.style.setProperty('--press', r / accentR);
+      this.style.setProperty('--thick', `${blockW}px`);
+      // Scaling out to the rail also widens the stroke a touch, so thin by that much less.
+      this.style.setProperty('--thin', `${stroke / (r / accentR)}px`);
       this.innerHTML = `
         <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${label}">
           <title>${label}</title>
@@ -387,13 +399,13 @@
               <g data-glow filter="url(#${id}-glow)">
                 <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
                   <g data-accents>
-                    <path data-accent-glow d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
+                    <path data-accent-glow d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${blockW}" stroke-linecap="butt"/>
                   </g>
                 </g>
               </g>
               <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
                 <g data-accents>
-                  <path data-accent d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
+                  <path data-accent d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${blockW}" stroke-linecap="butt"/>
                 </g>
               </g>
             </g>
@@ -425,10 +437,10 @@
       // stretches run longer, so they carry as much weight as a chevron.
       // A keystone slant trims each inner line by its inset at both ends; add that
       // back so the visible length stays true to the tier.
-      const slantTrim = lean > 0 ? 2 * lean * (stroke / 2 + space + accentW / 2) : 0;
+      const slantTrim = lean > 0 ? 2 * lean * blockOffset : 0;
       const lens = opened.map((p) => (shape.points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST)) + slantTrim);
       const glowPath = this.querySelector('[data-accent-glow]');
-      if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, cap));
+      if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
       else { accentPath.remove(); glowPath.remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
 
@@ -508,7 +520,7 @@
       let lockAt = accentDelay + 380; // no inner lines: once the outline has traced in
       if (lines) {
         const settled = rest(accentPath);
-        const seed = dashesAt(aCentres, aTotal, Math.max(cap, 1), cap);
+        const seed = dashesAt(aCentres, aTotal, 1, 0);
         const grow = 320 + weight * 80;
         const sweep = weight === 3;
         const frames = sweep
