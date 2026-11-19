@@ -5,57 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Difficulty Frames</title>
   <style>
-    body { margin: 0; padding: 48px 16px; background: #111927; color: #fff; font: 500 18px/1.2 system-ui, sans-serif; }
+    body { margin: 0; padding: 48px 16px; background: #111722; color: #fff; font: 500 18px/1.2 system-ui, sans-serif; }
     h2 { font-weight: 400; font-size: 20px; margin: 0 auto 28px; max-width: 960px; }
     p.note { max-width: 960px; margin: -16px auto 28px; color: #a4b1cd; font-size: 14px; font-weight: 400; }
     .row { display: flex; flex-wrap: wrap; justify-content: center; align-items: end; gap: 24px; margin-bottom: 56px; }
     figure { margin: 0; display: grid; justify-items: center; gap: 16px; }
     figcaption { font-size: 15px; color: #cfd8ea; }
     htb-difficulty-frame { cursor: pointer; }
-
-    .concept { max-width: 960px; margin: 0 auto 40px; display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; }
-    .concept-copy { display: grid; gap: 6px; justify-items: start; min-width: 0; }
-    .concept-copy strong { font-size: 17px; }
-    .concept-copy span { font-size: 14px; font-weight: 400; color: #a4b1cd; line-height: 1.45; }
-    .concept-copy button { margin-top: 6px; font: inherit; font-size: 13px; color: inherit; background: transparent;
-      border: 1px solid #3a4a66; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
-    .concept-copy button:hover { border-color: #a4b1cd; }
-    .concept-copy button:focus-visible { outline: 2px solid #a4b1cd; outline-offset: 2px; }
-    .row.tight { margin: 0; justify-content: start; }
-    @media (max-width: 640px) { .concept { grid-template-columns: 1fr; } }
+      .legend { max-width: 960px; margin: 0 auto 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .legend div { display: grid; gap: 4px; min-width: 0; }
+    .legend strong { font-size: 15px; }
+    .legend span { font-size: 13px; font-weight: 400; color: #a4b1cd; line-height: 1.45; }
+    .actions { max-width: 960px; margin: -24px auto 48px; display: flex; justify-content: center; }
+    .actions button { font: inherit; font-size: 13px; color: inherit; background: transparent;
+      border: 1px solid #3a4a66; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+    .actions button:hover { border-color: #a4b1cd; }
+    .actions button:focus-visible { outline: 2px solid #a4b1cd; outline-offset: 2px; }
   </style>
   <script src="difficulty-frame.js" defer></script>
 </head>
 <body>
-  <h2>Diamond · Circle · Shield — 200px / 4px</h2>
-  <p class="note">Hover any badge: gaps tighten and it glows. Click to select; selected badges orbit on hover.</p>
+  <h2>Difficulty system</h2>
+  <p class="note">Two lines per frame: a muted rail and a bright accent against its inner edge. Each tier adds rail cuts, a longer accent and a heavier animation. Hover a badge, click to hold it selected.</p>
+  <div class="legend">
+    <div><strong>Easy</strong><span>No cuts · short accents · accents grow in · glow on hover</span></div>
+    <div><strong>Medium</strong><span>2 accent ends cut free · longer accents · rail traces in · accents press out on hover</span></div>
+    <div><strong>Hard</strong><span>4 ends cut free · rail cracks open, accents lock once · cuts tighten on hover</span></div>
+    <div><strong>Insane</strong><span>All 8 ends cut free · accents sweep in and lock twice · accents travel on hover</span></div>
+  </div>
   <div id="large"></div>
-
-  <h2>Recommended setup</h2>
-  <p class="note">The defaults now follow this pairing. Set context="detail" on a machine page and featured on a hero badge; nothing else is needed.</p>
-  <div id="recommended"></div>
-
-  <h2>Motion concepts (explored)</h2>
-  <p class="note">Entrance animations play once when a badge appears. Use Replay to watch one again.</p>
-  <div id="motion"></div>
-
-  <h2>Hover concepts (explored)</h2>
-  <p class="note">Hover each row.</p>
-  <div id="hover"></div>
+  <p class="actions"><button type="button" data-replay-all>Replay all</button></p>
 
   <h2>Completed</h2>
-  <p class="note">The difficulty pattern stays; a check medallion is knocked out of the frame at the bottom point.</p>
+  <p class="note">The tier pattern stays; a check medallion is knocked out of the frame at the bottom point.</p>
   <div id="completed"></div>
 
   <h2>Size steps — 48 / 64 / 96 / 200</h2>
-  <p class="note">Below 80px, Insane swaps the red dash for whole red runs so it still reads.</p>
   <div id="steps"></div>
-
-  <h2>Themed with CSS variables (--htb-frame-stroke: 6, --htb-frame-gap: 22)</h2>
-  <div class="row" style="--htb-frame-stroke: 6; --htb-frame-gap: 22; --htb-hard: #ff3e3e">
-    <htb-difficulty-frame difficulty="medium" shape="circle" src="demo-art.png" static></htb-difficulty-frame>
-    <htb-difficulty-frame difficulty="hard" shape="shield" src="demo-art.png" static></htb-difficulty-frame>
-  </div>
 
   <script>
     const levels = ['easy', 'medium', 'hard', 'insane'];
@@ -66,58 +52,20 @@
       `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
     document.getElementById('completed').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
-      badge(`shape="${s}" difficulty="${l}" size="120" completed`)).join('')}${levels.map((l) =>
-      badge(`shape="${s}" difficulty="${l}" size="64" completed`)).join('')}</div>`).join('');
+      badge(`shape="${s}" difficulty="${l}" size="120" completed static`)).join('')}${levels.map((l) =>
+      badge(`shape="${s}" difficulty="${l}" size="64" completed static`)).join('')}</div>`).join('');
 
     document.getElementById('steps').innerHTML = levels.map((l) => `<div class="row">${[48, 64, 96, 200].map((n) =>
-      badge(`shape="circle" difficulty="${l}" size="${n}"`)).join('')}${[48, 64, 96].map((n) =>
-      badge(`shape="shield" difficulty="${l}" size="${n}"`)).join('')}</div>`).join('');
-
-    const REC = [
-      ['Detail page', 'Split entrance: the level appears as the gaps open. Tighten on hover.', 'context="detail" size="200"', [['hard', 'shield']], true],
-      ['List / grid', 'Trace entrance, quiet in bulk. Tighten on hover.', 'size="64"', levels.map((l) => [l, 'diamond']), true],
-      ['Featured or selected', 'Breaks travel slowly round the outline on hover.', 'featured size="120" static', [['insane', 'circle'], ['medium', 'diamond']], false],
-    ];
-    document.getElementById('recommended').innerHTML = REC.map(([t, d, attrs, items, replay]) => `
-      <div class="concept">
-        <div class="concept-copy"><strong>${t}</strong><span>${d}</span>
-          ${replay ? '<button type="button" data-replay>Replay</button>' : ''}</div>
-        <div class="row tight">${items.map(([l, s]) => badge(`shape="${s}" difficulty="${l}" ${attrs}`)).join('')}</div>
-      </div>`).join('');
-
-    const MOTION = [
-      ['trace', 'Trace', 'The line draws itself round the shape. Calm, works for every level.'],
-      ['split', 'Split', 'A closed frame cracks open at its breaks. The level appears as the gaps form.'],
-      ['orbit', 'Orbit', 'The break pattern spins half a turn and settles into place.'],
-      ['edgerunner', 'Edgerunner', 'HUD lock-on: brackets snap in, a neon scanline paints the art, the frame boots in yellow and cools to its level colour.'],
-      ['glitch', 'Glitch', 'Signal corruption: colour channels split, the breaks scramble and the art tears, then it all locks in. Best saved for Insane.'],
-    ];
-    document.getElementById('motion').innerHTML = MOTION.map(([k, t, d]) => `
-      <div class="concept">
-        <div class="concept-copy"><strong>${t}</strong><span>${d}</span>
-          <button type="button" data-replay="${k}">Replay</button></div>
-        <div class="row tight">${levels.map((l, i) => badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" motion="${k}"${i === 3 ? ' completed' : ''}`)).join('')}</div>
-      </div>`).join('');
-
-    const HOVER = [
-      ['tighten', 'Tighten', 'Gaps close to about half and the border glows.'],
-      ['orbit', 'Orbit', 'Breaks travel slowly round the outline while hovered.'],
-      ['lift', 'Lift', 'The badge rises slightly; the pattern stays exactly as it is.'],
-    ];
-    document.getElementById('hover').innerHTML = HOVER.map(([k, t, d]) => `
-      <div class="concept">
-        <div class="concept-copy"><strong>${t}</strong><span>${d}</span></div>
-        <div class="row tight">${levels.map((l, i) => badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" hover="${k}" static`)).join('')}</div>
-      </div>`).join('');
+      badge(`shape="diamond" difficulty="${l}" size="${n}" static`)).join('')}${[48, 64, 96].map((n) =>
+      badge(`shape="shield" difficulty="${l}" size="${n}" static`)).join('')}</div>`).join('');
 
     document.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-replay]');
-      if (btn) btn.closest('.concept').querySelectorAll('htb-difficulty-frame').forEach((el) => el.play(btn.dataset.replay || undefined));
-    });
-
-    document.addEventListener('click', (e) => {
+      if (e.target.closest('[data-replay-all]')) {
+        document.querySelectorAll('#large htb-difficulty-frame').forEach((el) => el.play());
+        return;
+      }
       const el = e.target.closest('htb-difficulty-frame');
-      if (el && !e.target.closest('[data-replay]')) el.toggleAttribute('selected');
+      if (el) el.toggleAttribute('selected');
     });
   </script>
 </body>
