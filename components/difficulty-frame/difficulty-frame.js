@@ -69,7 +69,7 @@
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
   const SPIKE_HEIGHT = 1.75;   // insane spikes: height beyond the rail (× stroke)
-  const SPIKE_BASE = 2.25;     // and base width (× stroke)
+  const SPIKE_BASE = 3.25;     // and base width (× stroke)
   const BLOCK_WEIGHT = 1.5;    // thickness of a resting inner block (× stroke)
 
   // Each outline is drawn in a -1..1 box. `sides` are the compass bearings (0 = up,
@@ -255,6 +255,40 @@
       outer.push(offset(len, -outward, -lean));
     }
     return [...inner, ...outer.reverse()];
+  };
+
+  // Where a spike goes on the rail run [from, to]: the middle of its longest straight
+  // stretch, pointing along that stretch's outward normal. If the run has no straight
+  // stretch worth using (a curve), its midpoint, pointing away from the centre.
+  const spikeSpot = (path, c, from, to, total) => {
+    const N = 48;
+    const span = to - from;
+    const tan = (len) => {
+      const a = path.getPointAtLength(((len - 0.5) % total + total) % total);
+      const b = path.getPointAtLength(((len + 0.5) % total + total) % total);
+      return Math.atan2(b.y - a.y, b.x - a.x);
+    };
+    let best = null;
+    let start = 0;
+    for (let i = 1; i <= N; i += 1) {
+      const turn = i < N ? Math.abs(Math.sin(tan(from + (span * i) / N) - tan(from + (span * start) / N))) : 1;
+      if (turn > 0.03) {
+        const run = (span * (i - 1 - start)) / N;
+        if (!best || run > best.run) best = { run, mid: from + (span * (start + i - 1)) / (2 * N) };
+        start = i;
+      }
+    }
+    const radial = (len) => {
+      const p = path.getPointAtLength(((len % total) + total) % total);
+      const d = Math.hypot(p.x - c, p.y - c) || 1;
+      return [(p.x - c) / d, (p.y - c) / d];
+    };
+    if (!best || best.run < span * 0.2) return { at: ((from + to) / 2) % total, dir: radial((from + to) / 2) };
+    const a = tan(best.mid);
+    let n = [Math.sin(a), -Math.cos(a)];
+    const p = path.getPointAtLength(best.mid % total);
+    if (n[0] * (p.x - c) + n[1] * (p.y - c) < 0) n = [-n[0], -n[1]];
+    return { at: best.mid % total, dir: n };
   };
 
   // Round caps reach stroke/2 past each dash end, so every pattern below allows
@@ -482,16 +516,17 @@
         .sort((x, y) => x[0] - y[0]);
       const cuts = spans.map(([m]) => m);
 
-      // Insane: a spike off the middle of each steel run of the rail, pointing straight
-      // out from the centre (so on a corner it leaves along the diagonal).
+      // Insane: a spike off each steel run of the rail. It sits mid-way along the run's
+      // longest straight stretch and points square off that edge, so it never sits on a
+      // corner; on a curve (circle) it points straight out from the centre.
       if (level === 'insane' && spans.length) {
         const h = stroke * (compact ? 1.25 : SPIKE_HEIGHT);
         const half = stroke * (compact ? 1 : SPIKE_BASE) / 2;
         const tris = cuts.map((m, i) => {
           const next = cuts[(i + 1) % cuts.length] + (i === cuts.length - 1 ? total : 0);
-          const pt = railPath.getPointAtLength(((m + next) / 2) % total);
-          const len = Math.hypot(pt.x - c, pt.y - c) || 1;
-          const [dx, dy] = [(pt.x - c) / len, (pt.y - c) / len];
+          const { at, dir } = spikeSpot(railPath, c, m, next, total);
+          const pt = railPath.getPointAtLength(at);
+          const [dx, dy] = dir;
           // Base sits just inside the rail's outer edge so the spike grows out of it.
           const bx = pt.x + dx * (stroke / 2 - 0.5);
           const by = pt.y + dy * (stroke / 2 - 0.5);
