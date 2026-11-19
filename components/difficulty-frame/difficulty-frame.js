@@ -93,6 +93,9 @@
       // Insane's arcs would leave only slivers of grey between them; cap them so each
       // grey run is long enough to carry its spike.
       maxLen: { 0: 0.5, 1: 0.5, 2: 0.5, 3: 0.5 },
+      // Blocks sit flush with the rail's outer edge rather than recessed: a recessed
+      // bright arc reads at a smaller radius and makes the circle look oval.
+      flush: true,
       spike: 1.25, // spikes a touch larger: a curve makes them read smaller than on a straight edge
     },
     shield: {
@@ -404,7 +407,9 @@
       const space = custom ? Math.max(Math.round(stroke * SPACING), 2) : step.space;
       const blockW = stroke * (custom ? BLOCK_WEIGHT : step.block);
       // Compact: the block is the rail itself, recoloured.
-      const blockOffset = compact ? 0 : stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
+      const blockOffset = compact ? 0
+        : shape.flush ? (blockW - stroke) / 2 // outer edge on the rail's outer edge
+          : stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
       const accentR = r - blockOffset * shape.ring;
       // The art runs right up to the gap inside the rail, under the recessed blocks.
       const artR = r - (stroke / 2 + space) * shape.ring;
