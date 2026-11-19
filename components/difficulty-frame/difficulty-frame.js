@@ -452,7 +452,9 @@
       const order = (list) => [...list].sort((x, y) => x.at - y.at);
       // Inner lines exist only where the rail opens: on the tier's open sides the rail
       // is cut away behind each one, so it sits in the opening, inset by `space`.
-      const opened = order(placed).filter((p) => tier.open.includes(p.side));
+      // On a completed badge the medallion takes the bottom point's place, so that
+      // anchor drops its inner line and opening instead of piling up under the check.
+      const opened = order(placed).filter((p) => tier.open.includes(p.side) && !(completed && !compact && p.side === 2));
       const aCentres = opened;
       // Chevrons on points stay at the tier length; lines on straight or curved
       // stretches run longer, so they carry as much weight as a chevron.
