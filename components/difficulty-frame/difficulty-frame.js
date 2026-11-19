@@ -51,11 +51,15 @@
   const cssColor = ([name, fallback]) => `var(${name}, ${fallback})`;
 
   // Hand-tuned size steps, like an icon set. A badge uses the largest step that fits its size.
+  // Small steps get whole-pixel gaps, lighter blocks and a gentler slant, so the
+  // notches stay crisp instead of blurring into the art.
+  //   space  gap between rail and block, px · block  block thickness (× stroke) ·
+  //   lean   keystone slant (tan of its angle: 1 = 45°, 0.58 = 30°)
   const STEPS = [
-    { min: 0, stroke: 2 },
-    { min: 64, stroke: 2 },
-    { min: 80, stroke: 3 },
-    { min: 160, stroke: 4 },
+    { min: 0, stroke: 2, space: 2, block: 1.25, lean: 0.58 },
+    { min: 64, stroke: 2, space: 2, block: 1.25, lean: 0.58 },
+    { min: 80, stroke: 3, space: 2, block: 1.5, lean: 1 },
+    { min: 160, stroke: 4, space: 3, block: 1.5, lean: 1 },
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
@@ -103,7 +107,7 @@
   const CSS = `
     htb-difficulty-frame { display: inline-block; line-height: 0; }
     htb-difficulty-frame svg { overflow: visible; }
-    htb-difficulty-frame [data-rail], htb-difficulty-frame [data-accent], htb-difficulty-frame [data-accent-glow] {
+    htb-difficulty-frame [data-rail], htb-difficulty-frame [data-accent], htb-difficulty-frame [data-accent-glow], htb-difficulty-frame [data-accent-back] {
       stroke-dasharray: var(--dash, none); stroke-dashoffset: var(--offset, 0);
       transition: stroke-dasharray .35s cubic-bezier(.3, .8, .3, 1), stroke-dashoffset .35s cubic-bezier(.3, .8, .3, 1);
     }
@@ -112,6 +116,8 @@
       transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1), stroke-dasharray .35s cubic-bezier(.3, .8, .3, 1), stroke-dashoffset .35s cubic-bezier(.3, .8, .3, 1);
     }
     htb-difficulty-frame:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
+    htb-difficulty-frame [data-accent-back] { stroke-width: calc(var(--thick) + 2px); transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1); }
+    htb-difficulty-frame:is(:hover, [selected]) [data-accent-back] { stroke-width: var(--thin); }
     htb-difficulty-frame [data-accents] {
       transform-box: view-box; transform-origin: var(--c) var(--c);
       transition: transform .3s cubic-bezier(.3, 1.4, .5, 1);
@@ -320,7 +326,7 @@
       // Slanted cut ends: lean > 0 narrows the opening going inward (keystone: the inner
       // line is the cut-out piece pushed straight in), < 0 widens it (splayed).
       const LEANS = { angled: -1, keystone: 1, 'keystone-soft': Math.tan(Math.PI / 6) };
-      const lean = this.getAttribute('cuts') === 'square' ? 0 : LEANS[this.getAttribute('cuts')] ?? LEANS.keystone;
+      const lean = this.getAttribute('cuts') === 'square' ? 0 : LEANS[this.getAttribute('cuts')] ?? step.lean;
       const angled = lean !== 0;
       const cap = 0; // flat line ends: dashes and gaps need no allowance
       const form = shapeName;
@@ -337,8 +343,9 @@
       // `space` below the rail's inner edge, so the indent reads. On hover it thins to
       // the rail's own width and slides up into the opening, closing the frame.
       // The art keeps its full size and the blocks overlap its edge.
-      const space = Math.max(stroke * SPACING, 1.5);
-      const blockW = stroke * BLOCK_WEIGHT;
+      const custom = stroke !== step.stroke; // an explicit stroke scales the step's tuning
+      const space = custom ? Math.max(Math.round(stroke * SPACING), 2) : step.space;
+      const blockW = stroke * (custom ? BLOCK_WEIGHT : step.block);
       const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
       const accentR = r - blockOffset * shape.ring;
       // The art runs right up to the gap inside the rail, under the recessed blocks.
@@ -402,6 +409,8 @@
               </g>
               <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
                 <g data-accents>
+                  <!-- A thin outline in the frame colour keeps the block crisp against the art. -->
+                  <path data-accent-back d="${shapePath(shape, c, accentR)}" stroke="var(--htb-frame-bg, #16262c)" stroke-linecap="butt"/>
                   <path data-accent d="${shapePath(shape, c, accentR)}" stroke="${accent}" stroke-width="${blockW}" stroke-linecap="butt"/>
                 </g>
               </g>
@@ -438,7 +447,7 @@
       const lens = opened.map((p) => (shape.points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST)) + slantTrim);
       const glowPath = this.querySelector('[data-accent-glow]');
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
-      else { accentPath.remove(); glowPath.remove(); } // a tier with no open sides is a closed outline
+      else { accentPath.remove(); glowPath.remove(); this.querySelector('[data-accent-back]').remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
 
       const spans = railSpans(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, opened.map((p) => p.at), lens, total, aTotal)
@@ -448,7 +457,7 @@
       if (angled && spans.length) {
         // Angled cuts: the rail stays whole and is masked; each opening is a slanted
         // quad whose two ends run at 45° through the rail and the inner line alike.
-        const depth = stroke / 2 + space + blockW + 1; // reaches past the block
+        const depth = stroke / 2 + space + blockW + 2; // reaches past the block and its outline
         // Outward reach clears the overshoot of a sharp corner's mitre.
         const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, depth, stroke * 1.5 + 1, lean));
         const poly = (q, fill) => `<polygon points="${q.map(([x, y]) => `${x},${y}`).join(' ')}" fill="${fill}"/>`;
@@ -463,7 +472,8 @@
         setDash(railPath, gapsAt(cuts, total, widths, cap, stroke * 2.5));
       }
 
-      ['--dash', '--offset', '--len'].forEach((k) => glowPath.style.setProperty(k, accentPath.style.getPropertyValue(k)));
+      const backPath = this.querySelector('[data-accent-back]');
+      ['--dash', '--offset', '--len'].forEach((k) => [glowPath, backPath].forEach((el) => el?.style.setProperty(k, accentPath.style.getPropertyValue(k))));
       this.fx = { railPath, accentPath, total, aTotal, aCentres: aCentres.map((p) => p.at), aLen, cuts: angled ? [] : cuts, stroke, accentW, cap, level };
       if (animate) queueMicrotask(() => this.play());
     }
