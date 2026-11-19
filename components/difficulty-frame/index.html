@@ -36,8 +36,8 @@
   <div id="large"></div>
   <p class="actions"><button type="button" data-replay-all>Replay all</button></p>
 
-  <h2>Square corners</h2>
-  <p class="note">corners="square": flat line ends, sharp joins, sharp shield shoulders. All frames use keystone 45° cuts by default.</p>
+  <h2>Rounded corners</h2>
+  <p class="note">corners="round": rounded line ends and joins, curved shield shoulders and bottom.</p>
   <div id="square"></div>
 
   <h2>Completed</h2>
@@ -56,7 +56,7 @@
       `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
     document.getElementById('square').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
-      `<figure>${badge(`shape="${s}" difficulty="${l}" corners="square"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
+      `<figure>${badge(`shape="${s}" difficulty="${l}" corners="round"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
     document.getElementById('completed').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       badge(`shape="${s}" difficulty="${l}" size="120" completed static`)).join('')}${levels.map((l) =>

@@ -27,8 +27,8 @@
  *   cuts        keystone | keystone-soft | angled | square   (default: keystone) — slanted ends shared
  *               by the rail and the inner line: keystone 45° (the inner line is the cut-out piece
  *               pushed straight in), keystone-soft 30°, angled 45° splayed the other way
- *   corners     round | square                   (default: round) — square gives flat line ends,
- *               sharp joins and a shield with sharp shoulders
+ *   corners     square | round                   (default: square) — round gives rounded line ends,
+ *               rounded joins and a shield with curved shoulders and bottom
  *
  * Methods
  *   play()      replay the entrance
@@ -62,7 +62,6 @@
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
   const BLOCK_WEIGHT = 1.5;    // thickness of a resting inner block (× stroke)
-  const ART_CLEAR = 1;         // dark ring between accent and art (× stroke)
 
   // Each outline is drawn in a -1..1 box. `sides` are the compass bearings (0 = up,
   // clockwise) of its four anchors: top, right, bottom, left. The matching spot on
@@ -326,7 +325,7 @@
       const step = [...STEPS].reverse().find((s) => size >= s.min);
       const stroke = Number(this.getAttribute('stroke')) || cssNumber(this, '--htb-frame-stroke') || step.stroke;
       const accentW = stroke; // both lines share one weight
-      const square = this.getAttribute('corners') === 'square';
+      const square = this.getAttribute('corners') !== 'round';
       // Slanted cut ends: lean > 0 narrows the opening going inward (keystone: the inner
       // line is the cut-out piece pushed straight in), < 0 widens it (splayed).
       const LEANS = { angled: -1, keystone: 1, 'keystone-soft': Math.tan(Math.PI / 6) };
@@ -352,7 +351,8 @@
       const blockW = stroke * BLOCK_WEIGHT;
       const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
       const accentR = r - blockOffset * shape.ring;
-      const artR = r - (stroke / 2 + space + accentW + stroke * ART_CLEAR) * shape.ring;
+      // The art runs right up to the gap inside the rail, under the recessed blocks.
+      const artR = r - (stroke / 2 + space) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
