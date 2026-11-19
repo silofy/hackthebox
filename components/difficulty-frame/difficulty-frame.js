@@ -27,8 +27,6 @@
  *   cuts        keystone | keystone-soft | angled | square   (default: keystone) — slanted ends shared
  *               by the rail and the inner line: keystone 45° (the inner line is the cut-out piece
  *               pushed straight in), keystone-soft 30°, angled 45° splayed the other way
- *   corners     square | round                   (default: square) — round gives rounded line ends,
- *               rounded joins and a shield with curved shoulders and bottom
  *
  * Methods
  *   play()      replay the entrance
@@ -83,21 +81,15 @@
       points: [],
     },
     shield: {
-      // Heater shield: flat top, rounded shoulders, even taper to the point.
+      // Shield: flat top, sharp shoulders, straight sides and a faceted bottom.
       // Drawn slimmer than its box (x × 0.84) so it reads as a shield, not a badge.
-      // Anchors: top centre, low on each flank, and the bottom point (a chevron).
+      // The facets meet the sides at y 0.45, an angle that puts them as far from the
+      // centre as the sides, so the inner line keeps the same spacing all round.
+      // Anchors: top centre, mid-way up each side, and the bottom point (a chevron).
       ring: 1 / 0.84,
-      // Square version: sharp shoulders and a faceted bottom. The facets meet the sides
-      // at y 0.45, an angle that puts them as far from the centre as the sides, so
-      // the inner line keeps the same spacing all round. Its flank anchors sit mid-way up the
-      // straight sides.
-      square: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(1, -0.86)} L${p(1, 0.45)} `
+      path: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(1, -0.86)} L${p(1, 0.45)} `
         + `L${p(0, 1)} L${p(-1, 0.45)} L${p(-1, -0.86)} Z`; },
-      squareSides: [0, 77, 180, 283],
-      path: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(0.76, -0.86)} Q${p(1, -0.86)} ${p(1, -0.62)} L${p(1, -0.05)} `
-        + `C${p(1, 0.48)} ${p(0.58, 0.8)} ${p(0, 1)} C${p(-0.58, 0.8)} ${p(-1, 0.48)} ${p(-1, -0.05)} `
-        + `L${p(-1, -0.62)} Q${p(-1, -0.86)} ${p(-0.76, -0.86)} Z`; },
-      sides: [0, 107, 180, 253],
+      sides: [0, 77, 180, 283],
       points: [2], // the bottom point carries a chevron
       boost: { 0: 1.4 }, // the top line runs a little shorter so the shoulders stay clear
     },
@@ -149,7 +141,7 @@
   };
 
   // Scale a -1..1 shape around centre c with radius r.
-  const shapePath = (shape, c, r, square) => (square && shape.square ? shape.square : shape.path)((x, y) => `${c + x * r} ${c + y * r}`, r);
+  const shapePath = (shape, c, r) => shape.path((x, y) => `${c + x * r} ${c + y * r}`, r);
 
   // Distance along `path` that points toward `bearing` from the centre.
   const lengthAtBearing = (path, c, bearing) => {
@@ -301,7 +293,7 @@
   };
 
   class HtbDifficultyFrame extends HTMLElement {
-    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'corners', 'cuts'];
+    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'cuts'];
 
     connectedCallback() { injectStyle(); this.render(); }
     attributeChangedCallback(name) {
@@ -325,15 +317,13 @@
       const step = [...STEPS].reverse().find((s) => size >= s.min);
       const stroke = Number(this.getAttribute('stroke')) || cssNumber(this, '--htb-frame-stroke') || step.stroke;
       const accentW = stroke; // both lines share one weight
-      const square = this.getAttribute('corners') !== 'round';
       // Slanted cut ends: lean > 0 narrows the opening going inward (keystone: the inner
       // line is the cut-out piece pushed straight in), < 0 widens it (splayed).
       const LEANS = { angled: -1, keystone: 1, 'keystone-soft': Math.tan(Math.PI / 6) };
       const lean = this.getAttribute('cuts') === 'square' ? 0 : LEANS[this.getAttribute('cuts')] ?? LEANS.keystone;
       const angled = lean !== 0;
-      // Round caps reach stroke/2 past each dash end; flat caps don't, so there's nothing to allow for.
-      const cap = square ? 0 : stroke;
-      const form = `${shapeName}${square ? '-sq' : ''}`;
+      const cap = 0; // flat line ends: dashes and gaps need no allowance
+      const form = shapeName;
       const completed = this.hasAttribute('completed');
       const src = this.getAttribute('src') || '';
       const name = `${level[0].toUpperCase()}${level.slice(1)} difficulty`;
@@ -342,16 +332,16 @@
       this.drawn = true;
 
       const c = size / 2;
-      const r = c - stroke;
-      // At rest each inner piece is a thick block sitting one level down: it starts
-      // `space` below the rail's inner edge, so the indent reads. On hover it thins to
-      // the rail's own width and slides up into the opening, closing the frame.
-      // The art keeps its full size and the blocks overlap its edge.
+      // At rest each piece is a thick block sitting one level out: it starts `space`
+      // beyond the rail's outer edge. On hover it thins to the rail's own width and
+      // slides in to fill its opening, closing the frame.
       const space = Math.max(stroke * SPACING, 1.5);
       const blockW = stroke * BLOCK_WEIGHT;
-      const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
-      const accentR = r - blockOffset * shape.ring;
-      // The art runs right up to the gap inside the rail, under the recessed blocks.
+      const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, outward from the rail's
+      // The rail sits far enough in for the outer blocks to fit inside the box.
+      const r = c - (stroke / 2 + space + blockW) * shape.ring - 1;
+      const accentR = r + blockOffset * shape.ring;
+      // The art runs right up to the gap inside the rail.
       const artR = r - (stroke / 2 + space) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
@@ -359,11 +349,9 @@
       const medR = Math.max(size * 0.12, 8);
       const med = { x: c, y: c + r + stroke / 2 - medR };
 
-      // Completed medallion: a diamond with sharp points to match square corners,
-      // a disc for round ones. The square diamond is scaled up a touch so it reads as
-      // the same visual size as the disc.
+      // Completed medallion: a sharp-pointed diamond, scaled up a touch so it carries
+      // the weight of a disc of radius `rad`.
       const medallion = ({ x, y }, rad, fill) => {
-        if (!square) return `<circle data-disc cx="${x}" cy="${y}" r="${rad}" fill="${fill}"/>`;
         const d = rad * 1.18;
         return `<polygon data-disc points="${x},${y - d} ${x + d},${y} ${x},${y + d} ${x - d},${y}" fill="${fill}"/>`;
       };
@@ -378,9 +366,9 @@
         <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${label}">
           <title>${label}</title>
           <defs>
-            <clipPath id="${id}"><path d="${shapePath(shape, c, artR, square)}"/></clipPath>
+            <clipPath id="${id}"><path d="${shapePath(shape, c, artR)}"/></clipPath>
             <mask id="${id}-m" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
-              <path data-mask d="${shapePath(shape, c, r, square)}" fill="none" stroke="#fff" stroke-width="${stroke * 3}"/>
+              <path data-mask d="${shapePath(shape, c, r)}" fill="none" stroke="#fff" stroke-width="${stroke * 3}"/>
             </mask>
             <filter id="${id}-glow" filterUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <feGaussianBlur in="SourceGraphic" stdDeviation="${Math.max(stroke * 0.8, 1.5)}" result="core"/>
@@ -395,26 +383,26 @@
           </defs>
           <g ${completed ? `mask="url(#${id}-k)"` : ''}>
             <g data-art>
-              <path d="${shapePath(shape, c, artR, square)}" fill="var(--htb-frame-bg, #16262c)"/>
+              <path d="${shapePath(shape, c, artR)}" fill="var(--htb-frame-bg, #16262c)"/>
               ${src ? `<image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
                         preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>` : ''}
             </g>
-            <g fill="none" stroke-linejoin="${square ? 'miter' : 'round'}" stroke-miterlimit="10" stroke-linecap="${square ? 'butt' : 'round'}">
+            <g fill="none" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="butt">
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
-                <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r, square)}" stroke="${rail}" stroke-width="${stroke}"/>
+                <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
               <!-- Slot masks sit outside the moving groups, so a piece pushed out on hover
                    slides into its fixed slot instead of carrying the slot with it. -->
               <g data-glow filter="url(#${id}-glow)">
                 <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
                   <g data-accents>
-                    <path data-accent-glow d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${blockW}" stroke-linecap="butt"/>
+                    <path data-accent-glow d="${shapePath(shape, c, accentR)}" stroke="${accent}" stroke-width="${blockW}" stroke-linecap="butt"/>
                   </g>
                 </g>
               </g>
               <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
                 <g data-accents>
-                  <path data-accent d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${blockW}" stroke-linecap="butt"/>
+                  <path data-accent d="${shapePath(shape, c, accentR)}" stroke="${accent}" stroke-width="${blockW}" stroke-linecap="butt"/>
                 </g>
               </g>
             </g>
@@ -423,7 +411,7 @@
             ${medallion(med, medR, accent)}
             <path pathLength="1" d="M${med.x - medR * 0.42} ${med.y + medR * 0.02} L${med.x - medR * 0.12} ${med.y + medR * 0.32} L${med.x + medR * 0.44} ${med.y - medR * 0.3}"
                   fill="none" stroke="var(--htb-frame-bg, #16262c)" stroke-width="${Math.max(medR * 0.24, 2)}"
-                  stroke-linecap="${square ? 'square' : 'round'}" stroke-linejoin="${square ? 'miter' : 'round'}"/>
+                  stroke-linecap="square" stroke-linejoin="miter"/>
           </g>` : ''}
         </svg>`;
 
@@ -431,7 +419,7 @@
       const accentPath = this.querySelector('[data-accent]');
       const total = railPath.getTotalLength();
       const aTotal = accentPath.getTotalLength();
-      const bearings = (square && shape.squareSides) || shape.sides;
+      const bearings = shape.sides;
       const aSides = sideFractions(`${form}|accent`, accentPath, c, bearings).map((f) => f * aTotal);
 
       // Inner lines: one centred on each open anchor.
@@ -460,9 +448,9 @@
       if (angled && spans.length) {
         // Angled cuts: the rail stays whole and is masked; each opening is a slanted
         // quad whose two ends run at 45° through the rail and the inner line alike.
-        const depth = stroke / 2 + space + blockW + 1; // reaches past the block
+        const depth = stroke / 2 + space + blockW + 1; // reaches out past the block
         // Outward reach clears the overshoot of a sharp corner's mitre.
-        const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, depth, stroke * 1.5 + 1, lean));
+        const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, stroke * 1.5 + 1, depth, -lean));
         const poly = (q, fill) => `<polygon points="${q.map(([x, y]) => `${x},${y}`).join(' ')}" fill="${fill}"/>`;
         const box = `x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}"`;
         this.querySelector('defs').insertAdjacentHTML('beforeend', `
