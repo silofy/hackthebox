@@ -24,9 +24,9 @@
  *   selected    boolean — holds the hover state
  *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
  *   static      boolean — skip the entrance animation
- *   cuts        square | angled                  (default: square) — angled cuts the rail and inner
- *               line ends on one shared 45° line, so each inner line reads as the piece cut
- *               out of the rail and pushed in
+ *   cuts        square | keystone | keystone-soft | angled   (default: square) — slanted ends shared
+ *               by the rail and the inner line: keystone 45° (the inner line is the cut-out piece
+ *               pushed straight in), keystone-soft 30°, angled 45° splayed the other way
  *   corners     round | square                   (default: round) — square gives flat line ends,
  *               sharp joins and a shield with sharp shoulders
  *
@@ -107,20 +107,21 @@
   const CSS = `
     htb-difficulty-frame { display: inline-block; line-height: 0; }
     htb-difficulty-frame svg { overflow: visible; }
-    htb-difficulty-frame [data-rail], htb-difficulty-frame [data-accent] {
+    htb-difficulty-frame [data-rail], htb-difficulty-frame [data-accent], htb-difficulty-frame [data-accent-glow] {
       stroke-dasharray: var(--dash, none); stroke-dashoffset: var(--offset, 0);
       transition: stroke-dasharray .35s cubic-bezier(.3, .8, .3, 1), stroke-dashoffset .35s cubic-bezier(.3, .8, .3, 1);
     }
     htb-difficulty-frame [data-accents] {
       transform-box: view-box; transform-origin: var(--c) var(--c);
-      transition: transform .3s cubic-bezier(.3, 1.4, .5, 1), filter .3s ease;
+      transition: transform .3s cubic-bezier(.3, 1.4, .5, 1);
     }
-    htb-difficulty-frame:is(:hover, [selected]) [data-accents] { filter: drop-shadow(0 0 var(--glow-r) var(--glow)); }
+    /* Glow: a separate bloom layer (tight core + wide halo, see the SVG filter) that
+       fades in, so it is never clipped and never snaps on. Stronger on harder tiers. */
+    htb-difficulty-frame [data-glow] { opacity: 0; transition: opacity .35s ease; }
+    htb-difficulty-frame:is(:hover, [selected]) [data-glow] { opacity: .6; }
+    htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected]) [data-glow] { opacity: 1; }
     htb-difficulty-frame:not([difficulty="easy"]):is(:hover, [selected]) [data-accents] { transform: scale(var(--press)); }
-    htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected]) [data-accents] {
-      filter: drop-shadow(0 0 calc(var(--glow-r) * 1.8) var(--glow));
-    }
-    htb-difficulty-frame[difficulty="insane"]:is(:hover, [selected]) [data-accent] {
+    htb-difficulty-frame[difficulty="insane"]:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) {
       animation: htb-frame-orbit 3.2s cubic-bezier(.6, 0, .4, 1) .35s infinite;
     }
     @keyframes htb-frame-orbit {
@@ -198,11 +199,11 @@
   };
 
   // An opening between rail lengths `from` and `to`, as a polygon that follows the
-  // outline (so it wraps points and curves) with both ends slanted at 45°: they lean
-  // apart going inward, so the inner line comes out a little longer than its opening
-  // and tucks under the slanted rail ends. Reaches `inward` px in and `outward` px out
+  // outline (so it wraps points and curves) with both ends slanted. `k` is the slant
+  // (tan of its angle from square): positive leans the ends together going inward
+  // (keystone), negative leans them apart (splayed). Reaches `inward` px in and `outward` px out
   // from the rail's centreline.
-  const slantedQuad = (path, c, from, to, total, inward, outward) => {
+  const slantedQuad = (path, c, from, to, total, inward, outward, k = -1) => {
     const at = (len) => {
       const l = (len + total) % total;
       const p = path.getPointAtLength(l);
@@ -225,7 +226,7 @@
     for (let i = 0; i <= steps; i += 1) {
       const len = from + (span * i) / steps;
       // Only the two ends lean; the run between follows the outline.
-      const lean = i === 0 ? -1 : i === steps ? 1 : 0;
+      const lean = i === 0 ? k : i === steps ? -k : 0;
       inner.push(offset(len, inward, lean));
       outer.push(offset(len, -outward, -lean));
     }
@@ -314,7 +315,11 @@
       const stroke = Number(this.getAttribute('stroke')) || cssNumber(this, '--htb-frame-stroke') || step.stroke;
       const accentW = stroke; // both lines share one weight
       const square = this.getAttribute('corners') === 'square';
-      const angled = this.getAttribute('cuts') === 'angled';
+      // Slanted cut ends: lean > 0 narrows the opening going inward (keystone: the inner
+      // line is the cut-out piece pushed straight in), < 0 widens it (splayed).
+      const LEANS = { angled: -1, keystone: 1, 'keystone-soft': Math.tan(Math.PI / 6) };
+      const lean = LEANS[this.getAttribute('cuts')] ?? 0;
+      const angled = lean !== 0;
       // Round caps reach stroke/2 past each dash end; flat caps don't, so there's nothing to allow for.
       const cap = square ? 0 : stroke;
       const form = `${shapeName}${square ? '-sq' : ''}`;
@@ -349,6 +354,12 @@
             <mask id="${id}-m" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <path data-mask d="${shapePath(shape, c, r, square)}" fill="none" stroke="#fff" stroke-width="${stroke * 3}"/>
             </mask>
+            <filter id="${id}-glow" filterUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="${Math.max(stroke * 0.8, 1.5)}" result="core"/>
+              <feGaussianBlur in="SourceGraphic" stdDeviation="${Math.max(stroke * 2.6, 4)}" result="wide"/>
+              <feComponentTransfer in="wide" result="halo"><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
+              <feMerge><feMergeNode in="halo"/><feMergeNode in="core"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
             ${completed ? `<mask id="${id}-k" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
               <circle cx="${med.x}" cy="${med.y}" r="${medR + Math.max(stroke * 1.25, 2)}" fill="#000"/>
@@ -364,8 +375,13 @@
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r, square)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
-              <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
-                <g data-accents>
+              <g data-accents>
+                <g data-glow filter="url(#${id}-glow)">
+                  <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
+                    <path data-accent-glow d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
+                  </g>
+                </g>
+                <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
                   <path data-accent d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
                 </g>
               </g>
@@ -394,8 +410,9 @@
       // is cut away behind each one, so it sits in the opening, inset by `space`.
       const opened = order(placed).filter((p) => tier.open.includes(p.side));
       const aCentres = opened;
+      const glowPath = this.querySelector('[data-accent-glow]');
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, aLen, cap));
-      else accentPath.remove(); // a tier with no open sides is a closed outline
+      else { accentPath.remove(); glowPath.remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
 
       const spans = railSpans(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, opened.map((p) => p.at), aLen, total, aTotal)
@@ -407,7 +424,7 @@
         // quad whose two ends run at 45° through the rail and the inner line alike.
         const depth = stroke / 2 + space + accentW + 1; // reaches past the inner line
         // Outward reach clears the overshoot of a sharp corner's mitre.
-        const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, depth, stroke * 1.5 + 1));
+        const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, depth, stroke * 1.5 + 1, lean));
         const poly = (q, fill) => `<polygon points="${q.map(([x, y]) => `${x},${y}`).join(' ')}" fill="${fill}"/>`;
         const box = `x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}"`;
         this.querySelector('defs').insertAdjacentHTML('beforeend', `
@@ -420,6 +437,7 @@
         setDash(railPath, gapsAt(cuts, total, widths, cap, stroke * 2.5));
       }
 
+      ['--dash', '--offset', '--len'].forEach((k) => glowPath.style.setProperty(k, accentPath.style.getPropertyValue(k)));
       this.fx = { railPath, accentPath, total, aTotal, aCentres: aCentres.map((p) => p.at), aLen, cuts: angled ? [] : cuts, stroke, accentW, cap, level };
       if (animate) queueMicrotask(() => this.play());
     }
@@ -489,13 +507,15 @@
         lockAt = accentDelay + growFor;
         if (weight >= 2) {
           const press = getComputedStyle(this).getPropertyValue('--press');
-          const glow = getComputedStyle(accentPath).stroke;
-          const hit = { transform: `scale(${press})`, filter: `drop-shadow(0 0 ${stroke * 2}px ${glow})` };
-          const calm = { transform: 'scale(1)', filter: 'drop-shadow(0 0 0 transparent)' };
+          const hit = { transform: `scale(${press})` };
+          const calm = { transform: 'scale(1)' };
           const lock = sweep
             ? [calm, { ...hit, offset: 0.2 }, { ...calm, offset: 0.45 }, { ...hit, offset: 0.65 }, calm]
             : [calm, { ...hit, offset: 0.35 }, calm];
           accents.animate(lock, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' });
+          // The bloom flashes with each lock.
+          const flash = lock.map((f) => ({ opacity: f.transform === 'scale(1)' ? 0 : 1, offset: f.offset }));
+          this.querySelector('[data-glow]').animate(flash, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' });
         }
       }
 
