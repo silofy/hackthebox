@@ -412,7 +412,11 @@
           : stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
       const accentR = r - blockOffset * shape.ring;
       // The art runs right up to the gap inside the rail, under the recessed blocks.
-      const artR = r - (stroke / 2 + space) * shape.ring;
+      // Double ring: the art keeps the same dark gap inside the inner ring that the
+      // other shapes keep inside their rail.
+      const artR = shape.doubleRing && !compact
+        ? accentR - (stroke / 2 + space) * shape.ring
+        : r - (stroke / 2 + space) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
