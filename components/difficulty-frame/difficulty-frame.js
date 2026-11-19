@@ -24,6 +24,9 @@
  *   selected    boolean — holds the hover state
  *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
  *   static      boolean — skip the entrance animation
+ *   cuts        square | angled                  (default: square) — angled cuts the rail and inner
+ *               line ends on one shared 45° line, so each inner line reads as the piece cut
+ *               out of the rail and pushed in
  *   corners     round | square                   (default: round) — square gives flat line ends,
  *               sharp joins and a shield with sharp shoulders
  *
@@ -194,6 +197,41 @@
     return SPANS.get(key).map(([m, l]) => [m * total, l * total]);
   };
 
+  // An opening between rail lengths `from` and `to`, as a polygon that follows the
+  // outline (so it wraps points and curves) with both ends slanted at 45°: they lean
+  // apart going inward, so the inner line comes out a little longer than its opening
+  // and tucks under the slanted rail ends. Reaches `inward` px in and `outward` px out
+  // from the rail's centreline.
+  const slantedQuad = (path, c, from, to, total, inward, outward) => {
+    const at = (len) => {
+      const l = (len + total) % total;
+      const p = path.getPointAtLength(l);
+      const q = path.getPointAtLength((l + 0.5) % total);
+      let tx = q.x - p.x; let ty = q.y - p.y;
+      const n = Math.hypot(tx, ty) || 1; tx /= n; ty /= n;
+      // Inward normal: the perpendicular that points at the centre.
+      let nx = -ty; let ny = tx;
+      if (nx * (c - p.x) + ny * (c - p.y) < 0) { nx = -nx; ny = -ny; }
+      return { p, tx, ty, nx, ny };
+    };
+    const offset = (len, d, lean) => {
+      const { p, tx, ty, nx, ny } = at(len);
+      return [p.x + nx * d + tx * lean * Math.abs(d), p.y + ny * d + ty * lean * Math.abs(d)];
+    };
+    const span = (to - from + total) % total;
+    const steps = Math.max(2, Math.ceil(span / 2));
+    const inner = [];
+    const outer = [];
+    for (let i = 0; i <= steps; i += 1) {
+      const len = from + (span * i) / steps;
+      // Only the two ends lean; the run between follows the outline.
+      const lean = i === 0 ? -1 : i === steps ? 1 : 0;
+      inner.push(offset(len, inward, lean));
+      outer.push(offset(len, -outward, -lean));
+    }
+    return [...inner, ...outer.reverse()];
+  };
+
   // Round caps reach stroke/2 past each dash end, so every pattern below allows
   // for `cap` (= stroke width) to keep visible gaps and dashes at their exact size.
   // Each returns { dash, offset } for a stroke-dasharray / stroke-dashoffset pair.
@@ -251,7 +289,7 @@
   };
 
   class HtbDifficultyFrame extends HTMLElement {
-    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'corners'];
+    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'corners', 'cuts'];
 
     connectedCallback() { injectStyle(); this.render(); }
     attributeChangedCallback(name) {
@@ -276,6 +314,7 @@
       const stroke = Number(this.getAttribute('stroke')) || cssNumber(this, '--htb-frame-stroke') || step.stroke;
       const accentW = stroke; // both lines share one weight
       const square = this.getAttribute('corners') === 'square';
+      const angled = this.getAttribute('cuts') === 'angled';
       // Round caps reach stroke/2 past each dash end; flat caps don't, so there's nothing to allow for.
       const cap = square ? 0 : stroke;
       const form = `${shapeName}${square ? '-sq' : ''}`;
@@ -322,9 +361,13 @@
                         preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>` : ''}
             </g>
             <g fill="none" stroke-linejoin="${square ? 'miter' : 'round'}" stroke-miterlimit="10" stroke-linecap="${square ? 'butt' : 'round'}">
-              <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r, square)}" stroke="${rail}" stroke-width="${stroke}"/>
-              <g data-accents>
-                <path data-accent d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
+              <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
+                <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r, square)}" stroke="${rail}" stroke-width="${stroke}"/>
+              </g>
+              <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
+                <g data-accents>
+                  <path data-accent d="${shapePath(shape, c, accentR, square)}" stroke="${accent}" stroke-width="${accentW}"/>
+                </g>
               </g>
             </g>
           </g>
@@ -359,9 +402,25 @@
         .sort((x, y) => x[0] - y[0]);
       const cuts = spans.map(([m]) => m);
       const widths = spans.map(([, l]) => l);
-      setDash(railPath, gapsAt(cuts, total, widths, cap, stroke * 2.5));
+      if (angled && spans.length) {
+        // Angled cuts: the rail stays whole and is masked; each opening is a slanted
+        // quad whose two ends run at 45° through the rail and the inner line alike.
+        const depth = stroke / 2 + space + accentW + 1; // reaches past the inner line
+        // Outward reach clears the overshoot of a sharp corner's mitre.
+        const quads = spans.map(([m, l]) => slantedQuad(railPath, c, m - l / 2, m + l / 2, total, depth, stroke * 1.5 + 1));
+        const poly = (q, fill) => `<polygon points="${q.map(([x, y]) => `${x},${y}`).join(' ')}" fill="${fill}"/>`;
+        const box = `x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}"`;
+        this.querySelector('defs').insertAdjacentHTML('beforeend', `
+          <mask id="${id}-cut" maskUnits="userSpaceOnUse" ${box}><rect ${box} fill="#fff"/>${quads.map((q) => poly(q, '#000')).join('')}</mask>
+          <mask id="${id}-keep" maskUnits="userSpaceOnUse" ${box}><rect ${box} fill="#000"/>${quads.map((q) => poly(q, '#fff')).join('')}</mask>`);
+        // The inner line runs a little long; the shared slant trims both ends.
+        setDash(accentPath, dashesAt(aCentres.map((p) => p.at), aTotal, aLen + depth * 2, 0));
+        railPath.style.setProperty('--dash', 'none');
+      } else {
+        setDash(railPath, gapsAt(cuts, total, widths, cap, stroke * 2.5));
+      }
 
-      this.fx = { railPath, accentPath, total, aTotal, aCentres: aCentres.map((p) => p.at), aLen, cuts, stroke, accentW, cap, level };
+      this.fx = { railPath, accentPath, total, aTotal, aCentres: aCentres.map((p) => p.at), aLen, cuts: angled ? [] : cuts, stroke, accentW, cap, level };
       if (animate) queueMicrotask(() => this.play());
     }
 

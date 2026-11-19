@@ -36,6 +36,10 @@
   <div id="large"></div>
   <p class="actions"><button type="button" data-replay-all>Replay all</button></p>
 
+  <h2>Angled cuts</h2>
+  <p class="note">cuts="angled" on the square version: the outer line and the inner line end on one shared 45° cut, so each inner line reads as the piece cut out and pushed in.</p>
+  <div id="angled"></div>
+
   <h2>Square corners</h2>
   <p class="note">corners="square": flat line ends, sharp joins, sharp shield shoulders. Same tiers and motion.</p>
   <div id="square"></div>
@@ -55,6 +59,9 @@
     document.getElementById('large').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
+    document.getElementById('angled').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
+      `<figure>${badge(`shape="${s}" difficulty="${l}" corners="square" cuts="angled"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
+
     document.getElementById('square').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       `<figure>${badge(`shape="${s}" difficulty="${l}" corners="square"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
@@ -68,7 +75,7 @@
 
     document.addEventListener('click', (e) => {
       if (e.target.closest('[data-replay-all]')) {
-        document.querySelectorAll('#large htb-difficulty-frame, #square htb-difficulty-frame').forEach((el) => el.play());
+        document.querySelectorAll('#large htb-difficulty-frame, #square htb-difficulty-frame, #angled htb-difficulty-frame').forEach((el) => el.play());
         return;
       }
       const el = e.target.closest('htb-difficulty-frame');
