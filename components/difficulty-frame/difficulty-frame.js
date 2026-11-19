@@ -4,15 +4,15 @@
  *   <htb-difficulty-frame shape="circle" difficulty="hard" src="art.png" size="96"></htb-difficulty-frame>
  *
  * Every frame is two lines:
- *   rail    a muted, tier-tinted outline, cut beside the accents at more places as difficulty rises
- *   accent  a bright tier-coloured line tucked against the rail's inner edge, centred on
- *           each side and longer as difficulty rises
+ *   rail    a muted, tier-tinted outline
+ *   inner   bright tier-coloured lines, each sitting in an opening cut into the rail,
+ *           inset from it; they exist only where the rail opens
  *
- *   tier     cut accent ends   accent length (share of a side)   entrance / hover weight
- *   easy     0           16%                               light
- *   medium   2           24%                               ↓
- *   hard     4           32%                               ↓
- *   insane   8           40%                               heaviest
+ *   tier     inner lines / openings                      entrance / hover weight
+ *   easy     2 short, on opposite sides                  light
+ *   medium   2 longer, on opposite sides                 ↓
+ *   hard     4, one per side                             ↓
+ *   insane   6, pairs on two opposite sides              heaviest
  *
  * Attributes
  *   difficulty  easy | medium | hard | insane      (default: easy)
@@ -39,12 +39,12 @@
 (() => {
   // Accent = the bright line; rail = the muted outline in the same family.
   const TIERS = {
-    // perSide: inner lines on each side · length: each one, as a share of a side ·
-    // open: sides whose inner lines sit in an opening in the rail
-    easy: { accent: ['--htb-easy', '#22ff66'], rail: ['--htb-easy-rail', '#5f8f7c'], perSide: 1, length: 0.16, open: [] },
-    medium: { accent: ['--htb-medium', '#ff9f2e'], rail: ['--htb-medium-rail', '#a8906f'], perSide: 1, length: 0.24, open: [0, 2] },
-    hard: { accent: ['--htb-hard', '#ff4a3d'], rail: ['--htb-hard-rail', '#9e2229'], perSide: 1, length: 0.32, open: [0, 1, 2, 3] },
-    insane: { accent: ['--htb-insane', '#cf3a2f'], rail: ['--htb-insane-rail', '#8393b0'], perSide: 2, length: 0.17, open: [0, 1, 2, 3] },
+    // open: sides that carry inner lines · pairs: of those, sides with two instead of one ·
+    // length: each inner line, as a share of a side
+    easy: { accent: ['--htb-easy', '#22ff66'], rail: ['--htb-easy-rail', '#5f8f7c'], open: [0, 2], pairs: [], length: 0.16 },
+    medium: { accent: ['--htb-medium', '#ff9f2e'], rail: ['--htb-medium-rail', '#a8906f'], open: [0, 2], pairs: [], length: 0.24 },
+    hard: { accent: ['--htb-hard', '#ff4a3d'], rail: ['--htb-hard-rail', '#9e2229'], open: [0, 1, 2, 3], pairs: [], length: 0.32 },
+    insane: { accent: ['--htb-insane', '#cf3a2f'], rail: ['--htb-insane-rail', '#8393b0'], open: [0, 1, 2, 3], pairs: [0, 2], length: 0.17 },
   };
   const LEVELS = Object.keys(TIERS);
   const cssColor = ([name, fallback]) => `var(${name}, ${fallback})`;
@@ -56,7 +56,7 @@
     { min: 80, stroke: 3 },
     { min: 160, stroke: 4 },
   ];
-  const SPACING = 1;           // px between the rail's inner edge and the inner line
+  const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const PAIR_SPREAD = 0.2;     // insane: distance of each of a side's two inner lines from its centre (share of a side)
   const ART_CLEAR = 1;         // dark ring between accent and art (× stroke)
 
@@ -85,6 +85,9 @@
       // Insane inner lines are shortened here: the top edge is short and full-length
       // pairs nearly meet across it.
       length: { insane: 0.13 },
+      // The top edge is short, so insane's pairs go on the flanks (sides 1 and 2) and
+      // the top carries one line per half: a single pair across it.
+      pairs: { insane: [1, 2] },
       // Square version: sharp shoulders and a faceted bottom. The facets meet the sides
       // at y 0.45, an angle that puts them as far from the centre as the sides, so
       // the inner line keeps the same spacing all round. Its lower accents sit mid-facet.
@@ -292,8 +295,9 @@
       const c = size / 2;
       const r = c - stroke;
       // The accent touches the rail's inner edge; the art clears the accent by one stroke.
-      const accentR = r - (stroke / 2 + SPACING + accentW / 2) * shape.ring;
-      const artR = r - (stroke / 2 + SPACING + accentW + stroke * ART_CLEAR) * shape.ring;
+      const space = Math.max(stroke * SPACING, 1.5);
+      const accentR = r - (stroke / 2 + space + accentW / 2) * shape.ring;
+      const artR = r - (stroke / 2 + space + accentW + stroke * ART_CLEAR) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
@@ -345,19 +349,20 @@
       const bearings = (square && shape.squareSides) || shape.sides;
       const aSides = sideFractions(`${form}|accent`, accentPath, c, bearings).map((f) => f * aTotal);
 
-      // Inner lines: one centred on each side, or a pair either side of centre (insane).
+      // Inner lines: one centred on a side, or a pair either side of its centre.
       const aLen = (aTotal / 4) * (shape.length?.[level] ?? tier.length);
       const spread = (aTotal / 4) * PAIR_SPREAD;
-      const placed = aSides.flatMap((a, side) => (tier.perSide === 2 ? [a - spread, a + spread] : [a])
+      const placed = aSides.flatMap((a, side) => ((shape.pairs?.[level] ?? tier.pairs).includes(side) ? [a - spread, a + spread] : [a])
         .map((p) => ({ at: (p + aTotal) % aTotal, side })));
       const order = (list) => [...list].sort((x, y) => x.at - y.at);
-      const aCentres = order(placed);
-      setDash(accentPath, dashesAt(aCentres.map((p) => p.at), aTotal, aLen, cap));
+      // Inner lines exist only where the rail opens: on the tier's open sides the rail
+      // is cut away behind each one, so it sits in the opening, inset by `space`.
+      const opened = order(placed).filter((p) => tier.open.includes(p.side));
+      const aCentres = opened;
+      if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, aLen, cap));
+      else accentPath.remove(); // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
 
-      // Openings: on the tier's open sides the rail is cut away behind each inner line,
-      // so the inner line sits in the opening, 1px inset.
-      const opened = aCentres.filter((p) => tier.open.includes(p.side));
       const spans = railSpans(`${form}|${level}|${(accentR / r).toFixed(3)}`, railPath, accentPath, opened.map((p) => p.at), aLen, total, aTotal)
         .sort((x, y) => x[0] - y[0]);
       const cuts = spans.map(([m]) => m);
@@ -393,7 +398,9 @@
 
       // Rail.
       let accentDelay = 0;
-      if (weight >= 1) {
+      // A frame without inner lines traces its outline in on its own.
+      const lines = aCentres.length > 0;
+      if (weight >= 1 || !lines) {
         const mask = this.querySelector('[data-mask]');
         railPath.setAttribute('mask', `url(#${railPath.dataset.maskId})`);
         mask.style.strokeDasharray = `${total} ${total}`;
@@ -412,30 +419,33 @@
       }
 
       // Accents grow from each side's centre (insane: sweeping in from a quarter turn back).
-      const settled = rest(accentPath);
-      const seed = dashesAt(aCentres, aTotal, Math.max(cap, 1), cap);
-      const grow = 320 + weight * 80;
-      const sweep = weight === 3;
-      const frames = sweep
-        ? [{ strokeDasharray: seed.dash, strokeDashoffset: seed.offset + aTotal / 4, opacity: 0 },
-          { opacity: 1, offset: 0.15 },
-          { strokeDasharray: seed.dash, strokeDashoffset: seed.offset, offset: 0.55 },
-          { ...settled, opacity: 1 }]
-        : [{ strokeDasharray: seed.dash, strokeDashoffset: seed.offset, opacity: 0 }, { opacity: 1, offset: 0.2 }, { ...settled, opacity: 1 }];
-      const growFor = sweep ? grow + 300 : grow;
-      accentPath.animate(frames, { duration: growFor, delay: accentDelay, easing: ease, fill: 'backwards' });
+      let lockAt = accentDelay + 380; // no inner lines: once the outline has traced in
+      if (lines) {
+        const settled = rest(accentPath);
+        const seed = dashesAt(aCentres, aTotal, Math.max(cap, 1), cap);
+        const grow = 320 + weight * 80;
+        const sweep = weight === 3;
+        const frames = sweep
+          ? [{ strokeDasharray: seed.dash, strokeDashoffset: seed.offset + aTotal / 4, opacity: 0 },
+            { opacity: 1, offset: 0.15 },
+            { strokeDasharray: seed.dash, strokeDashoffset: seed.offset, offset: 0.55 },
+            { ...settled, opacity: 1 }]
+          : [{ strokeDasharray: seed.dash, strokeDashoffset: seed.offset, opacity: 0 }, { opacity: 1, offset: 0.2 }, { ...settled, opacity: 1 }];
+        const growFor = sweep ? grow + 300 : grow;
+        accentPath.animate(frames, { duration: growFor, delay: accentDelay, easing: ease, fill: 'backwards' });
 
-      // Lock: accents press out onto the rail and settle (hard once, insane twice).
-      const lockAt = accentDelay + growFor;
-      if (weight >= 2) {
-        const press = getComputedStyle(this).getPropertyValue('--press');
-        const glow = getComputedStyle(accentPath).stroke;
-        const hit = { transform: `scale(${press})`, filter: `drop-shadow(0 0 ${stroke * 2}px ${glow})` };
-        const calm = { transform: 'scale(1)', filter: 'drop-shadow(0 0 0 transparent)' };
-        const lock = sweep
-          ? [calm, { ...hit, offset: 0.2 }, { ...calm, offset: 0.45 }, { ...hit, offset: 0.65 }, calm]
-          : [calm, { ...hit, offset: 0.35 }, calm];
-        accents.animate(lock, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' });
+        // Lock: accents press out onto the rail and settle (hard once, insane twice).
+        lockAt = accentDelay + growFor;
+        if (weight >= 2) {
+          const press = getComputedStyle(this).getPropertyValue('--press');
+          const glow = getComputedStyle(accentPath).stroke;
+          const hit = { transform: `scale(${press})`, filter: `drop-shadow(0 0 ${stroke * 2}px ${glow})` };
+          const calm = { transform: 'scale(1)', filter: 'drop-shadow(0 0 0 transparent)' };
+          const lock = sweep
+            ? [calm, { ...hit, offset: 0.2 }, { ...calm, offset: 0.45 }, { ...hit, offset: 0.65 }, calm]
+            : [calm, { ...hit, offset: 0.35 }, calm];
+          accents.animate(lock, { duration: sweep ? 720 : 440, delay: lockAt, easing: 'ease-out' });
+        }
       }
 
       if (check) {
