@@ -61,6 +61,7 @@
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
+  const BLOCK_WEIGHT = 1.75;   // thickness of a resting inner block (× stroke)
   const ART_CLEAR = 1;         // dark ring between accent and art (× stroke)
 
   // Each outline is drawn in a -1..1 box. `sides` are the compass bearings (0 = up,
@@ -346,12 +347,12 @@
       // At rest each inner piece is a thick block sitting one level down: it starts
       // `space` below the rail's inner edge, so the indent reads. On hover it thins to
       // the rail's own width and slides up into the opening, closing the frame.
-      // The art clears the block by one stroke.
+      // The art keeps its full size and the blocks overlap its edge.
       const space = Math.max(stroke * SPACING, 1.5);
-      const blockW = stroke + space + accentW;
+      const blockW = stroke * BLOCK_WEIGHT;
       const blockOffset = stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
       const accentR = r - blockOffset * shape.ring;
-      const artR = r - (stroke / 2 + space + blockW + stroke * ART_CLEAR) * shape.ring;
+      const artR = r - (stroke / 2 + space + accentW + stroke * ART_CLEAR) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
       const id = `htb-clip-${Math.random().toString(36).slice(2, 9)}`;
