@@ -93,9 +93,9 @@
       // Insane's arcs would leave only slivers of grey between them; cap them so each
       // grey run is long enough to carry its spike.
       maxLen: { 0: 0.5, 1: 0.5, 2: 0.5, 3: 0.5 },
-      // Blocks sit flush with the rail's outer edge rather than recessed: a recessed
-      // bright arc reads at a smaller radius and makes the circle look oval.
-      flush: true,
+      // Double ring: a second grey ring runs at the blocks' recessed radius, so the
+      // bright arcs sit on a full circle of their own instead of pinching the outline.
+      doubleRing: true,
       spike: 1.25, // spikes a touch larger: a curve makes them read smaller than on a straight edge
     },
     shield: {
@@ -463,6 +463,7 @@
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
+              ${shape.doubleRing && !compact ? `<path data-inner-rail d="${shapePath(shape, c, accentR)}" stroke="${rail}" stroke-width="${stroke}"/>` : ''}
               <g data-spikes fill="${rail}" stroke="none"></g>
               <!-- Slot masks sit outside the moving groups, so a piece pushed out on hover
                    slides into its fixed slot instead of carrying the slot with it. -->
