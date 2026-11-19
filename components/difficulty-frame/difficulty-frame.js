@@ -93,6 +93,7 @@
       // Insane's arcs would leave only slivers of grey between them; cap them so each
       // grey run is long enough to carry its spike.
       maxLen: { 0: 0.5, 1: 0.5, 2: 0.5, 3: 0.5 },
+      spike: 1.25, // spikes a touch larger: a curve makes them read smaller than on a straight edge
     },
     shield: {
       // Shield: flat top, sharp shoulders, straight sides and a faceted bottom.
@@ -531,8 +532,9 @@
       // curve (circle) it points straight out from the centre. The shield's upper two
       // become horns on the shoulder corners.
       if (level === 'insane' && spans.length) {
-        const h = stroke * (compact ? 1.25 : SPIKE_HEIGHT);
-        const half = stroke * (compact ? 1 : SPIKE_BASE) / 2;
+        const grow = shape.spike ?? 1;
+        const h = stroke * (compact ? 1.25 : SPIKE_HEIGHT) * grow;
+        const half = (stroke * (compact ? 1 : SPIKE_BASE) / 2) * grow;
         const full = order(placed).filter((p) => tier.open.includes(p.side));
         const fullSpans = railSpans(spanKey(full), railPath, accentPath, full.map((p) => p.at), full.map(lenFor), total, aTotal)
           .sort((x, y) => x[0] - y[0]);
@@ -544,7 +546,7 @@
           const { at, dir } = spikeSpot(railPath, c, from, to, total);
           // A spike never takes up more than half its grey run, so it reads as part of
           // the line rather than an arrowhead sitting on a stub.
-          const runHalf = Math.min(half, (to - from) * 0.25);
+          const runHalf = Math.min(half, (to - from) * 0.3);
           const height = h * (runHalf / half);
           const pt = railPath.getPointAtLength(at);
           const [dx, dy] = dir;
