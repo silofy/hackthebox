@@ -51,9 +51,9 @@
     document.getElementById('large').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
       `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
-    document.getElementById('completed').innerHTML = shapes.map((s) => `<div class="row">${levels.map((l) =>
-      badge(`shape="${s}" difficulty="${l}" size="120" completed static`)).join('')}${levels.map((l) =>
-      badge(`shape="${s}" difficulty="${l}" size="64" completed static`)).join('')}</div>`).join('');
+    // One row per shape and size, so the small badges never wrap in among the large ones.
+    document.getElementById('completed').innerHTML = shapes.map((s) => [120, 64].map((n) => `<div class="row">${levels.map((l) =>
+      badge(`shape="${s}" difficulty="${l}" size="${n}" completed static`)).join('')}</div>`).join('')).join('');
 
     document.getElementById('steps').innerHTML = levels.map((l) => `<div class="row">${[48, 64, 96, 200].map((n) =>
       badge(`shape="diamond" difficulty="${l}" size="${n}" static`)).join('')}${[48, 64, 96].map((n) =>
