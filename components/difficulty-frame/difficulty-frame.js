@@ -530,8 +530,12 @@
           let pt = railPath.getPointAtLength(at);
           let [dx, dy] = dir;
           if (shape.shoulders && pt.y < c) {
-            pt = { x: c + Math.sign(pt.x - c) * shape.shoulders.x * r, y: c + shape.shoulders.y * r };
-            [dx, dy] = [0, -1];
+            // A horn: its outer side carries the shield's side edge straight up, and it
+            // slopes back down onto the top edge, so the corner itself rises to a point.
+            const side = Math.sign(pt.x - c);
+            const xo = c + side * (shape.shoulders.x * r + stroke / 2); // outer edge of the side
+            const yo = c + shape.shoulders.y * r - stroke / 2 + 0.5; // just inside the top's outer edge
+            return `${xo},${yo} ${xo},${yo - h} ${xo - side * half * 2},${yo}`;
           }
           // Base sits just inside the rail's outer edge so the spike grows out of it.
           const bx = pt.x + dx * (stroke / 2 - 0.5);
