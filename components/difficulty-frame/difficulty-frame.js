@@ -545,18 +545,12 @@
         : shape.flush ? (blockW - stroke) / 2 // outer edge on the rail's outer edge
           : stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
       let accentR = r - blockOffset * shape.ring;
-      // Double ring: the inner ring sits where a recessed block would, and each arc
-      // fills the whole band from the outer ring's outer edge to the inner ring's inner
-      // edge, so it reads as a solid segment of one thick ring.
+      // Double ring: the inner ring sits where a recessed block would.
       const double = shape.doubleRing && !compact;
       const ringR = accentR;
       const ringW = stroke * 0.5;
-      if (double) {
-        const outer = r + stroke / 2;
-        const inner = ringR - ringW / 2;
-        blockW = outer - inner;
-        accentR = (outer + inner) / 2;
-      }
+      // The arcs keep the same block weight as the other shapes and sit centred on the
+      // inner ring, so the circle carries no more colour than the diamond or shield.
       // The art runs right up to the gap inside the rail, under the recessed blocks;
       // with a double ring it keeps that gap inside the inner ring instead.
       const artR = double
