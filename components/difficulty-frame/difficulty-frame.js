@@ -87,9 +87,6 @@
       ring: Math.SQRT2,
       path: (p) => `M${p(0.5, -0.5)} L${p(1, 0)} L${p(0, 1)} L${p(-1, 0)} L${p(0, -1)} Z`,
       // Anchored on its four points, so each inner line is a chevron wrapping round a point.
-      // Chevrons sit flush with the outline (not recessed), so every point stays sharp
-      // and the silhouette reads as a diamond on every tier.
-      flush: true,
       sides: [0, 90, 180, 270],
       points: [0, 1, 2, 3],
     },
