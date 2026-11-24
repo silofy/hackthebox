@@ -479,12 +479,12 @@
       const thin = css.getPropertyValue('--thin');
       const thick = css.getPropertyValue('--thick');
       // One timeline for every layer so nothing drifts: press out (180ms, ease-in),
-      // hold at impact (120ms), settle back with a gentle spring (500ms).
+      // hold at impact (120ms), then ease back without overshoot (500ms).
       const T = 800;
       const hit = 180 / T;
       const hold = 300 / T;
       const out = 'cubic-bezier(.5, 0, .9, .5)';
-      const back = 'cubic-bezier(.25, 1.15, .4, 1)';
+      const back = 'cubic-bezier(.22, .9, .3, 1)'; // settles without overshoot
       const run = (els, a, b) => els.forEach((el) => el.animate([
         { ...a, easing: out }, { ...b, offset: hit }, { ...b, offset: hold, easing: back }, a,
       ], { duration: T }));
