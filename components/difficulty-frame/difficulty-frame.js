@@ -166,25 +166,23 @@
       to { stroke-dashoffset: calc(var(--offset) - var(--len) / 4); }
     }
     /* Machine states (the state attribute). Switching animates; nothing redraws.
-       spawning     powered down; the blocks start sunk deep and dim, and rise towards
-                    their openings once: fast at first, then easing towards (never reaching)
-                    the rail over spawn-time, or tracking the progress attribute
-       spawned      the blocks lock into the rail, and the outline lights in the tier colour and breathes
-       despawning   the blocks sink back down and dim once over despawn-time; the frame powers
-                    off and the art goes grey */
-    htb-difficulty-frame [data-boot] { opacity: 0; transition: opacity .35s ease; }
-    htb-difficulty-frame [data-ticks] { stroke-dasharray: var(--tick) var(--tick-gap); stroke-dashoffset: var(--tick-offset); }
-    /* The progress dash grows from the top (its offset puts its start there) and wraps. */
-    htb-difficulty-frame [data-prog] { stroke-dasharray: 0 var(--len); stroke-dashoffset: var(--start); }
-    /* Progress itself is driven from script (one pass, never looping); the ticks only
-       shimmer so a long boot still looks alive. The bar lingers a moment after spawning
-       ends so its final snap to 100% is seen. */
-    htb-difficulty-frame [data-boot] { transition-delay: .35s; }
-    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-boot] { transition-delay: 0s; }
-    htb-difficulty-frame[state="spawning"] [data-ticks] { animation: htb-frame-alive 1.6s ease-in-out infinite; }
-    @keyframes htb-frame-alive { 50% { opacity: .6; } }
-    /* Spawned: the whole outline powers on in the tier colour and breathes, while the
-       blocks stay in their recess. Hover still closes the frame on top of it. */
+       spawning     a percentage counts up over the art, with SPAWNING under it; the
+                    outline fills clockwise from the top in step with it. It follows
+                    the progress attribute, or an estimate paced by spawn-time that never
+                    reaches 100% until the state moves on
+       spawned      the count completes and fades; the outline stays lit in the tier
+                    colour and breathes
+       despawning   the count runs down with STOPPING under it, the fill drains and the
+                    art goes grey */
+    htb-difficulty-frame [data-boot], htb-difficulty-frame [data-readout] { opacity: 0; transition: opacity .4s ease .4s; }
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) :is([data-boot], [data-readout]) { opacity: 1; transition-delay: 0s; }
+    htb-difficulty-frame [data-readout] text { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+    htb-difficulty-frame [data-art] { transition: filter .6s ease; }
+    htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.5); }
+    htb-difficulty-frame[state="despawning"] [data-art] { filter: grayscale(.85) brightness(.45); }
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-glow] { opacity: 0 !important; }
+    /* Spawned: the whole outline powers on in the tier colour and breathes. Hover still
+       closes the frame on top of it. */
     htb-difficulty-frame :is([data-rail], [data-inner-rail]) { transition: stroke .5s ease, opacity .5s ease; }
     htb-difficulty-frame[state="spawned"] :is([data-rail], [data-inner-rail]) { stroke: var(--glow); }
     htb-difficulty-frame[state="spawned"] [data-glow] { opacity: .8; animation: htb-frame-breathe 2.6s ease-in-out infinite; }
@@ -194,19 +192,6 @@
       0%, 100% { filter: drop-shadow(0 0 0 transparent); }
       50% { filter: drop-shadow(0 0 var(--glow-r) var(--glow)); }
     }
-    htb-difficulty-frame [data-art] { transition: filter .6s ease; }
-    htb-difficulty-frame :is([data-rail], [data-inner-rail], [data-spikes], [data-accents]) { transition: opacity .5s ease, transform .3s cubic-bezier(.3, 1.4, .5, 1), filter .3s ease; }
-    htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.45); }
-    htb-difficulty-frame[state="despawning"] [data-art] { filter: grayscale(.85) brightness(.45); }
-    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) :is([data-rail], [data-inner-rail], [data-spikes]) { opacity: .3; }
-    /* Spawning: blocks start sunk deep and dim, and script raises them towards their
-       openings over spawn-time. Despawning sinks them back. These rules are the resting
-       ends of that motion (and all that shows with reduced motion). */
-    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .15; transform: scale(var(--deep)); }
-    htb-difficulty-frame[state="spawned"] [data-accents] { transform: scale(var(--press)); }
-    htb-difficulty-frame[state="spawned"] :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
-    htb-difficulty-frame[state="spawned"] [data-accent-back] { stroke-width: var(--thin); }
-    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-glow] { opacity: 0 !important; }
     @media (prefers-reduced-motion: reduce) {
       htb-difficulty-frame *, htb-difficulty-frame svg { animation: none !important; transition: none !important; }
     }`;
@@ -408,6 +393,7 @@
     static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'cuts', 'state', 'progress', 'spawn-time', 'despawn-time'];
 
     connectedCallback() { injectStyle(); this.render(); }
+    disconnectedCallback() { cancelAnimationFrame(this.raf); }
     attributeChangedCallback(name) {
       if (!this.isConnected) return;
       // Selected is pure CSS — no need to redraw.
@@ -425,47 +411,61 @@
       this.render();
     }
 
-    // Drives the blocks for the current state. One pass only: spawning raises them to
-    // 85% of the way by spawn-time, then creeps towards 97%; they lock in only when the
-    // state moves on. A progress attribute (0–100) sets the height from real progress.
+    // Drives the spawn readout: one value f (0–1) sets both the percentage and the
+    // outline fill. Spawning follows the progress attribute, or estimates: 85% at
+    // spawn-time, then creeping towards 97%; it reaches 100% only when the state moves
+    // on. Despawning counts down over despawn-time. Nothing loops.
     runProgress() {
-      const groups = [...this.querySelectorAll('[data-accents]')];
-      if (!groups.length) return;
-      const css = getComputedStyle(this);
-      const deep = parseFloat(css.getPropertyValue('--deep'));
-      const press = parseFloat(css.getPropertyValue('--press'));
-      const at = (f) => ({ transform: `scale(${deep + (press - deep) * f})`, opacity: 0.15 + 0.85 * f });
+      const fill = this.querySelector('[data-fill]');
+      if (!fill) return;
+      const len = Number(fill.dataset.len);
+      const pct = this.querySelector('[data-pct]');
+      const stage = this.querySelector('[data-stage]');
+      const show = (f) => {
+        this.f = f;
+        // Period of exactly one outline, so a fill that starts at the top wraps past the path's end.
+        fill.setAttribute('stroke-dasharray', `${len * f} ${len * (1 - f)}`);
+        if (pct) pct.textContent = `${Math.floor(f * 100)}%`;
+      };
       const state = this.getAttribute('state');
       const was = this.lastState;
       this.lastState = state;
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const go = (frames, opts) => {
-        this.progAnims?.forEach((a) => a.cancel());
-        this.progAnims = groups.map((g) => g.animate(frames, { fill: 'forwards', ...opts, duration: reduce ? 1 : opts.duration }));
+      cancelAnimationFrame(this.raf);
+      const from = this.f ?? 0;
+      // Runs fn(elapsed ms) every frame until it returns true.
+      const loop = (fn) => {
+        const t0 = performance.now();
+        const tick = (now) => { if (!fn(now - t0)) this.raf = requestAnimationFrame(tick); };
+        this.raf = requestAnimationFrame(tick);
       };
-      const now = () => ({ transform: getComputedStyle(groups[0]).transform, opacity: getComputedStyle(groups[0]).opacity });
+      const tween = (a, b, ms) => loop((t) => {
+        const k = Math.min(t / ms, 1);
+        show(a + (b - a) * (1 - (1 - k) ** 3));
+        return k === 1;
+      });
       if (state === 'spawning') {
+        if (stage) stage.textContent = 'SPAWNING';
         const p = this.getAttribute('progress');
-        if (p !== null) {
-          const from = was === 'spawning' ? now() : at(0);
-          go([from, at(Math.min(Math.max(+p, 0), 100) / 100)], { duration: 700, easing: 'ease-out' });
-          return;
-        }
-        if (was === 'spawning') return; // already running its single pass
-        const t = (Number(this.getAttribute('spawn-time')) || 60) * 1000;
-        go([{ ...at(0), easing: 'cubic-bezier(.2, .7, .3, 1)' },
-          { ...at(0.85), offset: 0.5, easing: 'cubic-bezier(.3, 0, .7, 1)' },
-          at(0.97)], { duration: t * 2 });
+        if (p !== null) { tween(was === 'spawning' ? from : 0, Math.min(Math.max(+p, 0), 100) / 100, 600); return; }
+        if (was === 'spawning') return; // already estimating
+        const T = (Number(this.getAttribute('spawn-time')) || 60) * 1000;
+        show(0);
+        loop((t) => {
+          const f = t <= T
+            ? 0.85 * (1 - (1 - t / T) ** 2.2)
+            : 0.85 + 0.12 * (1 - Math.exp(-(t - T) / T));
+          show(f);
+          return false;
+        });
       } else if (state === 'despawning') {
-        const t = (Number(this.getAttribute('despawn-time')) || 20) * 1000;
-        go([was === 'spawned' || !was ? at(1) : now(), at(0)], { duration: t, easing: 'cubic-bezier(.45, 0, .55, 1)' });
+        if (stage) stage.textContent = 'STOPPING';
+        const T = (Number(this.getAttribute('despawn-time')) || 20) * 1000;
+        const start = was === 'spawning' ? from : 1;
+        loop((t) => { const k = Math.min(t / T, 1); show(start * (1 - k)); return k === 1; });
+      } else if (was === 'spawning') {
+        tween(from, 1, 400); // up: count completes as the readout fades
       } else {
-        // Up or idle: hand back to CSS. Coming up from spawning, the last stretch into
-        // the rail is a quick snap.
-        const from = was === 'spawning' || was === 'despawning' ? now() : null;
-        this.progAnims?.forEach((a) => a.cancel());
-        this.progAnims = null;
-        if (from && !reduce) groups.forEach((g) => g.animate([from, {}], { duration: was === 'spawning' ? 380 : 500, easing: 'cubic-bezier(.3, 1.4, .5, 1)' }));
+        show(0);
       }
     }
 
@@ -541,7 +541,6 @@
       this.style.setProperty('--glow-r', `${Math.max(stroke, 2)}px`);
       this.style.setProperty('--c', `${c}px`);
       this.style.setProperty('--press', r / accentR);
-      this.style.setProperty('--deep', 0.84); // spawning starts the blocks sunk this far in
       this.style.setProperty('--thick', `${blockW}px`);
       // Scaling out to the rail also widens the stroke a touch, so thin by that much less.
       this.style.setProperty('--thin', `${stroke / (r / accentR)}px`);
@@ -559,9 +558,6 @@
               <feComponentTransfer in="wide" result="halo"><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
               <feMerge><feMergeNode in="halo"/><feMergeNode in="core"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
-            <mask id="${id}-prog" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
-              <path data-prog d="${shapePath(shape, c, r)}" fill="none" stroke="#fff" stroke-width="${stroke * 3}"/>
-            </mask>
             ${completed ? `<mask id="${id}-k" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
               ${medallion(med, medR + step.ring, '#000')}
@@ -578,8 +574,8 @@
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
               ${shape.doubleRing && !compact ? `<path data-inner-rail d="${shapePath(shape, c, accentR)}" stroke="${rail}" stroke-width="${stroke}"/>` : ''}
-              <g data-boot mask="url(#${id}-prog)">
-                <path data-ticks d="${shapePath(shape, c, r)}" stroke="${accent}" stroke-width="${stroke}"/>
+              <g data-boot ${angled ? `mask="url(#${id}-cut)"` : ''}>
+                <path data-fill d="${shapePath(shape, c, r)}" stroke="${accent}" stroke-width="${stroke}" stroke-dasharray="0 1"/>
               </g>
               <g data-spikes fill="${rail}" stroke="none"></g>
               <!-- Slot masks sit outside the moving groups, so a piece pushed out on hover
@@ -606,6 +602,11 @@
                   fill="none" stroke="var(--htb-frame-bg, #16262c)" stroke-width="${Math.max(medR * 0.24, 2)}"
                   stroke-linecap="square" stroke-linejoin="miter"/>
           </g>` : ''}
+          <g data-readout text-anchor="middle" pointer-events="none" aria-hidden="true">
+            <text data-pct x="${c}" y="${c + size * 0.045}" font-size="${size * 0.2}" font-weight="700" fill="#fff">0%</text>
+            <text data-stage x="${c}" y="${c + size * 0.15}" font-size="${Math.max(size * 0.065, 7)}" font-weight="600"
+                  letter-spacing="${size * 0.008}" fill="${accent}">SPAWNING</text>
+          </g>
         </svg>`;
 
       const railPath = this.querySelector('[data-rail]');
@@ -643,18 +644,12 @@
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
       else { accentPath.remove(); glowPath.remove(); this.querySelector('[data-accent-back]').remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
-      // Boot progress: ticks a little longer than the gaps between them, laid out so
-      // a whole number fits round the outline; the fill starts at the top.
-      const tickN = Math.max(12, Math.round(total / (stroke * 3)));
-      const pitch = total / tickN;
-      const ticks = this.querySelector('[data-ticks]');
-      ticks.style.setProperty('--tick', pitch * 0.6);
-      ticks.style.setProperty('--tick-gap', pitch * 0.4);
-      const top = sideFractions(`${form}|rail`, railPath, c, [0])[0] * total;
-      ticks.style.setProperty('--tick-offset', -top);
-      const prog = this.querySelector('[data-prog]');
-      prog.style.setProperty('--len', total);
-      prog.style.setProperty('--start', -top);
+      // Spawn readout: the fill line starts at the top of the outline.
+      const fill = this.querySelector('[data-fill]');
+      fill.dataset.len = total;
+      fill.setAttribute('stroke-dashoffset', -sideFractions(`${form}|rail`, railPath, c, [0])[0] * total);
+      this.hideReadout = compact; // too small to read a number
+      if (compact) this.querySelector('[data-readout]').remove();
       this.lastState = null;
       this.runProgress();
 
