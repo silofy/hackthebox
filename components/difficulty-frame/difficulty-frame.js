@@ -136,12 +136,12 @@
       stroke-width: var(--thick);
       transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1), stroke-dasharray .35s cubic-bezier(.3, .8, .3, 1), stroke-dashoffset .35s cubic-bezier(.3, .8, .3, 1);
     }
-    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
+    htb-difficulty-frame:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
     htb-difficulty-frame [data-accent-back] { stroke-width: calc(var(--thick) + 2px); transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1); }
-    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) [data-accent-back] { stroke-width: var(--thin); }
+    htb-difficulty-frame:is(:hover, [selected]) [data-accent-back] { stroke-width: var(--thin); }
     /* Insane spikes extend a little on hover. */
     htb-difficulty-frame [data-spikes] polygon { transform-box: fill-box; transform-origin: center; transition: transform .3s cubic-bezier(.3, 1.4, .5, 1); }
-    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) [data-spikes] polygon { transform: scale(1.25); }
+    htb-difficulty-frame:is(:hover, [selected]) [data-spikes] polygon { transform: scale(1.25); }
     /* Split pieces (hard, insane) move in layers: each waits its --delay. */
     htb-difficulty-frame [data-accents][data-split],
     htb-difficulty-frame [data-accents][data-split] :is([data-accent], [data-accent-glow], [data-accent-back]) { transition-delay: var(--delay, 0s); }
@@ -152,10 +152,10 @@
     /* Glow: a separate bloom layer (tight core + wide halo, see the SVG filter) that
        fades in, so it is never clipped and never snaps on. Stronger on harder tiers. */
     htb-difficulty-frame [data-glow] { opacity: 0; transition: opacity .35s ease; }
-    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) [data-glow] { opacity: .6; }
-    htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected], [state="spawned"]) [data-glow] { opacity: 1; }
-    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) [data-accents] { transform: scale(var(--press)); }
-    htb-difficulty-frame[difficulty="insane"]:is(:hover, [selected], [state="spawned"]) :is([data-accent], [data-accent-glow]) {
+    htb-difficulty-frame:is(:hover, [selected]) [data-glow] { opacity: .6; }
+    htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected]) [data-glow] { opacity: 1; }
+    htb-difficulty-frame:is(:hover, [selected]) [data-accents] { transform: scale(var(--press)); }
+    htb-difficulty-frame[difficulty="insane"]:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) {
       animation: htb-frame-orbit 3.2s cubic-bezier(.6, 0, .4, 1) .35s infinite;
     }
     @keyframes htb-frame-orbit {
@@ -165,7 +165,7 @@
     /* Machine states (the state attribute). Switching animates; nothing redraws.
        spawning     powered down to a dim track; a segmented progress bar fills clockwise
                     from the top, holds, and repeats until the machine is up
-       spawned      everything powers on: the frame locks closed with a slow breathing bloom
+       spawned      everything powers on: the outline lights in the tier colour and breathes
        despawning   the progress bar starts full and drains anticlockwise; the frame powers
                     off and the art goes grey */
     htb-difficulty-frame [data-boot] { opacity: 0; transition: opacity .35s ease; }
@@ -179,8 +179,17 @@
       0% { stroke-dasharray: 0 var(--len); }
       80%, 100% { stroke-dasharray: var(--len) 0; }
     }
-    htb-difficulty-frame[state="spawned"] [data-glow] { animation: htb-frame-breathe 2.6s ease-in-out infinite; }
-    @keyframes htb-frame-breathe { 50% { opacity: .45; } }
+    /* Spawned: the whole outline powers on in the tier colour and breathes, while the
+       blocks stay in their recess. Hover still closes the frame on top of it. */
+    htb-difficulty-frame :is([data-rail], [data-inner-rail]) { transition: stroke .5s ease, opacity .5s ease; }
+    htb-difficulty-frame[state="spawned"] :is([data-rail], [data-inner-rail]) { stroke: var(--glow); }
+    htb-difficulty-frame[state="spawned"] [data-glow] { opacity: .8; animation: htb-frame-breathe 2.6s ease-in-out infinite; }
+    htb-difficulty-frame[state="spawned"] svg { animation: htb-frame-live 2.6s ease-in-out infinite; }
+    @keyframes htb-frame-breathe { 50% { opacity: .35; } }
+    @keyframes htb-frame-live {
+      0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+      50% { filter: drop-shadow(0 0 var(--glow-r) var(--glow)); }
+    }
     htb-difficulty-frame [data-art] { transition: filter .6s ease; }
     htb-difficulty-frame :is([data-rail], [data-inner-rail], [data-spikes], [data-accents]) { transition: opacity .5s ease, transform .3s cubic-bezier(.3, 1.4, .5, 1), filter .3s ease; }
     htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.45); }
