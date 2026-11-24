@@ -21,7 +21,8 @@
       border: 1px solid #3a4a66; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
     .actions button:hover { border-color: #a4b1cd; }
     .actions button:focus-visible { outline: 2px solid #a4b1cd; outline-offset: 2px; }
-  </style>
+      #cycle figcaption { min-width: 7em; text-align: center; }
+</style>
   <script src="difficulty-frame.js" defer></script>
 </head>
 <body>
@@ -35,6 +36,11 @@
   </div>
   <div id="large"></div>
   <p class="actions"><button type="button" data-replay-all>Replay all</button></p>
+
+  <h2>Machine states</h2>
+  <p class="note">Idle, spawning, spawned and de-spawning, set with the state attribute. Completed combines with any of them. The bottom row runs the full lifecycle on a loop.</p>
+  <div id="states"></div>
+  <div class="row" id="cycle"></div>
 
   <h2>Completed</h2>
   <p class="note">A check medallion takes the place of the bottom point; the rest of the tier pattern stays.</p>
@@ -52,6 +58,28 @@
       `<figure>${badge(`shape="${s}" difficulty="${l}"`)}<figcaption>${l[0].toUpperCase() + l.slice(1)}</figcaption></figure>`).join('')}</div>`).join('');
 
     // One row per shape and size, so the small badges never wrap in among the large ones.
+    const STATES = [['', 'Idle'], ['spawning', 'Spawning'], ['spawned', 'Spawned'], ['despawning', 'De-spawning']];
+    document.getElementById('states').innerHTML = shapes.map((s) => `<div class="row">${STATES.map(([k, t]) =>
+      `<figure>${badge(`shape="${s}" difficulty="hard" size="120" static ${k ? `state="${k}"` : ''}`)}<figcaption>${t}</figcaption></figure>`).join('')}
+      <figure>${badge(`shape="${s}" difficulty="hard" size="120" static state="spawned" completed`)}<figcaption>Spawned + completed</figcaption></figure></div>`).join('');
+
+    // Live lifecycle: idle → spawning → spawned → de-spawning → idle.
+    const cycle = document.getElementById('cycle');
+    cycle.innerHTML = levels.map((l, i) => `<figure>${badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" static`)}<figcaption>Idle</figcaption></figure>`).join('');
+    const LOOP = [['', 'Idle', 1400], ['spawning', 'Spawning', 2600], ['spawned', 'Spawned', 2600], ['despawning', 'De-spawning', 2000]];
+    let step = 0;
+    const advance = () => {
+      const [k, t, ms] = LOOP[step];
+      cycle.querySelectorAll('figure').forEach((f) => {
+        const el = f.querySelector('htb-difficulty-frame');
+        if (k) el.setAttribute('state', k); else el.removeAttribute('state');
+        f.querySelector('figcaption').textContent = t;
+      });
+      step = (step + 1) % LOOP.length;
+      setTimeout(advance, ms);
+    };
+    advance();
+
     document.getElementById('completed').innerHTML = shapes.map((s) => [120, 64].map((n) => `<div class="row">${levels.map((l) =>
       badge(`shape="${s}" difficulty="${l}" size="${n}" completed static`)).join('')}</div>`).join('')).join('');
 

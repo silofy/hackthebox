@@ -24,6 +24,8 @@
  *   selected    boolean — holds the hover state
  *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
  *   static      boolean — skip the entrance animation
+ *   state       idle | spawning | spawned | despawning   (default: idle) — machine lifecycle;
+ *               combines with completed, and changes animate without a redraw
  *   cuts        keystone | keystone-soft | angled | square   (default: keystone) — slanted ends shared
  *               by the rail and the inner line: keystone 45° (the inner line is the cut-out piece
  *               pushed straight in), keystone-soft 30°, angled 45° splayed the other way
@@ -134,12 +136,12 @@
       stroke-width: var(--thick);
       transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1), stroke-dasharray .35s cubic-bezier(.3, .8, .3, 1), stroke-dashoffset .35s cubic-bezier(.3, .8, .3, 1);
     }
-    htb-difficulty-frame:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
+    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
     htb-difficulty-frame [data-accent-back] { stroke-width: calc(var(--thick) + 2px); transition: stroke-width .3s cubic-bezier(.3, .8, .3, 1); }
-    htb-difficulty-frame:is(:hover, [selected]) [data-accent-back] { stroke-width: var(--thin); }
+    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) [data-accent-back] { stroke-width: var(--thin); }
     /* Insane spikes extend a little on hover. */
     htb-difficulty-frame [data-spikes] polygon { transform-box: fill-box; transform-origin: center; transition: transform .3s cubic-bezier(.3, 1.4, .5, 1); }
-    htb-difficulty-frame:is(:hover, [selected]) [data-spikes] polygon { transform: scale(1.25); }
+    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) [data-spikes] polygon { transform: scale(1.25); }
     /* Split pieces (hard, insane) move in layers: each waits its --delay. */
     htb-difficulty-frame [data-accents][data-split],
     htb-difficulty-frame [data-accents][data-split] :is([data-accent], [data-accent-glow], [data-accent-back]) { transition-delay: var(--delay, 0s); }
@@ -150,16 +152,37 @@
     /* Glow: a separate bloom layer (tight core + wide halo, see the SVG filter) that
        fades in, so it is never clipped and never snaps on. Stronger on harder tiers. */
     htb-difficulty-frame [data-glow] { opacity: 0; transition: opacity .35s ease; }
-    htb-difficulty-frame:is(:hover, [selected]) [data-glow] { opacity: .6; }
-    htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected]) [data-glow] { opacity: 1; }
-    htb-difficulty-frame:is(:hover, [selected]) [data-accents] { transform: scale(var(--press)); }
-    htb-difficulty-frame[difficulty="insane"]:is(:hover, [selected]) :is([data-accent], [data-accent-glow]) {
+    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) [data-glow] { opacity: .6; }
+    htb-difficulty-frame:is([difficulty="hard"], [difficulty="insane"]):is(:hover, [selected], [state="spawned"]) [data-glow] { opacity: 1; }
+    htb-difficulty-frame:is(:hover, [selected], [state="spawned"]) [data-accents] { transform: scale(var(--press)); }
+    htb-difficulty-frame[difficulty="insane"]:is(:hover, [selected], [state="spawned"]) :is([data-accent], [data-accent-glow]) {
       animation: htb-frame-orbit 3.2s cubic-bezier(.6, 0, .4, 1) .35s infinite;
     }
     @keyframes htb-frame-orbit {
       from { stroke-dashoffset: var(--offset); }
       to { stroke-dashoffset: calc(var(--offset) - var(--len) / 4); }
     }
+    /* Machine states (the state attribute). Switching animates; nothing redraws.
+       spawning     a tier-coloured light runs clockwise round the rail; blocks pulse
+       spawned      the frame holds closed (the hover look) with a slow breathing bloom
+       despawning   the light runs back, slower; lines and art dim and desaturate */
+    htb-difficulty-frame [data-sweep] {
+      opacity: 0; transition: opacity .4s ease;
+      stroke-dasharray: calc(var(--len) * .16) var(--len);
+    }
+    htb-difficulty-frame[state="spawning"] [data-sweep] { opacity: 1; animation: htb-frame-sweep 1.2s linear infinite; }
+    htb-difficulty-frame[state="despawning"] [data-sweep] { opacity: .7; animation: htb-frame-sweep 1.8s linear infinite reverse; }
+    @keyframes htb-frame-sweep { from { stroke-dashoffset: 0; } to { stroke-dashoffset: calc(var(--len) * -1); } }
+    htb-difficulty-frame[state="spawning"] [data-accents] { animation: htb-frame-pulse 1.2s ease-in-out infinite; }
+    @keyframes htb-frame-pulse { 50% { opacity: .35; } }
+    htb-difficulty-frame[state="spawned"] [data-glow] { animation: htb-frame-breathe 2.6s ease-in-out infinite; }
+    @keyframes htb-frame-breathe { 50% { opacity: .45; } }
+    htb-difficulty-frame [data-art], htb-difficulty-frame [data-rail], htb-difficulty-frame [data-inner-rail],
+    htb-difficulty-frame [data-spikes], htb-difficulty-frame [data-accents] { transition-property: transform, filter, opacity, stroke-width; }
+    htb-difficulty-frame [data-art] { transition: filter .6s ease, opacity .6s ease; }
+    htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.8); }
+    htb-difficulty-frame[state="despawning"] [data-art] { filter: grayscale(.8) brightness(.55); }
+    htb-difficulty-frame[state="despawning"] :is([data-rail], [data-inner-rail], [data-spikes], [data-accents]) { opacity: .45; transition: opacity .6s ease; }
     @media (prefers-reduced-motion: reduce) {
       htb-difficulty-frame *, htb-difficulty-frame svg { animation: none !important; transition: none !important; }
     }`;
@@ -358,7 +381,7 @@
   };
 
   class HtbDifficultyFrame extends HTMLElement {
-    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'cuts'];
+    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'cuts', 'state'];
 
     connectedCallback() { injectStyle(); this.render(); }
     attributeChangedCallback(name) {
@@ -368,7 +391,21 @@
         this.setAttribute('aria-pressed', this.hasAttribute('selected'));
         return;
       }
+      // State is pure CSS too, so changes animate; only the accessible name updates.
+      if (name === 'state') {
+        const svg = this.querySelector('svg');
+        if (svg) svg.setAttribute('aria-label', this.accessibleName());
+        return;
+      }
       this.render();
+    }
+
+    // e.g. "Hard difficulty, spawning, completed"
+    accessibleName() {
+      const level = this.getAttribute('difficulty') || 'easy';
+      const STATES = { spawning: 'spawning', spawned: 'spawned', despawning: 'shutting down' };
+      return this.getAttribute('label') || [`${level[0].toUpperCase()}${level.slice(1)} difficulty`,
+        STATES[this.getAttribute('state')], this.hasAttribute('completed') && 'completed'].filter(Boolean).join(', ');
     }
 
     render() {
@@ -393,7 +430,7 @@
       const completed = this.hasAttribute('completed');
       const src = this.getAttribute('src') || '';
       const name = `${level[0].toUpperCase()}${level.slice(1)} difficulty`;
-      const label = this.getAttribute('label') || (completed ? `${name}, completed` : name);
+      const label = this.accessibleName();
       const animate = !this.hasAttribute('static') && !this.drawn;
       this.drawn = true;
 
@@ -468,6 +505,7 @@
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
               ${shape.doubleRing && !compact ? `<path data-inner-rail d="${shapePath(shape, c, accentR)}" stroke="${rail}" stroke-width="${stroke}"/>` : ''}
+              <path data-sweep d="${shapePath(shape, c, r)}" stroke="${accent}" stroke-width="${stroke}" filter="url(#${id}-glow)"/>
               <g data-spikes fill="${rail}" stroke="none"></g>
               <!-- Slot masks sit outside the moving groups, so a piece pushed out on hover
                    slides into its fixed slot instead of carrying the slot with it. -->
@@ -530,6 +568,7 @@
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
       else { accentPath.remove(); glowPath.remove(); this.querySelector('[data-accent-back]').remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
+      this.querySelector('[data-sweep]').style.setProperty('--len', total);
 
       const spans = railSpans(spanKey(opened), railPath, accentPath, opened.map((p) => p.at), lens, total, aTotal)
         .sort((x, y) => x[0] - y[0]);
