@@ -223,8 +223,8 @@
     const total = path.getTotalLength();
     let best = 0;
     let bestDiff = Infinity;
-    for (let i = 0; i < 720; i += 1) {
-      const len = (total * i) / 720;
+    for (let i = 0; i < 240; i += 1) {
+      const len = (total * i) / 240;
       const pt = path.getPointAtLength(len);
       const a = (Math.atan2(pt.x - c, c - pt.y) * 180) / Math.PI;
       const diff = Math.abs(((a - bearing + 540) % 360) - 180);
@@ -248,12 +248,17 @@
   const nearestLength = (path, pt, around, window, total) => {
     let best = around;
     let bestD = Infinity;
-    for (let i = -60; i <= 60; i += 1) {
-      const len = (around + (window * i) / 60 + total) % total;
-      const q = path.getPointAtLength(len);
-      const d = (q.x - pt.x) ** 2 + (q.y - pt.y) ** 2;
-      if (d < bestD) { bestD = d; best = len; }
-    }
+    // Coarse pass, then a fine pass around the best: far fewer samples on slow curves.
+    const scan = (centre, span, n) => {
+      for (let i = -n; i <= n; i += 1) {
+        const len = (centre + (span * i) / n + total) % total;
+        const q = path.getPointAtLength(len);
+        const d = (q.x - pt.x) ** 2 + (q.y - pt.y) ** 2;
+        if (d < bestD) { bestD = d; best = len; }
+      }
+    };
+    scan(around, window, 12);
+    scan(best, window / 12, 10);
     return best;
   };
 
@@ -261,6 +266,7 @@
   // straight across onto the rail (its closest point), so the opening matches the
   // line exactly. Returned as [centre, length] pairs; cached as shares of the outline.
   const SPANS = new Map();
+  const SPIKES = new Map();
   const railSpans = (key, rail, accent, aCentres, aLen, total, aTotal) => {
     if (!SPANS.has(key)) {
       SPANS.set(key, aCentres.map((a, i) => {
@@ -724,7 +730,11 @@
           const from = m + l / 2;
           let to = m2 - l2 / 2;
           if (to <= from) to += total;
-          const { at, dir } = spikeSpot(railPath, c, from, to, total);
+          // Cached as shares of the outline: measuring curves is slow.
+          const sk = `${spanKey(full)}|${i}`;
+          if (!SPIKES.has(sk)) { const v = spikeSpot(railPath, c, from, to, total); SPIKES.set(sk, { at: v.at / total, dir: v.dir }); }
+          const { at: atF, dir } = SPIKES.get(sk);
+          const at = atF * total;
           // A spike never takes up more than half its grey run, so it reads as part of
           // the line rather than an arrowhead sitting on a stub.
           const runHalf = Math.min(half, (to - from) * 0.3);
