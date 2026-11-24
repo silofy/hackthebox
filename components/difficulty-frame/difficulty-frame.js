@@ -219,7 +219,11 @@
   };
 
   // Scale a -1..1 shape around centre c with radius r.
-  const shapePath = (shape, c, r) => shape.path((x, y) => `${c + x * r} ${c + y * r}`, r);
+  // Points snap to the pixel grid (whole pixels for an even stroke, half pixels for an
+  // odd one), so straight edges render crisp instead of smearing across two pixels.
+  let SNAP = 0;
+  const snap = (v) => Math.round(v - SNAP) + SNAP;
+  const shapePath = (shape, c, r) => shape.path((x, y) => `${snap(c + x * r)} ${snap(c + y * r)}`, r);
 
   // Distance along `path` that points toward `bearing` from the centre.
   const lengthAtBearing = (path, c, bearing) => {
@@ -414,7 +418,27 @@
     static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'cuts', 'state', 'progress', 'spawn-time', 'despawn-time'];
 
     connectedCallback() { injectStyle(); this.render(); }
-    disconnectedCallback() { cancelAnimationFrame(this.raf); }
+    disconnectedCallback() { cancelAnimationFrame(this.raf); this.ro?.disconnect(); }
+
+    // Layout can place the badge between device pixels (e.g. centred in a cell), which
+    // blurs every edge. Nudge the drawing by the sub-pixel remainder so it sits on the grid.
+    alignToPixels() {
+      const svg = this.querySelector('svg');
+      if (!svg) return;
+      const fix = () => {
+        svg.style.translate = '';
+        const dpr = window.devicePixelRatio || 1;
+        const b = svg.getBoundingClientRect();
+        const dx = Math.round(b.left * dpr) / dpr - b.left;
+        const dy = Math.round(b.top * dpr) / dpr - b.top;
+        if (dx || dy) svg.style.translate = `${dx}px ${dy}px`;
+      };
+      requestAnimationFrame(fix);
+      if (!this.ro && 'ResizeObserver' in window) {
+        this.ro = new ResizeObserver(() => requestAnimationFrame(fix));
+        this.ro.observe(document.documentElement);
+      }
+    }
     attributeChangedCallback(name) {
       if (!this.isConnected) return;
       // Selected is pure CSS — no need to redraw.
@@ -542,6 +566,7 @@
       const animate = this.hasAttribute('entrance') && !this.hasAttribute('static') && !this.drawn;
       this.drawn = true;
 
+      SNAP = (stroke % 2) / 2;
       const c = size / 2;
       const r = c - stroke;
       // At rest each inner piece is a thick block sitting one level down: it starts
@@ -825,6 +850,7 @@
 
       this.fx = { railPath, accentPath, total, aTotal, aCentres: aCentres.map((p) => p.at), aLen, cuts: angled ? [] : cuts, stroke, accentW, cap, level };
       if (animate) queueMicrotask(() => this.play());
+      this.alignToPixels();
     }
 
     // Entrance. Weight escalates with difficulty, each tier adding a beat to the one before:
