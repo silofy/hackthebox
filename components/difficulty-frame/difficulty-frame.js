@@ -166,13 +166,13 @@
       to { stroke-dashoffset: calc(var(--offset) - var(--len) / 4); }
     }
     /* Machine states (the state attribute). Switching animates; nothing redraws.
-       spawning     a percentage counts up over the art, with SPAWNING under it; the
+       spawning     a percentage counts up, centred over the art; the
                     outline fills clockwise from the top in step with it. It follows
                     the progress attribute, or an estimate paced by spawn-time that never
                     reaches 100% until the state moves on
        spawned      the count completes and fades; the outline stays lit in the tier
                     colour and breathes
-       despawning   the count runs down with STOPPING under it, the fill drains and the
+       despawning   the count runs down, the fill drains and the
                     art goes grey */
     htb-difficulty-frame [data-boot], htb-difficulty-frame [data-readout] { opacity: 0; transition: opacity .4s ease .4s; }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) :is([data-boot], [data-readout]) { opacity: 1; transition-delay: 0s; }
@@ -420,7 +420,6 @@
       if (!fill) return;
       const len = Number(fill.dataset.len);
       const pct = this.querySelector('[data-pct]');
-      const stage = this.querySelector('[data-stage]');
       const show = (f) => {
         this.f = f;
         // Period of exactly one outline, so a fill that starts at the top wraps past the path's end.
@@ -444,7 +443,6 @@
         return k === 1;
       });
       if (state === 'spawning') {
-        if (stage) stage.textContent = 'SPAWNING';
         const p = this.getAttribute('progress');
         if (p !== null) { tween(was === 'spawning' ? from : 0, Math.min(Math.max(+p, 0), 100) / 100, 600); return; }
         if (was === 'spawning') return; // already estimating
@@ -458,7 +456,6 @@
           return false;
         });
       } else if (state === 'despawning') {
-        if (stage) stage.textContent = 'STOPPING';
         const T = (Number(this.getAttribute('despawn-time')) || 20) * 1000;
         const start = was === 'spawning' ? from : 1;
         loop((t) => { const k = Math.min(t / T, 1); show(start * (1 - k)); return k === 1; });
@@ -603,9 +600,7 @@
                   stroke-linecap="square" stroke-linejoin="miter"/>
           </g>` : ''}
           <g data-readout text-anchor="middle" pointer-events="none" aria-hidden="true">
-            <text data-pct x="${c}" y="${c + size * 0.045}" font-size="${size * 0.2}" font-weight="700" fill="#fff">0%</text>
-            <text data-stage x="${c}" y="${c + size * 0.15}" font-size="${Math.max(size * 0.065, 7)}" font-weight="600"
-                  letter-spacing="${size * 0.008}" fill="${accent}">SPAWNING</text>
+            <text data-pct x="${c}" y="${c}" dominant-baseline="central" font-size="${size * 0.2}" font-weight="700" fill="#fff">0%</text>
           </g>
         </svg>`;
 
