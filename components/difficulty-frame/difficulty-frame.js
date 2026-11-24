@@ -26,6 +26,9 @@
  *   static      boolean — skip the entrance animation
  *   state       idle | spawning | spawned | despawning   (default: idle) — machine lifecycle;
  *               combines with completed, and changes animate without a redraw
+ *   spawn-time  expected spawn duration in seconds   (default: 60) — paces the boot bar
+ *   despawn-time  expected shutdown duration in seconds (default: 20)
+ *   progress    0–100 — real spawn progress, if known; overrides the estimate
  *   cuts        keystone | keystone-soft | angled | square   (default: keystone) — slanted ends shared
  *               by the rail and the inner line: keystone 45° (the inner line is the cut-out piece
  *               pushed straight in), keystone-soft 30°, angled 45° splayed the other way
@@ -164,21 +167,24 @@
     }
     /* Machine states (the state attribute). Switching animates; nothing redraws.
        spawning     powered down to a dim track; a segmented progress bar fills clockwise
-                    from the top, holds, and repeats until the machine is up
+                    from the top once: fast at first, then easing towards (never reaching)
+                    full over spawn-time, or tracking the progress attribute
        spawned      everything powers on: the outline lights in the tier colour and breathes
-       despawning   the progress bar starts full and drains anticlockwise; the frame powers
+       despawning   the progress bar starts full and drains anticlockwise once over
+                    despawn-time; the frame powers
                     off and the art goes grey */
     htb-difficulty-frame [data-boot] { opacity: 0; transition: opacity .35s ease; }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-boot] { opacity: 1; }
     htb-difficulty-frame [data-ticks] { stroke-dasharray: var(--tick) var(--tick-gap); stroke-dashoffset: var(--tick-offset); }
     /* The progress dash grows from the top (its offset puts its start there) and wraps. */
     htb-difficulty-frame [data-prog] { stroke-dasharray: 0 var(--len); stroke-dashoffset: var(--start); }
-    htb-difficulty-frame[state="spawning"] [data-prog] { animation: htb-frame-boot 2.6s cubic-bezier(.45, 0, .55, 1) infinite; }
-    htb-difficulty-frame[state="despawning"] [data-prog] { animation: htb-frame-boot 2s cubic-bezier(.45, 0, .55, 1) infinite reverse; }
-    @keyframes htb-frame-boot {
-      0% { stroke-dasharray: 0 var(--len); }
-      80%, 100% { stroke-dasharray: var(--len) 0; }
-    }
+    /* Progress itself is driven from script (one pass, never looping); the ticks only
+       shimmer so a long boot still looks alive. The bar lingers a moment after spawning
+       ends so its final snap to 100% is seen. */
+    htb-difficulty-frame [data-boot] { transition-delay: .35s; }
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-boot] { transition-delay: 0s; }
+    htb-difficulty-frame[state="spawning"] [data-ticks] { animation: htb-frame-alive 1.6s ease-in-out infinite; }
+    @keyframes htb-frame-alive { 50% { opacity: .6; } }
     /* Spawned: the whole outline powers on in the tier colour and breathes, while the
        blocks stay in their recess. Hover still closes the frame on top of it. */
     htb-difficulty-frame :is([data-rail], [data-inner-rail]) { transition: stroke .5s ease, opacity .5s ease; }
@@ -395,7 +401,7 @@
   };
 
   class HtbDifficultyFrame extends HTMLElement {
-    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'cuts', 'state'];
+    static observedAttributes = ['difficulty', 'shape', 'src', 'size', 'stroke', 'label', 'selected', 'completed', 'cuts', 'state', 'progress', 'spawn-time', 'despawn-time'];
 
     connectedCallback() { injectStyle(); this.render(); }
     attributeChangedCallback(name) {
@@ -406,12 +412,51 @@
         return;
       }
       // State is pure CSS too, so changes animate; only the accessible name updates.
-      if (name === 'state') {
+      if (['state', 'progress', 'spawn-time', 'despawn-time'].includes(name)) {
         const svg = this.querySelector('svg');
         if (svg) svg.setAttribute('aria-label', this.accessibleName());
+        this.runProgress();
         return;
       }
       this.render();
+    }
+
+    // Drives the boot bar for the current state. One pass only: spawning eases to 85%
+    // by spawn-time, then creeps towards 97%; it reaches 100% only when the state moves
+    // on. A progress attribute (0–100) overrides the estimate with real progress.
+    runProgress() {
+      const prog = this.querySelector('[data-prog]');
+      if (!prog) return;
+      const len = parseFloat(prog.style.getPropertyValue('--len'));
+      const dash = (f) => `${len * f} ${len * (1 - f) + 0.01}`;
+      const state = this.getAttribute('state');
+      const was = this.lastState;
+      this.lastState = state;
+      const now = getComputedStyle(prog).strokeDasharray;
+      this.progAnim?.cancel();
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const go = (frames, opts) => {
+        this.progAnim = prog.animate(frames, { fill: 'forwards', ...opts, duration: reduce ? 1 : opts.duration });
+      };
+      if (state === 'spawning') {
+        const p = this.getAttribute('progress');
+        if (p !== null) {
+          go([{ strokeDasharray: was === 'spawning' ? now : dash(0) }, { strokeDasharray: dash(Math.min(Math.max(+p, 0), 100) / 100) }],
+            { duration: 600, easing: 'ease-out' });
+          return;
+        }
+        if (was === 'spawning') return; // already running its single pass
+        const t = (Number(this.getAttribute('spawn-time')) || 60) * 1000;
+        go([{ strokeDasharray: dash(0), easing: 'cubic-bezier(.2, .7, .3, 1)' },
+          { strokeDasharray: dash(0.85), offset: 0.5, easing: 'cubic-bezier(.3, 0, .7, 1)' },
+          { strokeDasharray: dash(0.97) }], { duration: t * 2 });
+      } else if (state === 'despawning') {
+        const t = (Number(this.getAttribute('despawn-time')) || 20) * 1000;
+        go([{ strokeDasharray: dash(1) }, { strokeDasharray: dash(0) }], { duration: t, easing: 'cubic-bezier(.45, 0, .55, 1)' });
+      } else if (was === 'spawning') {
+        // Up: snap the bar to full while it fades out.
+        go([{ strokeDasharray: now }, { strokeDasharray: dash(1) }], { duration: 350, easing: 'ease-out' });
+      }
     }
 
     // e.g. "Hard difficulty, spawning, completed"
@@ -599,6 +644,8 @@
       const prog = this.querySelector('[data-prog]');
       prog.style.setProperty('--len', total);
       prog.style.setProperty('--start', -top);
+      this.lastState = null;
+      this.runProgress();
 
       const spans = railSpans(spanKey(opened), railPath, accentPath, opened.map((p) => p.at), lens, total, aTotal)
         .sort((x, y) => x[0] - y[0]);

@@ -38,7 +38,7 @@
   <p class="actions"><button type="button" data-replay-all>Replay all</button></p>
 
   <h2>Machine states</h2>
-  <p class="note">Idle, spawning, spawned and de-spawning, set with the state attribute. Completed combines with any of them. The bottom row runs the full lifecycle on a loop.</p>
+  <p class="note">Idle, spawning, spawned and de-spawning, set with the state attribute. Completed combines with any of them. The bottom row runs the full lifecycle, sped up (a 3s spawn instead of 60s). Spawning fills once and eases towards full; it only completes when the machine is up.</p>
   <div id="states"></div>
   <div class="row" id="cycle"></div>
 
@@ -60,13 +60,13 @@
     // One row per shape and size, so the small badges never wrap in among the large ones.
     const STATES = [['', 'Idle'], ['spawning', 'Spawning'], ['spawned', 'Spawned'], ['despawning', 'De-spawning']];
     document.getElementById('states').innerHTML = shapes.map((s) => `<div class="row">${STATES.map(([k, t]) =>
-      `<figure>${badge(`shape="${s}" difficulty="hard" size="120" static ${k ? `state="${k}"` : ''}`)}<figcaption>${t}</figcaption></figure>`).join('')}
+      `<figure>${badge(`shape="${s}" difficulty="hard" size="120" static spawn-time="12" despawn-time="12" ${k ? `state="${k}"` : ''}`)}<figcaption>${t}</figcaption></figure>`).join('')}
       <figure>${badge(`shape="${s}" difficulty="hard" size="120" static state="spawned" completed`)}<figcaption>Spawned + completed</figcaption></figure></div>`).join('');
 
     // Live lifecycle: idle → spawning → spawned → de-spawning → idle.
     const cycle = document.getElementById('cycle');
-    cycle.innerHTML = levels.map((l, i) => `<figure>${badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" static`)}<figcaption>Idle</figcaption></figure>`).join('');
-    const LOOP = [['', 'Idle', 1400], ['spawning', 'Spawning', 2600], ['spawned', 'Spawned', 2600], ['despawning', 'De-spawning', 2000]];
+    cycle.innerHTML = levels.map((l, i) => `<figure>${badge(`shape="${shapes[i % 3]}" difficulty="${l}" size="120" static spawn-time="3" despawn-time="2"`)}<figcaption>Idle</figcaption></figure>`).join('');
+    const LOOP = [['', 'Idle', 1400], ['spawning', 'Spawning', 4500], ['spawned', 'Spawned', 2600], ['despawning', 'De-spawning', 2400]];
     let step = 0;
     const advance = () => {
       const [k, t, ms] = LOOP[step];
