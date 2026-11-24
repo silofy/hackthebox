@@ -460,10 +460,32 @@
         const start = was === 'spawning' ? from : 1;
         loop((t) => { const k = Math.min(t / T, 1); show(start * (1 - k)); return k === 1; });
       } else if (was === 'spawning') {
-        tween(from, 1, 400); // up: count completes as the readout fades
+        // Up: the count completes, then the frame locks in.
+        tween(from, 1, 400);
+        if (state === 'spawned') setTimeout(() => this.lockIn(), 420);
       } else {
         show(0);
       }
+    }
+
+    // Lock-in, played once when spawning finishes: the blocks slam into the rail and
+    // spring back, the bloom flashes, and the whole badge gives a small punch.
+    lockIn() {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const press = getComputedStyle(this).getPropertyValue('--press');
+      const thin = getComputedStyle(this).getPropertyValue('--thin');
+      const ease = 'cubic-bezier(.2, .9, .3, 1.3)';
+      this.querySelectorAll('[data-accents]').forEach((g) => g.animate(
+        [{ transform: 'scale(1)' }, { transform: `scale(${press})`, offset: 0.25 }, { transform: `scale(${press})`, offset: 0.55 }, { transform: 'scale(1)' }],
+        { duration: 700, easing: ease },
+      ));
+      this.querySelectorAll('[data-accent], [data-accent-glow], [data-accent-back]').forEach((el) => el.animate(
+        [{}, { strokeWidth: thin, offset: 0.25 }, { strokeWidth: thin, offset: 0.55 }, {}],
+        { duration: 700, easing: ease },
+      ));
+      this.querySelector('[data-glow]')?.animate([{ opacity: 0 }, { opacity: 1, offset: 0.25 }, { opacity: 0.8 }], { duration: 900, easing: 'ease-out' });
+      this.querySelector('svg').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)', offset: 0.3 }, { transform: 'scale(1)' }],
+        { duration: 520, easing: 'cubic-bezier(.3, 1.6, .5, 1)' });
     }
 
     // e.g. "Hard difficulty, spawning, completed"
@@ -600,7 +622,7 @@
                   stroke-linecap="square" stroke-linejoin="miter"/>
           </g>` : ''}
           <g data-readout text-anchor="middle" pointer-events="none" aria-hidden="true">
-            <text data-pct x="${c}" y="${c}" dominant-baseline="central" font-size="${size * 0.2}" font-weight="700" fill="#fff">0%</text>
+            <text data-pct x="${c}" y="${c}" dominant-baseline="central" font-size="${size * 0.13}" font-weight="700" fill="#fff">0%</text>
           </g>
         </svg>`;
 
