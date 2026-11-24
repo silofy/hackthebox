@@ -166,15 +166,13 @@
       to { stroke-dashoffset: calc(var(--offset) - var(--len) / 4); }
     }
     /* Machine states (the state attribute). Switching animates; nothing redraws.
-       spawning     powered down to a dim track; a segmented progress bar fills clockwise
-                    from the top once: fast at first, then easing towards (never reaching)
-                    full over spawn-time, or tracking the progress attribute
-       spawned      everything powers on: the outline lights in the tier colour and breathes
-       despawning   the progress bar starts full and drains anticlockwise once over
-                    despawn-time; the frame powers
+       spawning     powered down; the blocks start sunk deep and dim, and rise towards
+                    their openings once: fast at first, then easing towards (never reaching)
+                    the rail over spawn-time, or tracking the progress attribute
+       spawned      the blocks lock into the rail, and the outline lights in the tier colour and breathes
+       despawning   the blocks sink back down and dim once over despawn-time; the frame powers
                     off and the art goes grey */
     htb-difficulty-frame [data-boot] { opacity: 0; transition: opacity .35s ease; }
-    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-boot] { opacity: 1; }
     htb-difficulty-frame [data-ticks] { stroke-dasharray: var(--tick) var(--tick-gap); stroke-dashoffset: var(--tick-offset); }
     /* The progress dash grows from the top (its offset puts its start there) and wraps. */
     htb-difficulty-frame [data-prog] { stroke-dasharray: 0 var(--len); stroke-dashoffset: var(--start); }
@@ -201,7 +199,13 @@
     htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.45); }
     htb-difficulty-frame[state="despawning"] [data-art] { filter: grayscale(.85) brightness(.45); }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) :is([data-rail], [data-inner-rail], [data-spikes]) { opacity: .3; }
-    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .12; }
+    /* Spawning: blocks start sunk deep and dim, and script raises them towards their
+       openings over spawn-time. Despawning sinks them back. These rules are the resting
+       ends of that motion (and all that shows with reduced motion). */
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .15; transform: scale(var(--deep)); }
+    htb-difficulty-frame[state="spawned"] [data-accents] { transform: scale(var(--press)); }
+    htb-difficulty-frame[state="spawned"] :is([data-accent], [data-accent-glow]) { stroke-width: var(--thin); }
+    htb-difficulty-frame[state="spawned"] [data-accent-back] { stroke-width: var(--thin); }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-glow] { opacity: 0 !important; }
     @media (prefers-reduced-motion: reduce) {
       htb-difficulty-frame *, htb-difficulty-frame svg { animation: none !important; transition: none !important; }
@@ -421,41 +425,47 @@
       this.render();
     }
 
-    // Drives the boot bar for the current state. One pass only: spawning eases to 85%
-    // by spawn-time, then creeps towards 97%; it reaches 100% only when the state moves
-    // on. A progress attribute (0–100) overrides the estimate with real progress.
+    // Drives the blocks for the current state. One pass only: spawning raises them to
+    // 85% of the way by spawn-time, then creeps towards 97%; they lock in only when the
+    // state moves on. A progress attribute (0–100) sets the height from real progress.
     runProgress() {
-      const prog = this.querySelector('[data-prog]');
-      if (!prog) return;
-      const len = parseFloat(prog.style.getPropertyValue('--len'));
-      const dash = (f) => `${len * f} ${len * (1 - f) + 0.01}`;
+      const groups = [...this.querySelectorAll('[data-accents]')];
+      if (!groups.length) return;
+      const css = getComputedStyle(this);
+      const deep = parseFloat(css.getPropertyValue('--deep'));
+      const press = parseFloat(css.getPropertyValue('--press'));
+      const at = (f) => ({ transform: `scale(${deep + (press - deep) * f})`, opacity: 0.15 + 0.85 * f });
       const state = this.getAttribute('state');
       const was = this.lastState;
       this.lastState = state;
-      const now = getComputedStyle(prog).strokeDasharray;
-      this.progAnim?.cancel();
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       const go = (frames, opts) => {
-        this.progAnim = prog.animate(frames, { fill: 'forwards', ...opts, duration: reduce ? 1 : opts.duration });
+        this.progAnims?.forEach((a) => a.cancel());
+        this.progAnims = groups.map((g) => g.animate(frames, { fill: 'forwards', ...opts, duration: reduce ? 1 : opts.duration }));
       };
+      const now = () => ({ transform: getComputedStyle(groups[0]).transform, opacity: getComputedStyle(groups[0]).opacity });
       if (state === 'spawning') {
         const p = this.getAttribute('progress');
         if (p !== null) {
-          go([{ strokeDasharray: was === 'spawning' ? now : dash(0) }, { strokeDasharray: dash(Math.min(Math.max(+p, 0), 100) / 100) }],
-            { duration: 600, easing: 'ease-out' });
+          const from = was === 'spawning' ? now() : at(0);
+          go([from, at(Math.min(Math.max(+p, 0), 100) / 100)], { duration: 700, easing: 'ease-out' });
           return;
         }
         if (was === 'spawning') return; // already running its single pass
         const t = (Number(this.getAttribute('spawn-time')) || 60) * 1000;
-        go([{ strokeDasharray: dash(0), easing: 'cubic-bezier(.2, .7, .3, 1)' },
-          { strokeDasharray: dash(0.85), offset: 0.5, easing: 'cubic-bezier(.3, 0, .7, 1)' },
-          { strokeDasharray: dash(0.97) }], { duration: t * 2 });
+        go([{ ...at(0), easing: 'cubic-bezier(.2, .7, .3, 1)' },
+          { ...at(0.85), offset: 0.5, easing: 'cubic-bezier(.3, 0, .7, 1)' },
+          at(0.97)], { duration: t * 2 });
       } else if (state === 'despawning') {
         const t = (Number(this.getAttribute('despawn-time')) || 20) * 1000;
-        go([{ strokeDasharray: dash(1) }, { strokeDasharray: dash(0) }], { duration: t, easing: 'cubic-bezier(.45, 0, .55, 1)' });
-      } else if (was === 'spawning') {
-        // Up: snap the bar to full while it fades out.
-        go([{ strokeDasharray: now }, { strokeDasharray: dash(1) }], { duration: 350, easing: 'ease-out' });
+        go([was === 'spawned' || !was ? at(1) : now(), at(0)], { duration: t, easing: 'cubic-bezier(.45, 0, .55, 1)' });
+      } else {
+        // Up or idle: hand back to CSS. Coming up from spawning, the last stretch into
+        // the rail is a quick snap.
+        const from = was === 'spawning' || was === 'despawning' ? now() : null;
+        this.progAnims?.forEach((a) => a.cancel());
+        this.progAnims = null;
+        if (from && !reduce) groups.forEach((g) => g.animate([from, {}], { duration: was === 'spawning' ? 380 : 500, easing: 'cubic-bezier(.3, 1.4, .5, 1)' }));
       }
     }
 
@@ -531,6 +541,7 @@
       this.style.setProperty('--glow-r', `${Math.max(stroke, 2)}px`);
       this.style.setProperty('--c', `${c}px`);
       this.style.setProperty('--press', r / accentR);
+      this.style.setProperty('--deep', 0.84); // spawning starts the blocks sunk this far in
       this.style.setProperty('--thick', `${blockW}px`);
       // Scaling out to the rail also widens the stroke a touch, so thin by that much less.
       this.style.setProperty('--thin', `${stroke / (r / accentR)}px`);
