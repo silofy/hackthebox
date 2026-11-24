@@ -163,26 +163,31 @@
       to { stroke-dashoffset: calc(var(--offset) - var(--len) / 4); }
     }
     /* Machine states (the state attribute). Switching animates; nothing redraws.
-       spawning     a tier-coloured light runs clockwise round the rail; blocks pulse
-       spawned      the frame holds closed (the hover look) with a slow breathing bloom
-       despawning   the light runs back, slower; lines and art dim and desaturate */
-    htb-difficulty-frame [data-sweep] {
-      opacity: 0; transition: opacity .4s ease;
-      stroke-dasharray: calc(var(--len) * .16) var(--len);
+       spawning     powered down to a dim track; a segmented progress bar fills clockwise
+                    from the top, holds, and repeats until the machine is up
+       spawned      everything powers on: the frame locks closed with a slow breathing bloom
+       despawning   the progress bar starts full and drains anticlockwise; the frame powers
+                    off and the art goes grey */
+    htb-difficulty-frame [data-boot] { opacity: 0; transition: opacity .35s ease; }
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-boot] { opacity: 1; }
+    htb-difficulty-frame [data-ticks] { stroke-dasharray: var(--tick) var(--tick-gap); stroke-dashoffset: var(--tick-offset); }
+    /* The progress dash grows from the top (its offset puts its start there) and wraps. */
+    htb-difficulty-frame [data-prog] { stroke-dasharray: 0 var(--len); stroke-dashoffset: var(--start); }
+    htb-difficulty-frame[state="spawning"] [data-prog] { animation: htb-frame-boot 2.6s cubic-bezier(.45, 0, .55, 1) infinite; }
+    htb-difficulty-frame[state="despawning"] [data-prog] { animation: htb-frame-boot 2s cubic-bezier(.45, 0, .55, 1) infinite reverse; }
+    @keyframes htb-frame-boot {
+      0% { stroke-dasharray: 0 var(--len); }
+      80%, 100% { stroke-dasharray: var(--len) 0; }
     }
-    htb-difficulty-frame[state="spawning"] [data-sweep] { opacity: 1; animation: htb-frame-sweep 1.2s linear infinite; }
-    htb-difficulty-frame[state="despawning"] [data-sweep] { opacity: .7; animation: htb-frame-sweep 1.8s linear infinite reverse; }
-    @keyframes htb-frame-sweep { from { stroke-dashoffset: 0; } to { stroke-dashoffset: calc(var(--len) * -1); } }
-    htb-difficulty-frame[state="spawning"] [data-accents] { animation: htb-frame-pulse 1.2s ease-in-out infinite; }
-    @keyframes htb-frame-pulse { 50% { opacity: .35; } }
     htb-difficulty-frame[state="spawned"] [data-glow] { animation: htb-frame-breathe 2.6s ease-in-out infinite; }
     @keyframes htb-frame-breathe { 50% { opacity: .45; } }
-    htb-difficulty-frame [data-art], htb-difficulty-frame [data-rail], htb-difficulty-frame [data-inner-rail],
-    htb-difficulty-frame [data-spikes], htb-difficulty-frame [data-accents] { transition-property: transform, filter, opacity, stroke-width; }
-    htb-difficulty-frame [data-art] { transition: filter .6s ease, opacity .6s ease; }
-    htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.8); }
-    htb-difficulty-frame[state="despawning"] [data-art] { filter: grayscale(.8) brightness(.55); }
-    htb-difficulty-frame[state="despawning"] :is([data-rail], [data-inner-rail], [data-spikes], [data-accents]) { opacity: .45; transition: opacity .6s ease; }
+    htb-difficulty-frame [data-art] { transition: filter .6s ease; }
+    htb-difficulty-frame :is([data-rail], [data-inner-rail], [data-spikes], [data-accents]) { transition: opacity .5s ease, transform .3s cubic-bezier(.3, 1.4, .5, 1), filter .3s ease; }
+    htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.45); }
+    htb-difficulty-frame[state="despawning"] [data-art] { filter: grayscale(.85) brightness(.45); }
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) :is([data-rail], [data-inner-rail], [data-spikes]) { opacity: .3; }
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .12; }
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-glow] { opacity: 0 !important; }
     @media (prefers-reduced-motion: reduce) {
       htb-difficulty-frame *, htb-difficulty-frame svg { animation: none !important; transition: none !important; }
     }`;
@@ -489,6 +494,9 @@
               <feComponentTransfer in="wide" result="halo"><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
               <feMerge><feMergeNode in="halo"/><feMergeNode in="core"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
+            <mask id="${id}-prog" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
+              <path data-prog d="${shapePath(shape, c, r)}" fill="none" stroke="#fff" stroke-width="${stroke * 3}"/>
+            </mask>
             ${completed ? `<mask id="${id}-k" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
               ${medallion(med, medR + step.ring, '#000')}
@@ -505,7 +513,9 @@
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
               ${shape.doubleRing && !compact ? `<path data-inner-rail d="${shapePath(shape, c, accentR)}" stroke="${rail}" stroke-width="${stroke}"/>` : ''}
-              <path data-sweep d="${shapePath(shape, c, r)}" stroke="${accent}" stroke-width="${stroke}" filter="url(#${id}-glow)"/>
+              <g data-boot mask="url(#${id}-prog)">
+                <path data-ticks d="${shapePath(shape, c, r)}" stroke="${accent}" stroke-width="${stroke}"/>
+              </g>
               <g data-spikes fill="${rail}" stroke="none"></g>
               <!-- Slot masks sit outside the moving groups, so a piece pushed out on hover
                    slides into its fixed slot instead of carrying the slot with it. -->
@@ -568,7 +578,18 @@
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
       else { accentPath.remove(); glowPath.remove(); this.querySelector('[data-accent-back]').remove(); } // a tier with no open sides is a closed outline
       accentPath.style.setProperty('--len', aTotal);
-      this.querySelector('[data-sweep]').style.setProperty('--len', total);
+      // Boot progress: ticks a little longer than the gaps between them, laid out so
+      // a whole number fits round the outline; the fill starts at the top.
+      const tickN = Math.max(12, Math.round(total / (stroke * 3)));
+      const pitch = total / tickN;
+      const ticks = this.querySelector('[data-ticks]');
+      ticks.style.setProperty('--tick', pitch * 0.6);
+      ticks.style.setProperty('--tick-gap', pitch * 0.4);
+      const top = sideFractions(`${form}|rail`, railPath, c, [0])[0] * total;
+      ticks.style.setProperty('--tick-offset', -top);
+      const prog = this.querySelector('[data-prog]');
+      prog.style.setProperty('--len', total);
+      prog.style.setProperty('--start', -top);
 
       const spans = railSpans(spanKey(opened), railPath, accentPath, opened.map((p) => p.at), lens, total, aTotal)
         .sort((x, y) => x[0] - y[0]);
