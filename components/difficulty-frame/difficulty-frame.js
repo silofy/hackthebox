@@ -87,6 +87,10 @@
       ring: Math.SQRT2,
       path: (p) => `M${p(0.5, -0.5)} L${p(1, 0)} L${p(0, 1)} L${p(-1, 0)} L${p(0, -1)} Z`,
       // Anchored on its four points, so each inner line is a chevron wrapping round a point.
+      // Medium's side pieces move to mid-edges (top-right, bottom-left): cutting the left
+      // and right points made it read as a tall hexagon.
+      sidesFor: { medium: [0, 45, 180, 225] },
+      pointsFor: { medium: [0, 1, 2, 3] }, // no straight-edge boost: keep them short
       sides: [0, 90, 180, 270],
       points: [0, 1, 2, 3],
     },
@@ -668,8 +672,11 @@
       const accentPath = this.querySelector('[data-accent]');
       const total = railPath.getTotalLength();
       const aTotal = accentPath.getTotalLength();
-      const bearings = shape.sides;
-      const aSides = sideFractions(`${form}|accent`, accentPath, c, bearings).map((f) => f * aTotal);
+      // A shape can move a tier's anchors (diamond medium sits on mid-edges so its
+      // points stay intact); those anchors are then straight lines, not chevrons.
+      const bearings = shape.sidesFor?.[level] ?? shape.sides;
+      const points = shape.pointsFor?.[level] ?? shape.points;
+      const aSides = sideFractions(`${form}|accent|${bearings.join(',')}`, accentPath, c, bearings).map((f) => f * aTotal);
 
       // Inner lines: one centred on each open anchor.
       const aLen = (aTotal / 4) * tier.length * step.reach;
@@ -687,13 +694,13 @@
       // back so the visible length stays true to the tier.
       const slantTrim = lean > 0 ? 2 * lean * blockOffset : 0;
       const lenFor = (p) => {
-        const want = shape.points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST);
+        const want = points.includes(p.side) ? aLen : aLen * (shape.boost?.[p.side] ?? STRAIGHT_BOOST);
         const cap = shape.maxLen?.[p.side];
         return (cap ? Math.min(want, (aTotal / 4) * cap) : want) + slantTrim;
       };
       const lens = opened.map(lenFor);
       // Spans are cached per layout, so the key names which anchors are open.
-      const spanKey = (list) => `${form}|${level}|${(accentR / r).toFixed(3)}|${list.map((p) => p.side).join('')}`;
+      const spanKey = (list) => `${form}|${level}|${(accentR / r).toFixed(3)}|${bearings.join(',')}|${list.map((p) => p.side).join('')}`;
       const glowPath = this.querySelector('[data-accent-glow]');
       let pieceLens = lens;
       if (opened.length) setDash(accentPath, dashesAt(opened.map((p) => p.at), aTotal, lens, 0));
