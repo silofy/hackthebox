@@ -35,7 +35,6 @@
     <div><strong>Insane</strong><span>4 longest inner lines · sweep in, lock twice · lines travel on hover</span></div>
   </div>
   <div id="large"></div>
-  <p class="actions"><button type="button" data-replay-all>Replay all</button></p>
 
   <h2>Machine states</h2>
   <p class="note">Idle, spawning, spawned and de-spawning, set with the state attribute. Completed combines with any of them. The bottom row runs the full lifecycle, sped up (a 3s spawn instead of 60s). The count eases towards 100% and only completes when the machine is up.</p>
@@ -88,10 +87,6 @@
       badge(`shape="shield" difficulty="${l}" size="${n}" static`)).join('')}</div>`).join('');
 
     document.addEventListener('click', (e) => {
-      if (e.target.closest('[data-replay-all]')) {
-        document.querySelectorAll('#large htb-difficulty-frame').forEach((el) => el.play());
-        return;
-      }
       const el = e.target.closest('htb-difficulty-frame');
       if (el) el.toggleAttribute('selected');
     });

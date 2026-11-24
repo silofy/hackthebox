@@ -23,7 +23,8 @@
  *   label       accessible name                     (default: "<Level> difficulty")
  *   selected    boolean — holds the hover state
  *   completed   boolean — a check medallion sits at the bottom point, knocked out of the frame
- *   static      boolean — skip the entrance animation
+ *   entrance    boolean — play the entrance animation when the badge first appears (off by default)
+ *   static      boolean — never play the entrance animation
  *   state       idle | spawning | spawned | despawning   (default: idle) — machine lifecycle;
  *               combines with completed, and changes animate without a redraw
  *   spawn-time  expected spawn duration in seconds   (default: 60) — paces the boot bar
@@ -528,7 +529,8 @@
       const src = this.getAttribute('src') || '';
       const name = `${level[0].toUpperCase()}${level.slice(1)} difficulty`;
       const label = this.accessibleName();
-      const animate = !this.hasAttribute('static') && !this.drawn;
+      // The entrance is opt-in (the entrance attribute); badges appear at rest by default.
+      const animate = this.hasAttribute('entrance') && !this.hasAttribute('static') && !this.drawn;
       this.drawn = true;
 
       const c = size / 2;
