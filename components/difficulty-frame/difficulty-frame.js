@@ -101,6 +101,9 @@
       // Double ring: a second grey ring runs at the blocks' recessed radius, so the
       // bright arcs sit on a full circle of their own instead of pinching the outline.
       doubleRing: true,
+      // No point to sit on, so the completed check sits on the ring at bottom-right,
+      // centred on the line, like an avatar status badge.
+      medalAt: 135,
       // Cuts run square across (radially) here: a 45° keystone on a curve reads crooked.
       lean: 0,
       spike: 1.25, // spikes a touch larger: a curve makes them read smaller than on a straight edge
@@ -570,7 +573,9 @@
       const medR = size * step.medal;
       const med = compact
         ? { x: size - medR, y: size - medR } // corner of the box, clear of the frame
-        : { x: c, y: c + r + stroke / 2 - medR };
+        : shape.medalAt != null
+          ? { x: c + Math.sin((shape.medalAt * Math.PI) / 180) * r, y: c - Math.cos((shape.medalAt * Math.PI) / 180) * r }
+          : { x: c, y: c + r + stroke / 2 - medR };
 
       // Completed medallion: a sharp-pointed diamond, scaled up a touch so it carries
       // the weight of a disc of radius `rad`.
@@ -663,7 +668,7 @@
       // is cut away behind each one, so it sits in the opening, inset by `space`.
       // On a completed badge the medallion takes the bottom point's place, so that
       // anchor drops its inner line and opening instead of piling up under the check.
-      const opened = order(placed).filter((p) => tier.open.includes(p.side) && !(completed && !compact && p.side === 2));
+      const opened = order(placed).filter((p) => tier.open.includes(p.side) && !(completed && !compact && shape.medalAt == null && p.side === 2));
       const aCentres = opened;
       // Chevrons on points stay at the tier length; lines on straight or curved
       // stretches run longer, so they carry as much weight as a chevron.
@@ -736,7 +741,10 @@
         });
         // Horns grow from their outer corner, so on hover they extend along the shield's
         // edge and inwards, never out past its side.
-        this.querySelector('[data-spikes]').innerHTML = tris.map((t) => (t.origin
+        // A spike that would sit under the completed check is left out.
+        const clear = (t) => !(completed && !compact && shape.medalAt != null && t.points.split(' ')
+          .some((pt) => { const [x, y] = pt.split(',').map(Number); return Math.hypot(x - med.x, y - med.y) < medR * 2; }));
+        this.querySelector('[data-spikes]').innerHTML = tris.filter(clear).map((t) => (t.origin
           ? `<polygon points="${t.points}" style="transform-box: view-box; transform-origin: ${t.origin[0]}px ${t.origin[1]}px"/>`
           : `<polygon points="${t.points}"/>`)).join('');
       }
