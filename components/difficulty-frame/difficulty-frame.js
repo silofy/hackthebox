@@ -101,6 +101,8 @@
       // Double ring: a second grey ring runs at the blocks' recessed radius, so the
       // bright arcs sit on a full circle of their own instead of pinching the outline.
       doubleRing: true,
+      // Cuts run square across (radially) here: a 45° keystone on a curve reads crooked.
+      lean: 0,
       spike: 1.25, // spikes a touch larger: a curve makes them read smaller than on a straight edge
     },
     shield: {
@@ -511,7 +513,7 @@
       // line is the cut-out piece pushed straight in), < 0 widens it (splayed).
       const LEANS = { angled: -1, keystone: 1, 'keystone-soft': Math.tan(Math.PI / 6) };
       const compact = !!step.compact;
-      const lean = compact || this.getAttribute('cuts') === 'square' ? 0 : LEANS[this.getAttribute('cuts')] ?? step.lean;
+      const lean = compact || this.getAttribute('cuts') === 'square' ? 0 : LEANS[this.getAttribute('cuts')] ?? shape.lean ?? step.lean;
       const angled = lean !== 0;
       const cap = 0; // flat line ends: dashes and gaps need no allowance
       const form = shapeName;
@@ -592,7 +594,7 @@
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
-              ${shape.doubleRing && !compact ? `<path data-inner-rail d="${shapePath(shape, c, accentR)}" stroke="${rail}" stroke-width="${stroke}"/>` : ''}
+              ${shape.doubleRing && !compact ? `<path data-inner-rail d="${shapePath(shape, c, accentR)}" stroke="${rail}" stroke-width="${stroke * 0.5}" opacity="0.55"/>` : ''}
               <g data-boot ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-fill d="${shapePath(shape, c, r)}" stroke="${accent}" stroke-width="${stroke}" stroke-dasharray="0 1"/>
               </g>
