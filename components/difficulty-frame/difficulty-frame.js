@@ -87,9 +87,6 @@
       ring: Math.SQRT2,
       path: (p) => `M${p(0.5, -0.5)} L${p(1, 0)} L${p(0, 1)} L${p(-1, 0)} L${p(0, -1)} Z`,
       // Anchored on its four points, so each inner line is a chevron wrapping round a point.
-      // A faint ghost of the outline shows through each opening, so the eye still
-      // completes the point and the silhouette stays a diamond.
-      ghost: true,
       sides: [0, 90, 180, 270],
       points: [0, 1, 2, 3],
     },
@@ -630,7 +627,9 @@
                      preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})" filter="url(#${id}-gs)"/>
             </g>` : ''}
             <g fill="none" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="butt">
-              ${shape.ghost && !compact ? `<path data-ghost d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}" opacity="0.28"/>` : ''}
+              <!-- Every shape: a faint ghost of the outline shows through each opening, so
+                   the silhouette always reads complete. -->
+              ${!compact ? `<path data-ghost d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}" opacity="0.28"/>` : ''}
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
