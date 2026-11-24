@@ -189,6 +189,9 @@
     htb-difficulty-frame [data-gray] { opacity: 0; transition: opacity .5s ease; }
     htb-difficulty-frame[state="despawning"] [data-gray] { opacity: 1; }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-glow] { opacity: 0 !important; }
+    /* While the count runs, the pieces step back so the filling outline leads. */
+    htb-difficulty-frame [data-accents] { transition: transform .3s cubic-bezier(.3, 1.4, .5, 1), opacity .4s ease; }
+    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .35; }
     /* Spawned: the whole outline powers on in the tier colour and breathes. Hover still
        closes the frame on top of it. */
     htb-difficulty-frame :is([data-rail], [data-inner-rail]) { transition: stroke .5s ease, opacity .5s ease; }
@@ -615,6 +618,9 @@
             <mask id="${id}-gray" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
               <rect data-gray-rect x="${-size}" y="0" width="${size * 3}" height="0" fill="url(#${id}-fade)"/>
             </mask>
+            <mask id="${id}-railm" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
+              <path data-rail-mask d="${shapePath(shape, c, r)}" fill="none" stroke="#fff" stroke-width="${stroke * 3}"/>
+            </mask>
           </defs>
           <g ${completed && !compact ? `mask="url(#${id}-k)"` : ''}>
             <g data-art>
@@ -634,7 +640,7 @@
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
               ${double ? `<path data-inner-rail d="${shapePath(shape, c, ringR)}" stroke="${rail}" stroke-width="${ringW}" opacity="0.55"/>` : ''}
-              <g data-boot ${angled ? `mask="url(#${id}-cut)"` : ''}>
+              <g data-boot mask="url(#${id}-${angled ? 'cut' : 'railm'})">
                 <path data-fill d="${shapePath(shape, c, r)}" stroke="${accent}" stroke-width="${stroke}" stroke-dasharray="0 1"/>
               </g>
               <g data-spikes fill="${rail}" stroke="none"></g>
@@ -785,6 +791,10 @@
       } else {
         // Compact draws the coloured segments over an unbroken rail.
         setDash(railPath, compact ? { dash: 'none', offset: 0 } : gapsAt(cuts, total, widths, cap, stroke * 2.5));
+        // The spawn fill only runs along the solid rail, never across the openings.
+        const rm = this.querySelector('[data-rail-mask]');
+        rm.setAttribute('stroke-dasharray', railPath.style.getPropertyValue('--dash'));
+        rm.setAttribute('stroke-dashoffset', railPath.style.getPropertyValue('--offset'));
       }
 
       const backPath = this.querySelector('[data-accent-back]');
