@@ -175,21 +175,27 @@
                     outline fills clockwise from the top in step with it. It follows
                     the progress attribute, or an estimate paced by spawn-time that never
                     reaches 100% until the state moves on
-       spawned      the count completes and fades; the outline stays lit in the tier
-                    colour and breathes
-       despawning   the count runs down, the fill drains and the
-                    art goes grey */
+       spawned      the count completes, the blocks snap into the rail and stay; the
+                    outline stays lit in the tier colour and breathes
+       despawning   the count runs down, the fill drains, and the art loses its colour
+                    from the top down */
     htb-difficulty-frame [data-boot], htb-difficulty-frame [data-readout] { opacity: 0; transition: opacity .4s ease .4s; }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) :is([data-boot], [data-readout]) { opacity: 1; transition-delay: 0s; }
     htb-difficulty-frame [data-readout] text { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
     htb-difficulty-frame [data-art] { transition: filter .6s ease; }
     htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.5); }
-    htb-difficulty-frame[state="despawning"] [data-art] { filter: grayscale(.85) brightness(.45); }
+    /* Despawning greys the art from the top down (a masked grey copy, driven from script). */
+    htb-difficulty-frame [data-gray] { opacity: 0; transition: opacity .5s ease; }
+    htb-difficulty-frame[state="despawning"] [data-gray] { opacity: 1; }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-glow] { opacity: 0 !important; }
     /* Spawned: the whole outline powers on in the tier colour and breathes. Hover still
        closes the frame on top of it. */
     htb-difficulty-frame :is([data-rail], [data-inner-rail]) { transition: stroke .5s ease, opacity .5s ease; }
     htb-difficulty-frame[state="spawned"] :is([data-rail], [data-inner-rail]) { stroke: var(--glow); }
+    /* Spawned: the blocks lock into the rail and stay there. Coming from spawning they
+       wait for the count to finish, then snap in (no bounce). */
+    htb-difficulty-frame[state="spawned"] [data-accents] { transform: scale(var(--press)); transition: transform .22s cubic-bezier(.7, 0, .3, 1) .4s; }
+    htb-difficulty-frame[state="spawned"] :is([data-accent], [data-accent-glow], [data-accent-back]) { stroke-width: var(--thin); transition: stroke-width .22s cubic-bezier(.7, 0, .3, 1) .4s; }
     htb-difficulty-frame[state="spawned"] [data-glow] { opacity: .8; animation: htb-frame-breathe 2.6s ease-in-out infinite; }
     htb-difficulty-frame[state="spawned"] svg { animation: htb-frame-live 2.6s ease-in-out infinite; }
     @keyframes htb-frame-breathe { 50% { opacity: .35; } }
@@ -425,11 +431,18 @@
       if (!fill) return;
       const len = Number(fill.dataset.len);
       const pct = this.querySelector('[data-pct]');
+      const grayRect = this.querySelector('[data-gray-rect]');
+      const size = Number(this.querySelector('svg').getAttribute('width'));
       const show = (f) => {
         this.f = f;
         // Period of exactly one outline, so a fill that starts at the top wraps past the path's end.
         fill.setAttribute('stroke-dasharray', `${len * f} ${len * (1 - f)}`);
         if (pct) pct.textContent = `${Math.floor(f * 100)}%`;
+        // Despawning: the grey sweeps down the art as the count drains (soft lower edge).
+        if (grayRect) {
+          const g = this.getAttribute('state') === 'despawning' ? 1 - f : 0;
+          grayRect.setAttribute('height', g ? g * size * 1.25 : 0);
+        }
       };
       const state = this.getAttribute('state');
       const was = this.lastState;
@@ -467,7 +480,7 @@
       } else if (was === 'spawning') {
         // Up: the count completes, then the frame locks in.
         tween(from, 1, 400);
-        if (state === 'spawned') setTimeout(() => this.lockIn(), 420);
+        if (state === 'spawned') setTimeout(() => this.lockIn(), 600); // as the blocks land
       } else {
         show(0);
       }
@@ -476,30 +489,12 @@
     // Lock-in, played once when spawning finishes: the blocks slam into the rail and
     // spring back, the bloom flashes, and the whole badge gives a small punch.
     lockIn() {
+      // The snap itself is CSS (spawned holds the blocks in the rail); this adds the
+      // impact as they land: a bloom flash and a small punch.
       if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const css = getComputedStyle(this);
-      const press = css.getPropertyValue('--press');
-      const thin = css.getPropertyValue('--thin');
-      const thick = css.getPropertyValue('--thick');
-      // One timeline for every layer so nothing drifts: press out (180ms, ease-in),
-      // hold at impact (120ms), then ease back without overshoot (500ms).
-      const T = 800;
-      const hit = 180 / T;
-      const hold = 300 / T;
-      const out = 'cubic-bezier(.5, 0, .9, .5)';
-      const back = 'cubic-bezier(.22, .9, .3, 1)'; // settles without overshoot
-      const run = (els, a, b) => els.forEach((el) => el.animate([
-        { ...a, easing: out }, { ...b, offset: hit }, { ...b, offset: hold, easing: back }, a,
-      ], { duration: T }));
-      run(this.querySelectorAll('[data-accents]'), { transform: 'scale(1)' }, { transform: `scale(${press})` });
-      run(this.querySelectorAll('[data-accent], [data-accent-glow]'), { strokeWidth: thick }, { strokeWidth: thin });
-      this.querySelector('[data-glow]')?.animate([
-        { opacity: 0, easing: out }, { opacity: 1, offset: hit }, { opacity: 1, offset: hold, easing: 'ease-out' }, { opacity: 0.8 },
-      ], { duration: T + 300 });
-      // A small punch that lands with the impact.
-      this.querySelector('svg').animate([
-        { transform: 'scale(1)', easing: out }, { transform: 'scale(1.025)', offset: hit, easing: back }, { transform: 'scale(1)' },
-      ], { duration: 560 });
+      this.querySelector('[data-glow]')?.animate([{ opacity: 1 }, { opacity: 0.8 }], { duration: 600, easing: 'ease-out' });
+      this.querySelector('svg').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.025)', offset: 0.3 }, { transform: 'scale(1)' }],
+        { duration: 420, easing: 'cubic-bezier(.22, .9, .3, 1)' });
     }
 
     // e.g. "Hard difficulty, spawning, completed"
@@ -608,6 +603,16 @@
               <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
               ${medallion(med, medR + step.ring, '#000')}
             </mask>` : ''}
+            <filter id="${id}-gs" color-interpolation-filters="sRGB">
+              <feColorMatrix type="saturate" values="0"/>
+              <feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer>
+            </filter>
+            <linearGradient id="${id}-fade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fff"/><stop offset=".8" stop-color="#fff"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <mask id="${id}-gray" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
+              <rect data-gray-rect x="${-size}" y="0" width="${size * 3}" height="0" fill="url(#${id}-fade)"/>
+            </mask>
           </defs>
           <g ${completed && !compact ? `mask="url(#${id}-k)"` : ''}>
             <g data-art>
@@ -615,6 +620,10 @@
               ${src ? `<image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
                         preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>` : ''}
             </g>
+            ${src ? `<g data-gray mask="url(#${id}-gray)">
+              <image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
+                     preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})" filter="url(#${id}-gs)"/>
+            </g>` : ''}
             <g fill="none" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="butt">
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
