@@ -474,20 +474,29 @@
     // spring back, the bloom flashes, and the whole badge gives a small punch.
     lockIn() {
       if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const press = getComputedStyle(this).getPropertyValue('--press');
-      const thin = getComputedStyle(this).getPropertyValue('--thin');
-      const ease = 'cubic-bezier(.2, .9, .3, 1.3)';
-      this.querySelectorAll('[data-accents]').forEach((g) => g.animate(
-        [{ transform: 'scale(1)' }, { transform: `scale(${press})`, offset: 0.25 }, { transform: `scale(${press})`, offset: 0.55 }, { transform: 'scale(1)' }],
-        { duration: 700, easing: ease },
-      ));
-      this.querySelectorAll('[data-accent], [data-accent-glow], [data-accent-back]').forEach((el) => el.animate(
-        [{}, { strokeWidth: thin, offset: 0.25 }, { strokeWidth: thin, offset: 0.55 }, {}],
-        { duration: 700, easing: ease },
-      ));
-      this.querySelector('[data-glow]')?.animate([{ opacity: 0 }, { opacity: 1, offset: 0.25 }, { opacity: 0.8 }], { duration: 900, easing: 'ease-out' });
-      this.querySelector('svg').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)', offset: 0.3 }, { transform: 'scale(1)' }],
-        { duration: 520, easing: 'cubic-bezier(.3, 1.6, .5, 1)' });
+      const css = getComputedStyle(this);
+      const press = css.getPropertyValue('--press');
+      const thin = css.getPropertyValue('--thin');
+      const thick = css.getPropertyValue('--thick');
+      // One timeline for every layer so nothing drifts: press out (180ms, ease-in),
+      // hold at impact (120ms), settle back with a gentle spring (500ms).
+      const T = 800;
+      const hit = 180 / T;
+      const hold = 300 / T;
+      const out = 'cubic-bezier(.5, 0, .9, .5)';
+      const back = 'cubic-bezier(.25, 1.15, .4, 1)';
+      const run = (els, a, b) => els.forEach((el) => el.animate([
+        { ...a, easing: out }, { ...b, offset: hit }, { ...b, offset: hold, easing: back }, a,
+      ], { duration: T }));
+      run(this.querySelectorAll('[data-accents]'), { transform: 'scale(1)' }, { transform: `scale(${press})` });
+      run(this.querySelectorAll('[data-accent], [data-accent-glow]'), { strokeWidth: thick }, { strokeWidth: thin });
+      this.querySelector('[data-glow]')?.animate([
+        { opacity: 0, easing: out }, { opacity: 1, offset: hit }, { opacity: 1, offset: hold, easing: 'ease-out' }, { opacity: 0.8 },
+      ], { duration: T + 300 });
+      // A small punch that lands with the impact.
+      this.querySelector('svg').animate([
+        { transform: 'scale(1)', easing: out }, { transform: 'scale(1.025)', offset: hit, easing: back }, { transform: 'scale(1)' },
+      ], { duration: 560 });
     }
 
     // e.g. "Hard difficulty, spawning, completed"
@@ -532,17 +541,28 @@
       // The art keeps its full size and the blocks overlap its edge.
       const custom = stroke !== step.stroke; // an explicit stroke scales the step's tuning
       const space = custom ? Math.max(Math.round(stroke * SPACING), 2) : step.space;
-      const blockW = stroke * (custom ? BLOCK_WEIGHT : step.block);
+      let blockW = stroke * (custom ? BLOCK_WEIGHT : step.block);
       // Compact: the block is the rail itself, recoloured.
       const blockOffset = compact ? 0
         : shape.flush ? (blockW - stroke) / 2 // outer edge on the rail's outer edge
           : stroke / 2 + space + blockW / 2; // block centreline, inward from the rail's
-      const accentR = r - blockOffset * shape.ring;
-      // The art runs right up to the gap inside the rail, under the recessed blocks.
-      // Double ring: the art keeps the same dark gap inside the inner ring that the
-      // other shapes keep inside their rail.
-      const artR = shape.doubleRing && !compact
-        ? accentR - (stroke / 2 + space) * shape.ring
+      let accentR = r - blockOffset * shape.ring;
+      // Double ring: the inner ring sits where a recessed block would, and each arc
+      // fills the whole band from the outer ring's outer edge to the inner ring's inner
+      // edge, so it reads as a solid segment of one thick ring.
+      const double = shape.doubleRing && !compact;
+      const ringR = accentR;
+      const ringW = stroke * 0.5;
+      if (double) {
+        const outer = r + stroke / 2;
+        const inner = ringR - ringW / 2;
+        blockW = outer - inner;
+        accentR = (outer + inner) / 2;
+      }
+      // The art runs right up to the gap inside the rail, under the recessed blocks;
+      // with a double ring it keeps that gap inside the inner ring instead.
+      const artR = double
+        ? ringR - (ringW / 2 + space) * shape.ring
         : r - (stroke / 2 + space) * shape.ring;
       const accent = cssColor(tier.accent);
       const rail = cssColor(tier.rail);
@@ -594,7 +614,7 @@
               <g ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-rail data-mask-id="${id}-m" d="${shapePath(shape, c, r)}" stroke="${rail}" stroke-width="${stroke}"/>
               </g>
-              ${shape.doubleRing && !compact ? `<path data-inner-rail d="${shapePath(shape, c, accentR)}" stroke="${rail}" stroke-width="${stroke * 0.5}" opacity="0.55"/>` : ''}
+              ${double ? `<path data-inner-rail d="${shapePath(shape, c, ringR)}" stroke="${rail}" stroke-width="${ringW}" opacity="0.55"/>` : ''}
               <g data-boot ${angled ? `mask="url(#${id}-cut)"` : ''}>
                 <path data-fill d="${shapePath(shape, c, r)}" stroke="${accent}" stroke-width="${stroke}" stroke-dasharray="0 1"/>
               </g>
