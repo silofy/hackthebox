@@ -194,8 +194,8 @@
     htb-difficulty-frame[state="spawned"] :is([data-rail], [data-inner-rail]) { stroke: var(--glow); }
     /* Spawned: the blocks lock into the rail and stay there. Coming from spawning they
        wait for the count to finish, then snap in (no bounce). */
-    htb-difficulty-frame[state="spawned"] [data-accents] { transform: scale(var(--press)); transition: transform .22s cubic-bezier(.7, 0, .3, 1) .4s; }
-    htb-difficulty-frame[state="spawned"] :is([data-accent], [data-accent-glow], [data-accent-back]) { stroke-width: var(--thin); transition: stroke-width .22s cubic-bezier(.7, 0, .3, 1) .4s; }
+    htb-difficulty-frame[state="spawned"] [data-accents] { transform: scale(var(--press)); transition: transform .38s cubic-bezier(.7, 0, .3, 1) .4s; }
+    htb-difficulty-frame[state="spawned"] :is([data-accent], [data-accent-glow], [data-accent-back]) { stroke-width: var(--thin); transition: stroke-width .38s cubic-bezier(.7, 0, .3, 1) .4s; }
     htb-difficulty-frame[state="spawned"] [data-glow] { opacity: .8; animation: htb-frame-breathe 2.6s ease-in-out infinite; }
     htb-difficulty-frame[state="spawned"] svg { animation: htb-frame-live 2.6s ease-in-out infinite; }
     @keyframes htb-frame-breathe { 50% { opacity: .35; } }
@@ -480,7 +480,7 @@
       } else if (was === 'spawning') {
         // Up: the count completes, then the frame locks in.
         tween(from, 1, 400);
-        if (state === 'spawned') setTimeout(() => this.lockIn(), 600); // as the blocks land
+        if (state === 'spawned') setTimeout(() => this.lockIn(), 760); // as the blocks land
       } else {
         show(0);
       }
