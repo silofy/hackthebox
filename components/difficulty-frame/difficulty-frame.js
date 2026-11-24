@@ -444,7 +444,7 @@
         this.f = f;
         // Period of exactly one outline, so a fill that starts at the top wraps past the path's end.
         fill.setAttribute('stroke-dasharray', `${len * f} ${len * (1 - f)}`);
-        if (pct) pct.textContent = `${Math.floor(f * 100)}%`;
+        if (pct) pct.querySelector('[data-num]').textContent = Math.floor(f * 100);
         // Despawning: the grey sweeps down the art as the count drains (soft lower edge).
         if (grayRect) {
           const g = this.getAttribute('state') === 'despawning' ? 1 - f : 0;
@@ -660,7 +660,7 @@
                   stroke-linecap="square" stroke-linejoin="miter"/>
           </g>` : ''}
           <g data-readout text-anchor="middle" pointer-events="none" aria-hidden="true">
-            <text data-pct x="${c}" y="${c}" dominant-baseline="central" font-size="${size * 0.13}" font-weight="700" fill="#fff">0%</text>
+            <text data-pct x="${c}" y="${c}" dominant-baseline="central" font-size="${size * 0.17}" font-weight="700" fill="#fff" letter-spacing="${-size * 0.004}" paint-order="stroke" stroke="rgba(10,14,22,.55)" stroke-width="${size * 0.02}" stroke-linejoin="round"><tspan data-num>0</tspan><tspan data-unit font-size="${size * 0.09}" font-weight="600" dx="${size * 0.008}" fill-opacity=".75">%</tspan></text>
           </g>
         </svg>`;
 
