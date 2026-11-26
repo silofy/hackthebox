@@ -118,6 +118,7 @@
       // centre as the sides, so the inner line keeps the same spacing all round.
       // Anchors: top centre, mid-way up each side, and the bottom point (a chevron).
       ring: 1 / 0.84,
+      snap: true,
       path: (box) => { const p = (x, y) => box(x * 0.84, y); return `M${p(0.5, -0.86)} L${p(1, -0.86)} L${p(1, 0.45)} `
         + `L${p(0, 1)} L${p(-1, 0.45)} L${p(-1, -0.86)} Z`; },
       sides: [0, 77, 180, 283],
@@ -241,7 +242,7 @@
   // Points snap to the pixel grid (whole pixels for an even stroke, half pixels for an
   // odd one), so straight edges render crisp instead of smearing across two pixels.
   let SNAP = 0;
-  const snap = (v) => Math.round(v - SNAP) + SNAP;
+  const snap = (v) => (SNAP === null ? v : Math.round(v - SNAP) + SNAP);
   const shapePath = (shape, c, r) => shape.path((x, y) => `${snap(c + x * r)} ${snap(c + y * r)}`, r);
 
   // Distance along `path` that points toward `bearing` from the centre.
@@ -329,6 +330,10 @@
       return [p.x + nx * d + tx * lean * Math.abs(d), p.y + ny * d + ty * lean * Math.abs(d)];
     };
     const span = (to - from + total) % total;
+    // On small badges the slant can reach further than the opening is long, which folds
+    // the slot into a bow-tie; cap it so each end leans at most a third of the span.
+    const reach = Math.max(inward, outward);
+    if (Math.abs(k) * reach > span / 3) k = Math.sign(k) * (span / 3) / reach;
     const steps = Math.max(2, Math.ceil(span / 2));
     const inner = [];
     const outer = [];
@@ -585,7 +590,9 @@
       const animate = this.hasAttribute('entrance') && !this.hasAttribute('static') && !this.drawn;
       this.drawn = true;
 
-      SNAP = (stroke % 2) / 2;
+      // Only shapes with horizontal/vertical edges snap; on diagonals and curves snapping
+      // would bend the geometry (arcs off their circle, squeezed gaps on the diamond).
+      SNAP = shape.snap ? (stroke % 2) / 2 : null;
       const c = size / 2;
       const r = c - stroke;
       // At rest each inner piece is a thick block sitting one level down: it starts
