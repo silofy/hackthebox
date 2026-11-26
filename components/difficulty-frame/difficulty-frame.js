@@ -201,15 +201,18 @@
        slightly different rhythm, thickening and thinning as it goes, so the frame
        feels alive and organic rather than pulsing in unison. */
     htb-difficulty-frame:not([readout])[state="spawning"] [data-accents] {
-      animation: htb-frame-drift calc(2.1s + var(--i, 0) * .53s) cubic-bezier(.45, .05, .55, .95) calc(var(--i, 0) * -.9s) infinite alternate;
+      animation: htb-frame-drift calc(1.3s + var(--i, 0) * .37s) cubic-bezier(.45, .05, .55, .95) calc(var(--i, 0) * -.6s) infinite alternate;
     }
     htb-difficulty-frame:not([readout])[state="spawning"] :is([data-accent], [data-accent-glow], [data-accent-back]) {
-      animation: htb-frame-swell calc(2.1s + var(--i, 0) * .53s) cubic-bezier(.45, .05, .55, .95) calc(var(--i, 0) * -.9s) infinite alternate;
+      animation: htb-frame-swell calc(1.3s + var(--i, 0) * .37s) cubic-bezier(.45, .05, .55, .95) calc(var(--i, 0) * -.6s) infinite alternate;
     }
+    /* The rail flickers faintly in step, as if powering up. */
+    htb-difficulty-frame:not([readout])[state="spawning"] [data-rail] { animation: htb-frame-flicker 2.4s steps(1, end) infinite; }
+    @keyframes htb-frame-flicker { 0%, 100% { opacity: 1; } 12% { opacity: .55; } 15% { opacity: 1; } 58% { opacity: .7; } 61% { opacity: 1; } }
     htb-difficulty-frame:not([readout])[state="spawning"] [data-glow] { opacity: .45 !important; }
     @keyframes htb-frame-drift {
-      from { transform: scale(1); opacity: .6; }
-      to { transform: scale(calc(1 + (var(--press) - 1) * .8)); opacity: 1; }
+      from { transform: scale(1); opacity: .4; }
+      to { transform: scale(var(--press)); opacity: 1; }
     }
     @keyframes htb-frame-swell {
       from { stroke-width: var(--thick); }
@@ -218,7 +221,9 @@
     /* Spawned: the whole outline powers on in the tier colour and breathes. Hover still
        closes the frame on top of it. */
     htb-difficulty-frame :is([data-rail], [data-inner-rail]) { transition: stroke .5s ease, opacity .5s ease; }
-    htb-difficulty-frame[state="spawned"] :is([data-rail], [data-inner-rail]) { stroke: var(--glow); }
+    /* Spawned keeps both colours: the rail brightens in its own tier tint rather than
+       turning accent-coloured, so insane stays steel + red. */
+    htb-difficulty-frame[state="spawned"] :is([data-rail], [data-inner-rail]) { filter: brightness(1.35) saturate(1.2); }
     /* Spawned: the blocks lock into the rail and stay there. Coming from spawning they
        wait for the count to finish, then snap in (no bounce). */
     htb-difficulty-frame[state="spawned"] [data-accents] { transform: scale(var(--press)); transition: transform .38s cubic-bezier(.7, 0, .3, 1) .4s; }
