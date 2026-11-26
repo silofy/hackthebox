@@ -76,8 +76,8 @@
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
-  const SPIKE_HEIGHT = 1.75;   // insane spikes: height beyond the rail (× stroke)
-  const SPIKE_BASE = 3.25;     // and base width (× stroke)
+  const SPIKE_HEIGHT = 2.4;    // insane spikes: height beyond the rail (× stroke)
+  const SPIKE_BASE = 4.4;      // and base width (× stroke)
   const BLOCK_WEIGHT = 1.5;    // thickness of a resting inner block (× stroke)
 
   // Each outline is drawn in a -1..1 box. `sides` are the compass bearings (0 = up,
