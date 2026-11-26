@@ -197,26 +197,19 @@
     htb-difficulty-frame [data-accents] { transition: transform .3s cubic-bezier(.3, 1.4, .5, 1), opacity .4s ease; }
     htb-difficulty-frame[readout]:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .35; }
     /* Without the readout, spawning is just the pieces breathing softly until the lock-in. */
-    /* Spawning: each piece drifts out towards its opening and back on its own slow,
-       slightly different rhythm, thickening and thinning as it goes, so the frame
-       feels alive and organic rather than pulsing in unison. */
+    /* Spawning reads as a VM booting in stages: the pieces power on one at a time,
+       clockwise round the frame, each pressing out to the rail as it comes up; once
+       all are lit they hold, settle, and the sequence runs again until the machine is up. */
     htb-difficulty-frame:not([readout])[state="spawning"] [data-accents] {
-      animation: htb-frame-drift calc(1.3s + var(--i, 0) * .37s) cubic-bezier(.45, .05, .55, .95) calc(var(--i, 0) * -.6s) infinite alternate;
+      opacity: .25;
+      animation: htb-frame-stage 2.8s cubic-bezier(.3, .7, .3, 1) calc(var(--i, 0) * .32s) infinite both;
     }
-    htb-difficulty-frame:not([readout])[state="spawning"] :is([data-accent], [data-accent-glow], [data-accent-back]) {
-      animation: htb-frame-swell calc(1.3s + var(--i, 0) * .37s) cubic-bezier(.45, .05, .55, .95) calc(var(--i, 0) * -.6s) infinite alternate;
-    }
-    /* The rail flickers faintly in step, as if powering up. */
-    htb-difficulty-frame:not([readout])[state="spawning"] [data-rail] { animation: htb-frame-flicker 2.4s steps(1, end) infinite; }
-    @keyframes htb-frame-flicker { 0%, 100% { opacity: 1; } 12% { opacity: .55; } 15% { opacity: 1; } 58% { opacity: .7; } 61% { opacity: 1; } }
-    htb-difficulty-frame:not([readout])[state="spawning"] [data-glow] { opacity: .45 !important; }
-    @keyframes htb-frame-drift {
-      from { transform: scale(1); opacity: .4; }
-      to { transform: scale(var(--press)); opacity: 1; }
-    }
-    @keyframes htb-frame-swell {
-      from { stroke-width: var(--thick); }
-      to { stroke-width: calc((var(--thick) + var(--thin)) / 2); }
+    htb-difficulty-frame:not([readout])[state="spawning"] [data-glow] { opacity: .5 !important; }
+    @keyframes htb-frame-stage {
+      0% { opacity: .25; transform: scale(1); }
+      12% { opacity: 1; transform: scale(calc(1 + (var(--press) - 1) * .6)); }
+      22%, 68% { opacity: 1; transform: scale(1); }
+      84%, 100% { opacity: .25; transform: scale(1); }
     }
     /* Spawned: the whole outline powers on in the tier colour and breathes. Hover still
        closes the frame on top of it. */
