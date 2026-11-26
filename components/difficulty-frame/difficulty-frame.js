@@ -217,10 +217,8 @@
     /* Spawned keeps both colours: the rail brightens in its own tier tint rather than
        turning accent-coloured, so insane stays steel + red. */
     htb-difficulty-frame[state="spawned"] :is([data-rail], [data-inner-rail]) { filter: brightness(1.35) saturate(1.2); }
-    /* Spawned: the blocks lock into the rail and stay there. Coming from spawning they
-       wait for the count to finish, then snap in (no bounce). */
-    htb-difficulty-frame[state="spawned"] [data-accents] { transform: scale(var(--press)); transition: transform .38s cubic-bezier(.7, 0, .3, 1) .4s; }
-    htb-difficulty-frame[state="spawned"] :is([data-accent], [data-accent-glow], [data-accent-back]) { stroke-width: var(--thin); transition: stroke-width .38s cubic-bezier(.7, 0, .3, 1) .4s; }
+    /* Spawned: the pieces stay in their own recessed spots (no lock into the rail), so
+       the frame keeps its tier pattern; the brighter rail and breathing glow say "live". */
     htb-difficulty-frame[state="spawned"] [data-glow] { opacity: .8; animation: htb-frame-breathe 2.6s ease-in-out infinite; }
     htb-difficulty-frame[state="spawned"] svg { animation: htb-frame-live 2.6s ease-in-out infinite; }
     @keyframes htb-frame-breathe { 50% { opacity: .35; } }
