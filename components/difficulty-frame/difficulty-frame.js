@@ -656,6 +656,9 @@
               <rect x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}" fill="#fff"/>
               ${medallion(med, medR + step.ring, '#000')}
             </mask>` : ''}
+            <filter id="${id}-edge" filterUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}">
+              <feGaussianBlur stdDeviation="${stroke * 1.6}"/>
+            </filter>
             <filter id="${id}-gs" color-interpolation-filters="sRGB">
               <feColorMatrix type="saturate" values="0"/>
               <feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer>
@@ -679,6 +682,12 @@
             ${src ? `<g data-gray mask="url(#${id}-gray)">
               <image href="${src}" x="${c - artR}" y="${c - artR}" width="${artR * 2}" height="${artR * 2}"
                      preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})" filter="url(#${id}-gs)"/>
+            </g>` : ''}
+            <!-- A soft dark edge runs all the way round the art, so where the pieces overlap
+                 it they sit on the same shadow on every tier and read as one consistent edge. -->
+            ${!compact ? `<g clip-path="url(#${id})" pointer-events="none">
+              <path d="${shapePath(shape, c, artR)}" fill="none" stroke="var(--htb-frame-bg, #16262c)"
+                    stroke-width="${stroke * 7}" opacity=".85" filter="url(#${id}-edge)"/>
             </g>` : ''}
             <g fill="none" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="butt">
               <!-- Every shape: a faint ghost of the outline shows through each opening, so
