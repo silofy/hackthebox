@@ -71,8 +71,8 @@
   const STEPS = [
     { min: 0, stroke: 2, space: 2, block: 1, lean: 0, reach: 1.45, medal: 0.16, ring: 0, compact: true },
     { min: 64, stroke: 2, space: 2, block: 1.25, lean: 0.58, reach: 1.3, medal: 0.13, ring: 1.5 },
-    { min: 80, stroke: 3, space: 2, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 3 },
-    { min: 160, stroke: 4, space: 3, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 5 },
+    { min: 80, stroke: 2, space: 2, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 3 },
+    { min: 160, stroke: 3, space: 2, block: 1.5, lean: 1, reach: 1, medal: 0.12, ring: 4 },
   ];
   const SPACING = 0.75;        // space between the rail's inner edge and the inner line (× stroke), never under 1.5px
   const STRAIGHT_BOOST = 1.6;  // inner lines on straight or curved stretches run this much longer than chevrons
