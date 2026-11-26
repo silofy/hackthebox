@@ -550,7 +550,29 @@
         if (state === 'spawned') setTimeout(() => this.lockIn(), 760); // as the blocks land
       } else {
         show(0);
+        if (was === 'despawning' && !this.hasAttribute('readout')) this.snapBack();
       }
+    }
+
+    // Termination: the pieces, drawn in to the centre while stopping, are pulled back out
+    // hard. They accelerate in, slam past their slots, rebound once and settle, while the
+    // bloom flashes and the badge takes the hit. Weighted, not springy.
+    snapBack() {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const press = parseFloat(getComputedStyle(this).getPropertyValue('--press')) || 1.05;
+      const over = 1 + (press - 1) * 1.6;
+      this.querySelectorAll('[data-accents]').forEach((g) => g.animate([
+        { transform: 'scale(.72)', opacity: 0.35, easing: 'cubic-bezier(.55, 0, .9, .4)' },
+        { transform: `scale(${over})`, opacity: 1, offset: 0.38, easing: 'cubic-bezier(.2, .6, .35, 1)' },
+        { transform: `scale(${1 - (press - 1) * 0.5})`, offset: 0.62, easing: 'cubic-bezier(.3, 0, .3, 1)' },
+        { transform: 'scale(1)', opacity: 1 },
+      ], { duration: 620 }));
+      this.querySelector('[data-glow]')?.animate([{ opacity: 0 }, { opacity: 1, offset: 0.38 }, { opacity: 0 }],
+        { duration: 700, easing: 'ease-out' });
+      this.querySelector('svg').animate([
+        { transform: 'scale(1)' }, { transform: 'scale(1)', offset: 0.3 },
+        { transform: 'scale(1.04)', offset: 0.4, easing: 'cubic-bezier(.2, .7, .3, 1)' }, { transform: 'scale(1)' },
+      ], { duration: 620 });
     }
 
     // Lock-in, played once when spawning finishes: the blocks slam into the rail and
