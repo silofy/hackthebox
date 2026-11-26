@@ -30,6 +30,8 @@
  *   spawn-time  expected spawn duration in seconds   (default: 60) — paces the boot bar
  *   despawn-time  expected shutdown duration in seconds (default: 20)
  *   progress    0–100 — real spawn progress, if known; overrides the estimate
+ *   readout     boolean — show the spawn percentage and filling outline (off by default:
+ *               usually a button already shows progress, so the badge just breathes)
  *   cuts        keystone | keystone-soft | angled | square   (default: keystone) — slanted ends shared
  *               by the rail and the inner line: keystone 45° (the inner line is the cut-out piece
  *               pushed straight in), keystone-soft 30°, angled 45° splayed the other way
@@ -181,17 +183,22 @@
        despawning   the count runs down, the fill drains, and the art loses its colour
                     from the top down */
     htb-difficulty-frame [data-boot], htb-difficulty-frame [data-readout] { opacity: 0; transition: opacity .4s ease .4s; }
-    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) :is([data-boot], [data-readout]) { opacity: 1; transition-delay: 0s; }
+    /* The count and the filling outline are opt-in (readout attribute): in most places a
+       button already shows spawn progress, so the badge only needs a quiet signal. */
+    htb-difficulty-frame[readout]:is([state="spawning"], [state="despawning"]) :is([data-boot], [data-readout]) { opacity: 1; transition-delay: 0s; }
     htb-difficulty-frame [data-readout] text { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
     htb-difficulty-frame [data-art] { transition: filter .6s ease; }
-    htb-difficulty-frame[state="spawning"] [data-art] { filter: brightness(.5); }
+    htb-difficulty-frame[readout][state="spawning"] [data-art] { filter: brightness(.5); }
     /* Despawning greys the art from the top down (a masked grey copy, driven from script). */
     htb-difficulty-frame [data-gray] { opacity: 0; transition: opacity .5s ease; }
     htb-difficulty-frame[state="despawning"] [data-gray] { opacity: 1; }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-glow] { opacity: 0 !important; }
     /* While the count runs, the pieces step back so the filling outline leads. */
     htb-difficulty-frame [data-accents] { transition: transform .3s cubic-bezier(.3, 1.4, .5, 1), opacity .4s ease; }
-    htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .35; }
+    htb-difficulty-frame[readout]:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .35; }
+    /* Without the readout, spawning is just the pieces breathing softly until the lock-in. */
+    htb-difficulty-frame:not([readout])[state="spawning"] [data-accents] { animation: htb-frame-wait 1.8s ease-in-out infinite; }
+    @keyframes htb-frame-wait { 50% { opacity: .3; } }
     /* Spawned: the whole outline powers on in the tier colour and breathes. Hover still
        closes the frame on top of it. */
     htb-difficulty-frame :is([data-rail], [data-inner-rail]) { transition: stroke .5s ease, opacity .5s ease; }
