@@ -192,7 +192,16 @@
     htb-difficulty-frame[readout][state="spawning"] [data-art] { filter: brightness(.5); }
     /* Despawning greys the art from the top down (a masked grey copy, driven from script). */
     htb-difficulty-frame [data-gray] { opacity: 0; transition: opacity .5s ease; }
-    htb-difficulty-frame[state="despawning"] [data-gray] { opacity: 1; }
+    htb-difficulty-frame[readout][state="despawning"] [data-gray] { opacity: 1; }
+    /* Stopping: the coloured pieces are drawn in towards the centre over the shutdown,
+       dimming as they go; when the machine is off (state leaves despawning) they snap
+       back into place with the normal springy transition. The art keeps its colour. */
+    /* Leaving their slots, the pieces would be clipped by the slot shapes; let them travel free. */
+    htb-difficulty-frame:not([readout])[state="despawning"] [data-keep] { mask: none; }
+    htb-difficulty-frame:not([readout])[state="despawning"] [data-accents] {
+      transform: scale(.72); opacity: .35;
+      transition: transform var(--despawn, 20s) cubic-bezier(.4, 0, .6, 1), opacity var(--despawn, 20s) ease-in;
+    }
     htb-difficulty-frame:is([state="spawning"], [state="despawning"]) [data-glow] { opacity: 0 !important; }
     /* While the count runs, the pieces step back so the filling outline leads. */
     htb-difficulty-frame [data-accents] { transition: transform .3s cubic-bezier(.3, 1.4, .5, 1), opacity .4s ease; }
@@ -638,6 +647,7 @@
       this.style.setProperty('--glow-r', `${Math.max(stroke, 2)}px`);
       this.style.setProperty('--c', `${c}px`);
       this.style.setProperty('--press', r / accentR);
+      this.style.setProperty('--despawn', `${Number(this.getAttribute('despawn-time')) || 20}s`);
       this.style.setProperty('--thick', `${blockW}px`);
       // Scaling out to the rail also widens the stroke a touch, so thin by that much less.
       this.style.setProperty('--thin', `${stroke / (r / accentR)}px`);
@@ -707,13 +717,13 @@
               <!-- Slot masks sit outside the moving groups, so a piece pushed out on hover
                    slides into its fixed slot instead of carrying the slot with it. -->
               <g data-glow filter="url(#${id}-glow)">
-                <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
+                <g data-keep ${angled ? `mask="url(#${id}-keep)"` : ''}>
                   <g data-accents>
                     <path data-accent-glow d="${shapePath(shape, c, accentR)}" stroke="${accent}" stroke-width="${blockW}" stroke-linecap="butt"/>
                   </g>
                 </g>
               </g>
-              <g ${angled ? `mask="url(#${id}-keep)"` : ''}>
+              <g data-keep ${angled ? `mask="url(#${id}-keep)"` : ''}>
                 <g data-accents>
                   <!-- A thin outline in the frame colour keeps the block crisp against the art. -->
                   <path data-accent-back d="${shapePath(shape, c, accentR)}" stroke="var(--htb-frame-bg, #16262c)" stroke-linecap="butt"/>
