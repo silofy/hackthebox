@@ -197,8 +197,24 @@
     htb-difficulty-frame [data-accents] { transition: transform .3s cubic-bezier(.3, 1.4, .5, 1), opacity .4s ease; }
     htb-difficulty-frame[readout]:is([state="spawning"], [state="despawning"]) [data-accents] { opacity: .35; }
     /* Without the readout, spawning is just the pieces breathing softly until the lock-in. */
-    htb-difficulty-frame:not([readout])[state="spawning"] [data-accents] { animation: htb-frame-wait 1.8s ease-in-out infinite; }
-    @keyframes htb-frame-wait { 50% { opacity: .3; } }
+    /* Spawning: each piece drifts out towards its opening and back on its own slow,
+       slightly different rhythm, thickening and thinning as it goes, so the frame
+       feels alive and organic rather than pulsing in unison. */
+    htb-difficulty-frame:not([readout])[state="spawning"] [data-accents] {
+      animation: htb-frame-drift calc(2.1s + var(--i, 0) * .53s) cubic-bezier(.45, .05, .55, .95) calc(var(--i, 0) * -.9s) infinite alternate;
+    }
+    htb-difficulty-frame:not([readout])[state="spawning"] :is([data-accent], [data-accent-glow], [data-accent-back]) {
+      animation: htb-frame-swell calc(2.1s + var(--i, 0) * .53s) cubic-bezier(.45, .05, .55, .95) calc(var(--i, 0) * -.9s) infinite alternate;
+    }
+    htb-difficulty-frame:not([readout])[state="spawning"] [data-glow] { opacity: .45 !important; }
+    @keyframes htb-frame-drift {
+      from { transform: scale(1); opacity: .6; }
+      to { transform: scale(calc(1 + (var(--press) - 1) * .8)); opacity: 1; }
+    }
+    @keyframes htb-frame-swell {
+      from { stroke-width: var(--thick); }
+      to { stroke-width: calc((var(--thick) + var(--thin)) / 2); }
+    }
     /* Spawned: the whole outline powers on in the tier colour and breathes. Hover still
        closes the frame on top of it. */
     htb-difficulty-frame :is([data-rail], [data-inner-rail]) { transition: stroke .5s ease, opacity .5s ease; }
@@ -836,13 +852,17 @@
 
       // Hard and insane: each piece gets its own group, so on hover the top goes
       // first, then the sides, then the bottom: the frame closes in layers.
-      if (LEVELS.indexOf(level) >= 2 && !compact && aCentres.length) {
-        const STAGGER = { 0: 0, 1: 120, 3: 120, 2: 240 }; // ms by anchor: top, sides, bottom
+      // Every tier splits into pieces so each can move on its own while spawning; only
+      // hard and insane also stagger their hover.
+      if (!compact && aCentres.length) {
+        const layered = LEVELS.indexOf(level) >= 2;
+        const STAGGER = layered ? { 0: 0, 1: 120, 3: 120, 2: 240 } : {}; // ms by anchor: top, sides, bottom
         this.querySelectorAll('[data-accents]').forEach((group) => {
           aCentres.forEach((p, i) => {
             const piece = group.cloneNode(true);
             piece.setAttribute('data-split', '');
             piece.style.setProperty('--delay', `${STAGGER[p.side] ?? 0}ms`);
+            piece.style.setProperty('--i', i);
             const one = dashesAt([p.at], aTotal, [pieceLens[i]], 0);
             piece.querySelectorAll('path').forEach((el) => {
               setDash(el, one);
